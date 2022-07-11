@@ -1,0 +1,60 @@
+name: pull request
+
+on:
+  pull_request:
+    branches:
+      - ['dev', 'main']
+
+jobs:
+  docker:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+
+    steps:
+      # 해당 저장소의 코드를 가져옵니다.
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # docker-compose를 활용해 테스트를 위한 컨테이너 환경을 구성합니다.
+      - name: Start containers
+        run: docker-compose -f "docker-compose.yml" up -d --build
+
+      # Node 16 버전을 사용합니다.
+      - name: Install node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+          cache: 'npm'
+
+      # yarn을 설치합니다.
+      - name: Install npm
+        run: npm install
+      # 테스트 수행과 그 테스트 결과를 xml파일로 생성합니다.
+      - name: Run tests
+        run: npm run test:cov
+
+      # 테스트 결과를 담은 xml 파일을 레포트로 변환합니다.
+      - name: Upload coverage reports to Codecov with GitHub Action
+        uses: codecov/codecov-action@v3
+
+      # 앞의 작업이 실패/성공과 관계 없이 컨테이너들을 종료합니다.
+      - name: Stop containers
+        if: always()
+        run: docker-compose -f "docker-compose.yml" down
+
+      # # 슬랙으로 결과를 발송합니다.
+      # - name: Slack Notifications
+      #   uses: 8398a7/action-slack@v3
+      #   with:
+      #     status: custom
+      #     fields: workflow,job,commit,repo,ref,author,took
+      #     custom_payload: |
+      #       {
+      #         attachments: [{
+      #           color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
+      #           text: `테스트가 실패했습니다.\n프로젝트: ${process.env.AS_REPO}\n작성자: ${process.env.AS_AUTHOR}\n결과: ${process.env.AS_JOB}\n`,
+      #         }]
+      #       }
+      #   env:
+      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      #   if: failure()
