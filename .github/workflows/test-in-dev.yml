@@ -2,8 +2,7 @@ name: pull request
 
 on:
   pull_request:
-    branches:
-      - [main, dev]
+    branches: [main, dev]
 
 jobs:
   docker:
