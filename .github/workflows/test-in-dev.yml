@@ -3,11 +3,7 @@ name: pull request
 on:
   pull_request:
     branches:
-<<<<<<< HEAD
       - [main, dev]
-=======
-      - ['dev', 'main']
->>>>>>> b32bc7d296fd77acb72ad4342642fd5d877894dc
 
 jobs:
   docker:
