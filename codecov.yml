@@ -8,4 +8,11 @@ coverage:
     project:
       default:
         informational: true
-    patch: off
+    patch:
+      default:
+        informational: true
+
+status:
+  project: yes
+  patch: yes
+  changes: no
