@@ -11,8 +11,3 @@ coverage:
     patch:
       default:
         informational: true
-
-status:
-  project: yes
-  patch: yes
-  changes: no
