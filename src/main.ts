@@ -7,6 +7,7 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SuccessInterceptor } from './common/interceptors/sucess.interceptor';
 import { setupSwagger } from './common/utils/swagger';
+import 'reflect-metadata';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

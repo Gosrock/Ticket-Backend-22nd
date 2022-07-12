@@ -10,6 +10,25 @@ services:
     restart: always
     ports:
       - '5432:5432'
-    environment:
-      POSTGRES_USER: 'gosrcok'
-      POSTGRES_PASSWORD: 'gosrock'
+    env_file:
+      - .env
+    networks:
+      - postgres
+
+  pgadmin:
+    links:
+      - postgres:postgres
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    ports:
+      - '8080:80'
+    # volumes:
+    #   - /data/pgadmin:/root/.pgadmin
+    env_file:
+      - .env
+    networks:
+      - postgres
+
+networks:
+  postgres:
+    driver: bridge

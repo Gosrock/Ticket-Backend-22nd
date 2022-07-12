@@ -11,6 +11,7 @@ import * as Joi from 'joi';
 import { BullModule } from '@nestjs/bull';
 import { AllExceptionsFilter } from './common/exceptions/http-exception.filter';
 import { APP_FILTER } from '@nestjs/core';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
@@ -25,7 +26,12 @@ import { APP_FILTER } from '@nestjs/core';
         SWAGGER_USER: Joi.string(),
         SWAGGER_PASSWORD: Joi.string(),
         REDIS_HOST: Joi.string(),
-        REDIS_PORT: Joi.number()
+        REDIS_PORT: Joi.number(),
+        POSTGRES_HOST: Joi.string().default('localhost'),
+        POSTGRES_PORT: Joi.number().default(5432),
+        POSTGRES_USER: Joi.string().default('gosrock'),
+        POSTGRES_PASSWORD: Joi.string().default('gosrock22th'),
+        POSTGRES_DB: Joi.string().default('ticket')
       })
     }),
     BullModule.forRootAsync({
@@ -50,7 +56,8 @@ import { APP_FILTER } from '@nestjs/core';
     TicketsModule,
     OrdersModule,
     SlackModule,
-    SocketModule
+    SocketModule,
+    DatabaseModule.forRoot({ isTest: false })
   ],
   controllers: [],
   providers: [
