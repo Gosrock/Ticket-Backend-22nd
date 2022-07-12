@@ -43,6 +43,7 @@ jobs:
 
       # 테스트 결과를 담은 xml 파일을 레포트로 변환합니다.
       - name: Upload coverage reports to Codecov with GitHub Action
+        if: always()
         uses: codecov/codecov-action@v3
 
       # 앞의 작업이 실패/성공과 관계 없이 컨테이너들을 종료합니다.
