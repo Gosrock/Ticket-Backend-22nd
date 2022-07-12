@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getDataSourceToken, TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource, EntityManager, QueryRunner, Repository } from 'typeorm';
 import { DatabaseModule } from '../database.module';
-import User from '../entities/user.entity';
+import { User } from '../entities/user.entity';
 import { UserRepository } from './user.repository';
 
 describe('userRepository Test ( Actual db )', () => {
