@@ -16,7 +16,7 @@ jobs:
 
       # docker-compose를 활용해 테스트를 위한 컨테이너 환경을 구성합니다.
       - name: Start containers
-        run: docker-compose -f "docker-compose.yml" up -d --build
+        run: docker-compose -f "docker-compose.test.yml" up -d --build
 
       # Node 16 버전을 사용합니다.
       - name: Install node
@@ -48,7 +48,7 @@ jobs:
       # 앞의 작업이 실패/성공과 관계 없이 컨테이너들을 종료합니다.
       - name: Stop containers
         if: always()
-        run: docker-compose -f "docker-compose.yml" down
+        run: docker-compose -f "docker-compose.test.yml" down
 
       # # 슬랙으로 결과를 발송합니다.
       # - name: Slack Notifications
