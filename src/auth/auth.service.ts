@@ -14,7 +14,7 @@ export class AuthService {
   async getAllUsers(): Promise<User[]> {
     // auto 시리얼 라이징
     const user = await this.userRepository.findAll();
-    await this.redisSerivce.getByKeyValidationNumber('asdfasdf');
+    await this.redisSerivce.setWithTTLValidationNumber('asdfasdf', '0000', 30);
     return user;
   }
 
@@ -22,6 +22,7 @@ export class AuthService {
     const user = new User();
     user.phoneNumber = '010';
     user.name = '찬지니';
+    console.log(await this.redisSerivce.getByKeyValidationNumber('asdfasdf'));
 
     return await this.userRepository.saveUser(user);
   }

@@ -1,15 +1,18 @@
-import { Inject, Injectable, LoggerService } from '@nestjs/common';
+import { Inject, Injectable, Logger, LoggerService } from '@nestjs/common';
 import { RedisClientType } from '@redis/client';
 import { createClient } from 'redis';
 import { ValidationNumberDto } from './dtos/ValidationNumber.dto';
-import { RedisClientProvider } from './RedisProvider.const';
+import { REDIS_CLIENT_PROVIDER } from './Redis.const';
 
 @Injectable()
 export class RedisService {
   constructor(
-    private logger: LoggerService,
-    @Inject(RedisClientProvider) private redisClient: RedisClientType
-  ) {}
+    // private logger: LoggerService,
+    @Inject(Logger) private logger: LoggerService,
+    @Inject(REDIS_CLIENT_PROVIDER) private redisClient: RedisClientType
+  ) {
+    console.log(redisClient);
+  }
 
   async setWithTTLValidationNumber(
     key: string,

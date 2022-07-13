@@ -1,10 +1,17 @@
-import { DynamicModule, Logger, Module } from '@nestjs/common';
-import { createClient } from 'redis';
+import {
+  DynamicModule,
+  Logger,
+  LoggerService,
+  Module,
+  Provider
+} from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { createClient, RedisClientOptions } from 'redis';
 import { FakeLogger } from './FakeLogger';
 import { RedisService } from './redis.service';
 import { RedisAsyncConfig } from './RedisAsyncConfig.interface';
 import { RedisOption } from './RedisOption.interface';
-import { RedisClientProvider } from './RedisProvider.const';
+import { REDIS_CLIENT_PROVIDER, REDIS_MODULE_OPTIONS } from './Redis.const';
 import { RedisTestService } from './redisTest.service';
 
 export type RedisClientType = ReturnType<typeof createClient>;
@@ -14,39 +21,89 @@ export type RedisClientType = ReturnType<typeof createClient>;
  * 2022-07-13 이찬진
  */
 @Module({
-  providers: [RedisService]
+  imports: [ConfigModule]
 })
 export class RedisModule {
-  static async forRootAsync(
-    redisAsyncConfig: RedisAsyncConfig
-  ): Promise<DynamicModule> {
-    const redisOption: RedisOption = await redisAsyncConfig.useFactory();
-    const redisConnectFactory = {
-      provide: RedisClientProvider,
-      useFactory: async (): Promise<RedisClientType> => {
-        //error can be occur in this section
-
-        return createClient(redisOption.redisConnectOption);
-      }
-    };
+  static forRootAsync(redisAsyncConfig: RedisAsyncConfig): DynamicModule {
     return {
       module: RedisModule,
+      imports: redisAsyncConfig.imports,
       providers: [
-        // 옵션에 로깅설정이 켜져있으면 logging 킴
-        // 꺼져있으면 끔
+        {
+          provide: REDIS_MODULE_OPTIONS,
+          useFactory: redisAsyncConfig.useFactory,
+          inject: redisAsyncConfig.inject || []
+        },
+        {
+          provide: REDIS_CLIENT_PROVIDER,
+          useFactory: async (options: RedisOption) => {
+            const client = createClient(options.redisConnectOption);
+            client.on('error', err => console.log('Redis Client Error', err));
+            await client.connect();
+            return client;
+          },
+          inject: [REDIS_MODULE_OPTIONS]
+        },
         {
           provide: Logger,
-          useValue: redisOption.logging
-            ? new Logger('RedisService')
-            : new FakeLogger()
+          useFactory: (options: RedisOption) => {
+            return options.logging
+              ? new Logger('RedisService')
+              : new FakeLogger();
+          },
+          inject: [REDIS_MODULE_OPTIONS]
         },
-        {
-          provide: RedisService,
-          useValue: redisOption.isTest ? RedisTestService : RedisService
-        },
-        redisConnectFactory
+        RedisService
       ],
       exports: [RedisService]
     };
   }
 }
+
+// export const getHttpClientModuleOptions = (
+//   options: RedisAsyncConfig
+// ): RedisService => new RedisService(options);
+// const provider: Provider = {
+//   inject: [REDIS_MODULE_OPTIONS],
+//   provide: RedisClientProvider,
+//   useFactory: async (options: RedisAsyncConfig) => {
+//     new RedisService(options);
+//   }
+// };
+
+// return {
+//   module: RedisModule,
+//   imports: redisAsyncConfig.imports,
+//   providers: [provider],
+//   exports: [provider]
+// };
+
+// const redisOption = await redisAsyncConfig.useFactory.call();
+// return {
+//   module: RedisModule,
+//   imports: redisAsyncConfig.imports,
+
+//   providers: [
+//     ConfigService,
+//     // 옵션에 로깅설정이 켜져있으면 logging 킴
+//     // 꺼져있으면 끔
+//     {
+//       provide: Logger,
+// useValue: redisOption.logging
+//   ? new Logger('RedisService')
+//   : new FakeLogger()
+//     },
+//     {
+//       provide: RedisService,
+//       useValue: redisOption.isTest ? RedisTestService : RedisService
+//     },
+//     {
+//       provide: RedisClientProvider,
+//       useFactory: async (configService: ConfigService) => {
+//         const test = await redisAsyncConfig.useFactory(configService);
+//         console.log('testset', test.redisConnectOption.url);
+//       }
+//     }
+//   ],
+//   exports: [RedisService]
+// };

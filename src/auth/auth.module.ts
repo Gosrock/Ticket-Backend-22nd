@@ -14,15 +14,19 @@ import { AuthService } from './auth.service';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         isTest: false,
-        logging: true,
+        logging: false,
         redisConnectOption: {
-          url: configService.get('REDIS_HOST') + configService.get('REDIS_PORT')
+          url:
+            'redis://' +
+            configService.get('REDIS_HOST') +
+            ':' +
+            configService.get('REDIS_PORT')
         }
       }),
       inject: [ConfigService]
     })
   ],
   controllers: [AuthController],
-  providers: [AuthService, UserRepository]
+  providers: [UserRepository, AuthService]
 })
 export class AuthModule {}

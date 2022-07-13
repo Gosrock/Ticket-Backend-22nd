@@ -50,7 +50,6 @@ import { DatabaseModule } from './database/database.module';
       }),
       inject: [ConfigService]
     }),
-    RedisModule,
     QueueModule,
     AuthModule,
     TicketsModule,
