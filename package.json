@@ -34,6 +34,7 @@
     "@nestjs/swagger": "^5.0.9",
     "@nestjs/typeorm": "^8.1.4",
     "@nestjs/websockets": "^8.4.7",
+    "@types/redis": "^2.8.32",
     "bull": "^4.8.4",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
@@ -41,14 +42,17 @@
     "express-basic-auth": "^1.2.1",
     "joi": "^17.6.0",
     "moment-timezone": "^0.5.34",
+    "nest-winston": "^1.7.0",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.0",
     "pg": "^8.7.3",
+    "redis": "^4.2.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
     "swagger-ui-express": "^4.4.0",
-    "typeorm": "^0.3.7"
+    "typeorm": "^0.3.7",
+    "winston": "^3.8.1"
   },
   "lint-staged": {
     "**/*.{js,jsx,json,tsx}": [

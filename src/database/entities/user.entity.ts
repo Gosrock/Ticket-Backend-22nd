@@ -1,3 +1,4 @@
+import { Role } from 'src/common/consts/enum';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
@@ -10,4 +11,11 @@ export class User {
 
   @Column()
   public phoneNumber: string;
+
+  @Column({
+    type: 'enum',
+    enum: Role,
+    default: Role.User
+  })
+  public role: Role;
 }
