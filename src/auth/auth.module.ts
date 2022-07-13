@@ -1,13 +1,45 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import User from 'src/database/entities/user.entity';
+import { User } from 'src/database/entities/user.entity';
 import { UserRepository } from 'src/database/repositories/user.repository';
+import { RedisModule } from 'src/redis/redis.module';
+import { UsersModule } from 'src/users/users.module';
+import { UsersService } from 'src/users/users.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { RegisterTokenGuard } from './guards/RegisterToken.guard';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User])],
+  imports: [
+    UsersModule,
+    TypeOrmModule.forFeature([User]),
+    RedisModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        isTest: false,
+        logging: false,
+        redisConnectOption: {
+          url:
+            'redis://' +
+            configService.get('REDIS_HOST') +
+            ':' +
+            configService.get('REDIS_PORT')
+        }
+      }),
+      inject: [ConfigService]
+    })
+  ],
   controllers: [AuthController],
-  providers: [AuthService, UserRepository]
+  providers: [
+    {
+      provide: Logger,
+      useValue: new Logger('authService')
+    },
+    UserRepository,
+    AuthService,
+    UsersService,
+    RegisterTokenGuard
+  ]
 })
 export class AuthModule {}

@@ -8,10 +8,28 @@ import { AppModule } from './app.module';
 import { SuccessInterceptor } from './common/interceptors/sucess.interceptor';
 import { setupSwagger } from './common/utils/swagger';
 import 'reflect-metadata';
+import {
+  WinstonModule,
+  utilities as nestWinstonModuleUtilities
+} from 'nest-winston';
+import * as winston from 'winston';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-
+  const app = await NestFactory.create(AppModule, {
+    logger: WinstonModule.createLogger({
+      transports: [
+        new winston.transports.Console({
+          level: process.env.NODE_ENV === 'prod' ? 'warn' : 'info',
+          format: winston.format.combine(
+            winston.format.timestamp(),
+            nestWinstonModuleUtilities.format.nestLike('TicketBackend', {
+              prettyPrint: true
+            })
+          )
+        })
+      ]
+    })
+  });
   // 브라우저 캐싱 없앰
   app.getHttpAdapter().getInstance().set('etag', false);
   app.enableVersioning({

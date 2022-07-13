@@ -12,17 +12,20 @@ import { BullModule } from '@nestjs/bull';
 import { AllExceptionsFilter } from './common/exceptions/http-exception.filter';
 import { APP_FILTER } from '@nestjs/core';
 import { DatabaseModule } from './database/database.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: process.env.NODE_ENV === 'dev' ? '.env.local' : '.env',
       validationSchema: Joi.object({
         NODE_ENV: Joi.string()
           .valid('dev', 'prod', 'test', 'provision')
           .default('dev'),
         PORT: Joi.number().default(8080),
-        JWT_SECRET: Joi.string(),
+        ACCESS_SECRET: Joi.string(),
+        REGISTER_SECRET: Joi.string(),
         SWAGGER_USER: Joi.string(),
         SWAGGER_PASSWORD: Joi.string(),
         REDIS_HOST: Joi.string(),
@@ -50,14 +53,14 @@ import { DatabaseModule } from './database/database.module';
       }),
       inject: [ConfigService]
     }),
-    RedisModule,
     QueueModule,
     AuthModule,
     TicketsModule,
     OrdersModule,
     SlackModule,
     SocketModule,
-    DatabaseModule.forRoot({ isTest: false })
+    DatabaseModule.forRoot({ isTest: false }),
+    UsersModule
   ],
   controllers: [],
   providers: [
