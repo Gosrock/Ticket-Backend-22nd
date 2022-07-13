@@ -12,11 +12,6 @@ import { BullModule } from '@nestjs/bull';
 import { AllExceptionsFilter } from './common/exceptions/http-exception.filter';
 import { APP_FILTER } from '@nestjs/core';
 import { DatabaseModule } from './database/database.module';
-import {
-  WinstonModule,
-  utilities as nestWinstonModuleUtilities
-} from 'nest-winston';
-import winston from 'winston';
 
 @Module({
   imports: [
