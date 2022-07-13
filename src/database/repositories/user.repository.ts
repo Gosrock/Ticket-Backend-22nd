@@ -10,6 +10,15 @@ export class UserRepository {
     private userRepository: Repository<User>
   ) {}
 
+  async findByPhoneNumber(phoneNumber: string): Promise<User | null> {
+    const users = await this.userRepository.findOne({
+      where: {
+        phoneNumber: phoneNumber
+      }
+    });
+    return users;
+  }
+
   async findAll() {
     const users = await this.userRepository.find();
     return users;

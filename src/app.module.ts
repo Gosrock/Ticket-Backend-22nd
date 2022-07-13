@@ -12,6 +12,7 @@ import { BullModule } from '@nestjs/bull';
 import { AllExceptionsFilter } from './common/exceptions/http-exception.filter';
 import { APP_FILTER } from '@nestjs/core';
 import { DatabaseModule } from './database/database.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -56,7 +57,8 @@ import { DatabaseModule } from './database/database.module';
     OrdersModule,
     SlackModule,
     SocketModule,
-    DatabaseModule.forRoot({ isTest: false })
+    DatabaseModule.forRoot({ isTest: false }),
+    UsersModule
   ],
   controllers: [],
   providers: [
