@@ -18,12 +18,14 @@ import { UsersModule } from './users/users.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: process.env.NODE_ENV === 'dev' ? '.env.local' : '.env',
       validationSchema: Joi.object({
         NODE_ENV: Joi.string()
           .valid('dev', 'prod', 'test', 'provision')
           .default('dev'),
         PORT: Joi.number().default(8080),
-        JWT_SECRET: Joi.string(),
+        ACCESS_SECRET: Joi.string(),
+        REGISTER_SECRET: Joi.string(),
         SWAGGER_USER: Joi.string(),
         SWAGGER_PASSWORD: Joi.string(),
         REDIS_HOST: Joi.string(),

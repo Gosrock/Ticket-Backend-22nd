@@ -26,14 +26,24 @@ export function setupSwagger(app: INestApplication): void {
     .addBearerAuth(
       {
         // I was also testing it without prefix 'Bearer ' before the JWT
-        description: `인증서버에서 받은 accessToken을 집어넣어주세요`,
-        name: 'Authorization',
+        description: `accessToken`,
+        name: 'authorization',
         bearerFormat: 'Bearer', // I`ve tested not to use this field, but the result was the same
         scheme: 'Bearer',
         type: 'http', // I`ve attempted type: 'apiKey' too
         in: 'Header'
       },
       'accessToken'
+    )
+    .addApiKey(
+      {
+        type: 'apiKey', // this should be apiKey
+        name: 'registertoken', // this is the name of the key you expect in header
+        in: 'header',
+        description:
+          '회원가입을 위한 토큰을 집어넣어야합니다. 앞에 Bearer 붙이세요 !!'
+      },
+      'registertoken'
     ) // This name here is important for matching up with @ApiBearerAuth() in your controller!)
     .build();
 

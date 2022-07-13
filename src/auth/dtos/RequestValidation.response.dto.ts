@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsMobilePhone } from 'class-validator';
 
 export class ResponseRequestValidationDto {
   @ApiProperty({ description: '요청보낸 전화번호', type: String })

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/database/entities/user.entity';
@@ -8,6 +8,7 @@ import { UsersModule } from 'src/users/users.module';
 import { UsersService } from 'src/users/users.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { RegisterTokenGuard } from './guards/RegisterToken.guard';
 
 @Module({
   imports: [
@@ -30,6 +31,15 @@ import { AuthService } from './auth.service';
     })
   ],
   controllers: [AuthController],
-  providers: [UserRepository, AuthService, UsersService]
+  providers: [
+    {
+      provide: Logger,
+      useValue: new Logger('authService')
+    },
+    UserRepository,
+    AuthService,
+    UsersService,
+    RegisterTokenGuard
+  ]
 })
 export class AuthModule {}

@@ -3,4 +3,9 @@ enum Role {
   Admin = 'Admin'
 }
 
-export { Role };
+enum JWTType {
+  ACCESS = 'ACCESS_SECRET',
+  REGISTER = 'REGISTER_SECRET'
+}
+
+export { Role, JWTType };
