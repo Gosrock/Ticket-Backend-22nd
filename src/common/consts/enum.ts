@@ -17,12 +17,12 @@ enum PerformanceDate {
 enum OrderStatus {
   WAIT = '확인대기',
   DONE = '입금확인',
-  EXPIRE = '기한만료',
+  EXPIRE = '기한만료'
 }
 
 enum TicketStatus {
   DONE = '입장완료',
-  WAIT = '입장대기',
+  WAIT = '입장대기'
 }
 
 enum JWTType {

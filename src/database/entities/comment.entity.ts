@@ -2,7 +2,14 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose, Transform } from 'class-transformer';
 import { Role } from 'src/common/consts/enum';
 
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn
+} from 'typeorm';
 import { User } from './user.entity';
 
 @Entity()
@@ -41,13 +48,13 @@ export class Comment {
 
   @ApiProperty({
     description: '응원 코멘트 생성 일자',
-    type: Date,
+    type: Date
   })
   @Expose()
   @CreateDateColumn()
-  public createdAt: Date;  
+  public createdAt: Date;
 
   @Expose()
   @UpdateDateColumn()
-  public updatedAt: Date;    
+  public updatedAt: Date;
 }

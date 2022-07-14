@@ -1,7 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
 import { Role } from 'src/common/consts/enum';
-import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn
+} from 'typeorm';
 import { Comment } from './comment.entity';
 import { Order } from './order.entity';
 import { Ticket } from './ticket.entity';
@@ -28,8 +36,8 @@ export class User {
     description: '유저의 휴대전화번호 입니다.',
     type: String
   })
-  @Exclude()
-  @Column('varchar', { length: 200 })
+  @Expose()
+  @Column('varchar', { length: 20 })
   public phoneNumber: string;
 
   @ApiProperty({
@@ -44,30 +52,28 @@ export class User {
   })
   public role: Role;
 
-  @OneToMany(() => Comment, comment => comment.user)
+  @OneToMany(() => Comment, comment => comment.user, { eager: true })
   public comments: Comment[];
 
   @ApiProperty({
     description: '유저의 주문목록',
-    type: Order
+    type: () => [Order]
   })
   @Expose()
-  @ManyToOne((type) => Order, (order) => order.id, { eager: false })
-  @Column()
+  @OneToMany(type => Order, order => order.id, { eager: true })
   public order: Order[];
 
   @ApiProperty({
     description: '유저의 티켓목록',
-    type: Ticket
+    type: () => [Ticket]
   })
   @Expose()
-  @OneToMany((type) => Ticket, (ticket) => ticket.id, { eager: false })
-  @Column()
+  @OneToMany(type => Ticket, ticket => ticket.id, { eager: true })
   public ticket: Ticket[];
 
   @ApiProperty({
     description: '유저 생성 일자',
-    type: Date,
+    type: Date
   })
   @Expose()
   @CreateDateColumn()
@@ -75,5 +81,5 @@ export class User {
 
   @Expose()
   @UpdateDateColumn()
-  public updatedAt: Date;  
+  public updatedAt: Date;
 }

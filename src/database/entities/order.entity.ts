@@ -2,7 +2,16 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Transform } from 'class-transformer';
 import { MaxLength } from 'class-validator';
 import { OrderStatus, OrderDate } from 'src/common/consts/enum';
-import { Column, CreateDateColumn, Entity, Generated, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  Generated,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn
+} from 'typeorm';
 import { Ticket } from './ticket.entity';
 import { User } from './user.entity';
 
@@ -30,7 +39,7 @@ export class Order {
 
   @ApiProperty({
     description: '티켓의 개수',
-    type: Number,
+    type: Number
   })
   @Expose()
   @Column()
@@ -45,13 +54,13 @@ export class Order {
   @Column({
     type: 'enum',
     enum: OrderStatus,
-    default: OrderStatus.WAIT,
+    default: OrderStatus.WAIT
   })
-  public status: OrderStatus;  
+  public status: OrderStatus;
 
   @ApiProperty({
     description: '총 주문 가격',
-    type: Number,
+    type: Number
   })
   @Expose()
   @Column()
@@ -59,7 +68,7 @@ export class Order {
 
   @ApiProperty({
     description: '공짜 티켓 여부',
-    type: Boolean,
+    type: Boolean
   })
   @Expose()
   @Column()
@@ -67,25 +76,23 @@ export class Order {
 
   @ApiProperty({
     description: '주문을 진행한 유저의 외래키',
-    type: User
+    type: () => User
   })
   @Expose()
-  @OneToMany((type) => User, (user) => user.id, { eager: false })
-  @Column()
+  @OneToMany(type => User, user => user.id, { eager: true })
   public user: User;
 
   @ApiProperty({
     description: '한개의 주문에 속한 티켓목록',
-    type: Ticket
+    type: () => Ticket
   })
   @Expose()
-  @ManyToOne((type) => Ticket, (ticket) => ticket.id, { eager: false })
-  @Column()
+  @OneToMany(type => Ticket, ticket => ticket.id, { eager: true })
   public ticket: Ticket[];
 
   @ApiProperty({
     description: '주문 생성 일자',
-    type: Date,
+    type: Date
   })
   @Expose()
   @CreateDateColumn()
@@ -93,5 +100,5 @@ export class Order {
 
   @Expose()
   @UpdateDateColumn()
-  public updatedAt: Date;  
+  public updatedAt: Date;
 }
