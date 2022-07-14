@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, Transform } from 'class-transformer';
 import { Role } from 'src/common/consts/enum';
 
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
