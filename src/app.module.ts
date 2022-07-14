@@ -62,7 +62,7 @@ import { UsersModule } from './users/users.module';
     DatabaseModule.forRoot({ isTest: false }),
     UsersModule
   ],
-  controllers: [],
+
   providers: [
     {
       provide: APP_FILTER,

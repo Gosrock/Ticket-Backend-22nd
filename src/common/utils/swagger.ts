@@ -43,7 +43,7 @@ export function setupSwagger(app: INestApplication): void {
         description:
           '회원가입을 위한 토큰을 집어넣어야합니다. 앞에 Bearer 붙이세요 !!'
       },
-      'registertoken'
+      'registerToken'
     ) // This name here is important for matching up with @ApiBearerAuth() in your controller!)
     .build();
 

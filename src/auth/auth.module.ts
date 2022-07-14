@@ -8,6 +8,7 @@ import { UsersModule } from 'src/users/users.module';
 import { UsersService } from 'src/users/users.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { AccessTokenGuard } from './guards/AccessToken.guard';
 import { RegisterTokenGuard } from './guards/RegisterToken.guard';
 
 @Module({
@@ -39,7 +40,9 @@ import { RegisterTokenGuard } from './guards/RegisterToken.guard';
     UserRepository,
     AuthService,
     UsersService,
-    RegisterTokenGuard
-  ]
+    RegisterTokenGuard,
+    AccessTokenGuard
+  ],
+  exports: [RegisterTokenGuard, AccessTokenGuard, AuthService]
 })
 export class AuthModule {}
