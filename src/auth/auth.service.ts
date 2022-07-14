@@ -117,6 +117,7 @@ export class AuthService {
     const queryRunner = this.dataSource.createQueryRunner();
     // 커넥트로 커넥션 땡겨옴
     await queryRunner.connect();
+
     await queryRunner.startTransaction();
     // 땡겨온 커넥션으로 유저 레포지토리를 받아옴 하지만 우리는 repository 패턴을 쓰므로 ( 따로 뺌으로 )
     // 의존성 주입을 해 커넥션이 동일한 레포지토리를 가져옴

@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import { Role } from 'src/common/consts/enum';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Comment } from './comment.entity';
 
 @Entity()
 export class User {
@@ -25,8 +26,8 @@ export class User {
     description: '유저의 휴대전화번호 입니다.',
     type: String
   })
-  @Expose()
-  @Column()
+  @Exclude()
+  @Column('varchar', { length: 200 })
   public phoneNumber: string;
 
   @ApiProperty({
@@ -40,4 +41,7 @@ export class User {
     default: Role.User
   })
   public role: Role;
+
+  @OneToMany(() => Comment, comment => comment.user)
+  public comments: Comment[];
 }
