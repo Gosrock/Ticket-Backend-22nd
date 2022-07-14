@@ -24,6 +24,7 @@ import { RequestRegisterUserDto } from './dtos/RegisterUser.request.dto';
 import { DataSource } from 'typeorm';
 import { getConnectedRepository } from 'src/common/funcs/getConnectedRepository';
 import { ResponseRegisterUserDto } from './dtos/RegisterUser.response.dto';
+import { classToPlain, instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class AuthService {
@@ -77,15 +78,6 @@ export class AuthService {
     if (savedValidationNumber !== requestValidateNumberDto.validationNumber) {
       throw new BadRequestException('잘못된 인증번호');
     }
-    // if (
-    //   !(
-    //     savedValidationNumber &&
-    //     savedValidationNumber === requestValidateNumberDto.validationNumber
-    //   )
-    // ) {
-    //   throw new BadRequestException('잘못된 인증번호');
-    // }
-
     // 회원가입을 한 유저가아니라면 회원가입용 토큰 발급
     if (!checkSingUpState) {
       return {
@@ -93,7 +85,18 @@ export class AuthService {
         registerToken: this.registerJwtSign({ phoneNumber: userPhoneNumber })
       };
     } else {
+      const user = await this.userService.findUserByPhoneNumber(
+        userPhoneNumber
+      );
+      console.log(user);
+      if (!user) {
+        throw new BadRequestException('잘못된 접근');
+      }
+      const accessToken = this.accessJwtSign({ ...user });
+      console.log(accessToken);
+
       return {
+        accessToken,
         alreadySingUp: checkSingUpState
       };
     }
@@ -172,15 +175,19 @@ export class AuthService {
     const secret = this.configService.get(JWTType.REGISTER);
     console.log(secret, JWTType.REGISTER);
     return jwt.sign(payload, secret, {
-      expiresIn: '10m'
+      expiresIn: 60 * 10
     });
   }
 
   private accessJwtSign(payload: AccessJwtPayload) {
     const secret = this.configService.get(JWTType.ACCESS);
-    return jwt.sign(payload, secret, {
-      expiresIn: '3d'
-    });
+    try {
+      return jwt.sign(payload, secret, {
+        expiresIn: 60 * 60 * 24 * 3
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   verifyRegisterJWT(jwtString: string): RegisterJwtPayload {

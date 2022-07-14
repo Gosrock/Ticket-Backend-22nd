@@ -1,11 +1,20 @@
 import { Request } from 'express';
 import { Observable } from 'rxjs';
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException
+} from '@nestjs/common';
 import { AuthService } from '../auth.service';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
-export class RegisterTokenGuard implements CanActivate {
-  constructor(private authService: AuthService) {}
+export class AccessTokenGuard implements CanActivate {
+  constructor(
+    private authService: AuthService,
+    private userService: UsersService
+  ) {}
 
   canActivate(
     context: ExecutionContext
@@ -17,18 +26,20 @@ export class RegisterTokenGuard implements CanActivate {
   private async validateRequest(request: Request) {
     const checkHeader = request.headers.authorization;
     if (!checkHeader) {
-      return false;
+      throw new UnauthorizedException('잘못된 헤더 요청');
     }
     if (Array.isArray(checkHeader)) {
-      return false;
+      throw new UnauthorizedException('잘못된 헤더 요청');
     }
     const jwtString = checkHeader.split('Bearer ')[1];
 
-    const { phoneNumber } = this.authService.verifyRegisterJWT(jwtString);
-    const userAlreadySignup = await this.authService.checkUserAlreadySignUp(
-      phoneNumber
-    );
-
-    return !userAlreadySignup;
+    const payload = this.authService.verifyAccessJWT(jwtString);
+    const user = await this.userService.findUserById(payload.id);
+    if (!user) {
+      throw new UnauthorizedException('없는 유저입니다.');
+    }
+    const newObj: any = request;
+    newObj.user = user;
+    return true;
   }
 }

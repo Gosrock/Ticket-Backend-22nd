@@ -28,4 +28,12 @@ export class UserRepository {
     const savedUser = await this.userRepository.save(user);
     return savedUser;
   }
+
+  async findUserById(id: number): Promise<User | null> {
+    return await this.userRepository.findOne({
+      where: {
+        id: id
+      }
+    });
+  }
 }

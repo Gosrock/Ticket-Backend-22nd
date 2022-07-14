@@ -37,7 +37,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       error: error || null
     };
 
-    Logger.warn('errorResponse', errorResponse);
+    Logger.warn('errorResponse', JSON.stringify(errorResponse));
 
     response.status(statusCode).json(errorResponse);
   }
