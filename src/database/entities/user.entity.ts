@@ -1,8 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
 import { Role } from 'src/common/consts/enum';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Comment } from './comment.entity';
+import { Order } from './order.entity';
+import { Ticket } from './ticket.entity';
 
 @Entity()
 export class User {
@@ -44,4 +46,34 @@ export class User {
 
   @OneToMany(() => Comment, comment => comment.user)
   public comments: Comment[];
+
+  @ApiProperty({
+    description: '유저의 주문목록',
+    type: Order
+  })
+  @Expose()
+  @ManyToOne((type) => Order, (order) => order.id, { eager: false })
+  @Column()
+  public order: Order[];
+
+  @ApiProperty({
+    description: '유저의 티켓목록',
+    type: Ticket
+  })
+  @Expose()
+  @OneToMany((type) => Ticket, (ticket) => ticket.id, { eager: false })
+  @Column()
+  public ticket: Ticket[];
+
+  @ApiProperty({
+    description: '유저 생성 일자',
+    type: Date,
+  })
+  @Expose()
+  @CreateDateColumn()
+  public createdAt: Date;
+
+  @Expose()
+  @UpdateDateColumn()
+  public updatedAt: Date;  
 }
