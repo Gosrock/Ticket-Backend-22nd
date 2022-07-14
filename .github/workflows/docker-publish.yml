@@ -15,7 +15,7 @@ jobs:
         id: docker_meta
         uses: crazy-max/ghaction-docker-meta@v1
         with:
-          images: water0641/tikitaka-api
+          images: water0641/ticket-backend-22th
           tag-semver: |
             {{version}}
             {{major}}.{{minor}}
