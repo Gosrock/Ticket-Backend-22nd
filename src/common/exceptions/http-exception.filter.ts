@@ -4,7 +4,8 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
-  UnauthorizedException
+  UnauthorizedException,
+  Logger
 } from '@nestjs/common';
 
 @Catch()
@@ -24,19 +25,19 @@ export class AllExceptionsFilter implements ExceptionFilter {
       statusCode = exception.getStatus();
       error = exception.getResponse();
     } else {
-      console.log(exception);
       statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
       error = 'Internal server error';
     }
 
     const errorResponse = {
+      statusCode,
       timestamp: new Date(),
       path: request.url,
       method: request.method,
       error: error || null
     };
 
-    console.log('errorResponse', errorResponse);
+    Logger.warn('errorResponse', errorResponse);
 
     response.status(statusCode).json(errorResponse);
   }

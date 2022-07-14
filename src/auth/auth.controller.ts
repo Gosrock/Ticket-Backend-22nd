@@ -6,9 +6,13 @@ import {
   ApiResponse,
   ApiTags
 } from '@nestjs/swagger';
+import { RegisterUser } from 'src/common/decorators/registerUser.decorator';
 import { User } from 'src/database/entities/user.entity';
+import { RegisterJwtPayload } from './auth.interface';
 import { AuthService } from './auth.service';
 import { RequestPhoneNumberDto } from './dtos/phoneNumber.request.dto';
+import { RequestRegisterUserDto } from './dtos/RegisterUser.request.dto';
+import { ResponseRegisterUserDto } from './dtos/RegisterUser.response.dto';
 import { ResponseRequestValidationDto } from './dtos/RequestValidation.response.dto';
 import { RequestValidateNumberDto } from './dtos/ValidateNumber.request.dto';
 import { ResponseValidateNumberDto } from './dtos/ValidateNumber.response.dto';
@@ -55,11 +59,23 @@ export class AuthController {
 
   @ApiBearerAuth('registerToken')
   @ApiOperation({ summary: '회원가입한다.' })
+  @ApiBody({ type: RequestRegisterUserDto })
+  @ApiResponse({
+    status: 200,
+    description: '요청 성공시',
+    type: ResponseRegisterUserDto
+  })
   @UseGuards(RegisterTokenGuard)
-  @Get('')
-  async registerUser() {
+  @Post('register')
+  async registerUser(
+    @RegisterUser() registerUser: RegisterJwtPayload,
+    @Body() requestRegisterUserDto: RequestRegisterUserDto
+  ) {
     // findOneByUserId
-    return await this.authService.registerUser();
+    return await this.authService.registerUser(
+      registerUser,
+      requestRegisterUserDto
+    );
   }
 
   // @ApiOperation({ summary: '내 정보를 가져온다.' })

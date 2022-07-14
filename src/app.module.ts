@@ -13,6 +13,7 @@ import { AllExceptionsFilter } from './common/exceptions/http-exception.filter';
 import { APP_FILTER } from '@nestjs/core';
 import { DatabaseModule } from './database/database.module';
 import { UsersModule } from './users/users.module';
+import { UserController } from './user/user.controller';
 
 @Module({
   imports: [
@@ -62,7 +63,7 @@ import { UsersModule } from './users/users.module';
     DatabaseModule.forRoot({ isTest: false }),
     UsersModule
   ],
-  controllers: [],
+  controllers: [UserController],
   providers: [
     {
       provide: APP_FILTER,

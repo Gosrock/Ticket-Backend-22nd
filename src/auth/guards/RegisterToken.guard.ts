@@ -30,8 +30,9 @@ export class RegisterTokenGuard implements CanActivate {
       throw new UnauthorizedException('잘못된 헤더 요청');
     }
     const jwtString = checkHeader.split('Bearer ')[1];
-
-    this.authService.verifyRegisterJWT(jwtString);
+    const payload = this.authService.verifyRegisterJWT(jwtString);
+    const newObj: any = request;
+    newObj.requestUser = payload;
 
     return true;
   }

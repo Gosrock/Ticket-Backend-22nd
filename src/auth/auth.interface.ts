@@ -4,5 +4,6 @@ export interface RegisterJwtPayload {
 
 export interface AccessJwtPayload {
   phoneNumber: string;
-  id: string;
+  name: string;
+  id: number;
 }
