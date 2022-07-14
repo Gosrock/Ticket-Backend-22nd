@@ -24,6 +24,14 @@ export class Comment {
   public content: string;
 
   @ApiProperty({
+    description: '익명 닉네임',
+    type: String
+  })
+  @Expose()
+  @Column('varchar', { length: 15 })
+  public nickName: string;
+
+  @ApiProperty({
     description: '유저 정보 입니다.',
     type: String
   })
