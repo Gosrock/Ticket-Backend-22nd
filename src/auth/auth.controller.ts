@@ -13,7 +13,7 @@ import { AuthService } from './auth.service';
 import { RequestAdminLoginDto } from './dtos/AdminLogin.request.dto';
 import { ResponseAdminLoginDto } from './dtos/AdminLogin.response.dto';
 import { RequestAdminSendValidationNumberDto } from './dtos/AdminSendValidationNumber.request.dto copy';
-import { ResponseAdminSendValidationNumberDto } from './dtos/AdminSendValidationNumber.Response.dto';
+import { ResponseAdminSendValidationNumberDto } from './dtos/AdminSendValidationNumber.response.dto';
 import { RequestPhoneNumberDto } from './dtos/phoneNumber.request.dto';
 import { RequestRegisterUserDto } from './dtos/RegisterUser.request.dto';
 import { ResponseRegisterUserDto } from './dtos/RegisterUser.response.dto';

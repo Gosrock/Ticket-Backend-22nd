@@ -27,7 +27,7 @@ import { ResponseRegisterUserDto } from './dtos/RegisterUser.response.dto';
 import { classToPlain, instanceToPlain } from 'class-transformer';
 import { RequestAdminSendValidationNumberDto } from './dtos/AdminSendValidationNumber.request.dto copy';
 import { SlackService } from 'src/slack/slack.service';
-import { ResponseAdminSendValidationNumberDto } from './dtos/AdminSendValidationNumber.Response.dto';
+import { ResponseAdminSendValidationNumberDto } from './dtos/AdminSendValidationNumber.response.dto';
 import { RequestAdminLoginDto } from './dtos/AdminLogin.request.dto';
 import { ResponseAdminLoginDto } from './dtos/AdminLogin.response.dto';
 
