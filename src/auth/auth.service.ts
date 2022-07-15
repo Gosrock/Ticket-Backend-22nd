@@ -19,12 +19,15 @@ import { ResponseRequestValidationDto } from './dtos/RequestValidation.response.
 import { RequestValidateNumberDto } from './dtos/ValidateNumber.request.dto';
 import { ResponseValidateNumberDto } from './dtos/ValidateNumber.response.dto';
 import { AccessJwtPayload, RegisterJwtPayload } from './auth.interface';
-import { JWTType } from 'src/common/consts/enum';
+import { JWTType, Role } from 'src/common/consts/enum';
 import { RequestRegisterUserDto } from './dtos/RegisterUser.request.dto';
 import { DataSource } from 'typeorm';
 import { getConnectedRepository } from 'src/common/funcs/getConnectedRepository';
 import { ResponseRegisterUserDto } from './dtos/RegisterUser.response.dto';
 import { classToPlain, instanceToPlain } from 'class-transformer';
+import { RequestAdminSendValidationNumberDto } from './dtos/AdminSendValidationNumber.request.dto copy';
+import { SlackService } from 'src/slack/slack.service';
+import { ResponseAdminSendValidationNumberDto } from './dtos/AdminSendValidationNumber.Response.dto';
 
 @Injectable()
 export class AuthService {
@@ -33,7 +36,8 @@ export class AuthService {
     private userService: UsersService,
     private dataSource: DataSource,
     private redisSerivce: RedisService,
-    private configService: ConfigService
+    private configService: ConfigService,
+    private slackService: SlackService
   ) {}
 
   async requestPhoneValidationNumber(
@@ -158,6 +162,41 @@ export class AuthService {
       // 직접 생성한 QueryRunner는 해제시켜 주어야 함
       await queryRunner.release();
     }
+  }
+
+  async slackSendValidationNumber(
+    requestAdminSendValidationNumberDto: RequestAdminSendValidationNumberDto
+  ): Promise<ResponseAdminSendValidationNumberDto> {
+    //유저가 이미 회원가입했는지확인한다.
+    const searchUser = await this.userService.findUserByPhoneNumber(
+      requestAdminSendValidationNumberDto.phoneNumber
+    );
+
+    if (!searchUser) {
+      throw new BadRequestException('가입한 유저나 어드민 유저가 아닙니다.');
+    }
+    if (searchUser.role !== Role.Admin) {
+      throw new BadRequestException('가입한 유저나 어드민 유저가 아닙니다.');
+    }
+    // 레디스에서 전화번호가지고 정보를 빼내온다.
+    const slaceUserId = await this.slackService.findSlackUserIdByEmail(
+      requestAdminSendValidationNumberDto.slackEmail
+    );
+    if (!slaceUserId) {
+      throw new BadRequestException(
+        '가입한 슬랙 이메일을 올바르게 입력해 주세요'
+      );
+    }
+
+    const randomCode = generateRandomCode(4);
+    await this.redisSerivce.setWithTTLValidationNumber(
+      requestAdminSendValidationNumberDto.slackEmail,
+      randomCode,
+      180
+    );
+    await this.slackService.sendDMwithValidationNumber(slaceUserId, randomCode);
+
+    return { validationNumber: randomCode };
   }
 
   /**
