@@ -11,7 +11,7 @@ services:
     ports:
       - '5432:5432'
     env_file:
-      - .env
+      - .env.local
     networks:
       - postgres
 
@@ -25,7 +25,7 @@ services:
     # volumes:
     #   - /data/pgadmin:/root/.pgadmin
     env_file:
-      - .env
+      - .env.local
     networks:
       - postgres
 
