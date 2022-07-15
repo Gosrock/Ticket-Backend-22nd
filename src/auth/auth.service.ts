@@ -28,6 +28,8 @@ import { classToPlain, instanceToPlain } from 'class-transformer';
 import { RequestAdminSendValidationNumberDto } from './dtos/AdminSendValidationNumber.request.dto copy';
 import { SlackService } from 'src/slack/slack.service';
 import { ResponseAdminSendValidationNumberDto } from './dtos/AdminSendValidationNumber.Response.dto';
+import { RequestAdminLoginDto } from './dtos/AdminLogin.request.dto';
+import { ResponseAdminLoginDto } from './dtos/AdminLogin.response.dto';
 
 @Injectable()
 export class AuthService {
@@ -99,7 +101,11 @@ export class AuthService {
       if (!user) {
         throw new BadRequestException('잘못된 접근');
       }
-      const accessToken = this.accessJwtSign({ ...user });
+      const accessToken = this.accessJwtSign({
+        id: user.id,
+        phoneNumber: user.phoneNumber,
+        name: user.name
+      });
       console.log(accessToken);
 
       return {
@@ -199,6 +205,40 @@ export class AuthService {
     return { validationNumber: randomCode };
   }
 
+  async slackLoginUser(
+    requestAdminLoginDto: RequestAdminLoginDto
+  ): Promise<ResponseAdminLoginDto> {
+    const findValidationNumberFromRedis =
+      await this.redisSerivce.getByKeyValidationNumber(
+        requestAdminLoginDto.slackEmail
+      );
+    if (!findValidationNumberFromRedis) {
+      throw new BadRequestException('인증 기한이 지났습니다.');
+    }
+
+    if (
+      findValidationNumberFromRedis !== requestAdminLoginDto.validationNumber
+    ) {
+      throw new BadRequestException('인증 번호가 맞지 않습니다.');
+    }
+
+    const searchUser = await this.userService.findUserByPhoneNumber(
+      requestAdminLoginDto.phoneNumber
+    );
+
+    if (!searchUser) {
+      throw new BadRequestException('가입한 유저나 어드민 유저가 아닙니다.');
+    }
+    if (searchUser.role !== Role.Admin) {
+      throw new BadRequestException('가입한 유저나 어드민 유저가 아닙니다.');
+    }
+    const accessToken = this.accessJwtSign({ ...searchUser });
+    return {
+      user: searchUser,
+      accessToken
+    };
+  }
+
   /**
    * 유저가 회원가입했는지 확인하는 함수
    * @param phoneNumber
@@ -230,7 +270,11 @@ export class AuthService {
         expiresIn: 60 * 60 * 24 * 3
       });
     } catch (error) {
-      console.log(error);
+      Logger.log(error);
+
+      throw new InternalServerErrorException(
+        '어세스토큰 생성오류. 관리자한테 연락주세요'
+      );
     }
   }
 

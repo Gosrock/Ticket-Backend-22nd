@@ -121,7 +121,7 @@ export class AuthController {
     requestAdminLoginDto: RequestAdminLoginDto
   ) {
     // findOneByUserId
-    // return await this.authService.slackLoginUser(requestAdminLoginDto);
+    return await this.authService.slackLoginUser(requestAdminLoginDto);
   }
 
   // @ApiOperation({ summary: '내 정보를 가져온다.' })
