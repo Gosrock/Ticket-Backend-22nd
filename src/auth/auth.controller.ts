@@ -10,6 +10,10 @@ import { RegisterUser } from 'src/common/decorators/registerUser.decorator';
 import { User } from 'src/database/entities/user.entity';
 import { RegisterJwtPayload } from './auth.interface';
 import { AuthService } from './auth.service';
+import { RequestAdminLoginDto } from './dtos/AdminLogin.request.dto';
+import { ResponseAdminLoginDto } from './dtos/AdminLogin.response.dto';
+import { RequestAdminSendValidationNumberDto } from './dtos/AdminSendValidationNumber.request.dto copy';
+import { ResponseAdminSendValidationNumberDto } from './dtos/AdminSendValidationNumber.Response.dto';
 import { RequestPhoneNumberDto } from './dtos/phoneNumber.request.dto';
 import { RequestRegisterUserDto } from './dtos/RegisterUser.request.dto';
 import { ResponseRegisterUserDto } from './dtos/RegisterUser.response.dto';
@@ -78,17 +82,47 @@ export class AuthController {
     );
   }
 
-  // @ApiOperation({ summary: '내 정보를 가져온다.' })
-  // @ApiResponse({
-  //   status: 200,
-  //   description: '요청 성공시',
-  //   type: User
-  // })
-  // @Get('')
-  // async getMyUserInfo() {
-  //   // findOneByUserId
-  //   return await this.authService.getAllUsers();
-  // }
+  @ApiOperation({ summary: '슬랙 인증번호를 발송한다 (관리자 용 )' })
+  @ApiResponse({
+    status: 200,
+    description: '요청 성공시',
+    type: ResponseAdminSendValidationNumberDto
+  })
+  @ApiResponse({
+    status: 400,
+    description: '슬랙에 들어와있는 유저가 아닐때 , 어드민 유저가 아닐 때'
+  })
+  @ApiBody({ type: RequestAdminSendValidationNumberDto })
+  @Post('/slack/send')
+  async slackSendValidationNumber(
+    @Body()
+    requestAdminSendValidationNumberDto: RequestAdminSendValidationNumberDto
+  ) {
+    // findOneByUserId
+    return await this.authService.slackSendValidationNumber(
+      requestAdminSendValidationNumberDto
+    );
+  }
+
+  @ApiOperation({ summary: '슬랙 인증번호를 검증한다' })
+  @ApiResponse({
+    status: 200,
+    description: '요청 성공시 로그인 처리',
+    type: ResponseAdminLoginDto
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'send 요청을 보낸 사용자가 아닐때 또는 인증번호가 잘못되었을때'
+  })
+  @ApiBody({ type: RequestAdminLoginDto })
+  @Post('/slack/validation')
+  async slackLoginUser(
+    @Body()
+    requestAdminLoginDto: RequestAdminLoginDto
+  ) {
+    // findOneByUserId
+    return await this.authService.slackLoginUser(requestAdminLoginDto);
+  }
 
   // @ApiOperation({ summary: '내 정보를 가져온다.' })
   // @ApiResponse({

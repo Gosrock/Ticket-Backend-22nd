@@ -19,12 +19,17 @@ import { ResponseRequestValidationDto } from './dtos/RequestValidation.response.
 import { RequestValidateNumberDto } from './dtos/ValidateNumber.request.dto';
 import { ResponseValidateNumberDto } from './dtos/ValidateNumber.response.dto';
 import { AccessJwtPayload, RegisterJwtPayload } from './auth.interface';
-import { JWTType } from 'src/common/consts/enum';
+import { JWTType, Role } from 'src/common/consts/enum';
 import { RequestRegisterUserDto } from './dtos/RegisterUser.request.dto';
 import { DataSource } from 'typeorm';
 import { getConnectedRepository } from 'src/common/funcs/getConnectedRepository';
 import { ResponseRegisterUserDto } from './dtos/RegisterUser.response.dto';
 import { classToPlain, instanceToPlain } from 'class-transformer';
+import { RequestAdminSendValidationNumberDto } from './dtos/AdminSendValidationNumber.request.dto copy';
+import { SlackService } from 'src/slack/slack.service';
+import { ResponseAdminSendValidationNumberDto } from './dtos/AdminSendValidationNumber.Response.dto';
+import { RequestAdminLoginDto } from './dtos/AdminLogin.request.dto';
+import { ResponseAdminLoginDto } from './dtos/AdminLogin.response.dto';
 
 @Injectable()
 export class AuthService {
@@ -33,7 +38,8 @@ export class AuthService {
     private userService: UsersService,
     private dataSource: DataSource,
     private redisSerivce: RedisService,
-    private configService: ConfigService
+    private configService: ConfigService,
+    private slackService: SlackService
   ) {}
 
   async requestPhoneValidationNumber(
@@ -42,8 +48,11 @@ export class AuthService {
     //TODO : 전화번호 인증번호 발송 로직 추가 , 이찬진 2022.07.14
     const userPhoneNumber = requestPhoneNumberDto.phoneNumber;
     //유저가 이미 회원가입했는지확인한다.
+    console.log('asdcfasdfasdfdsaf');
     const checkSingUpState = await this.checkUserAlreadySignUp(userPhoneNumber);
     // generate randomNumber
+    console.log('asdcfasdfasdfdsaf');
+
     const generatedRandomNumber = generateRandomCode(4);
     // insert to redis
     await this.redisSerivce.setWithTTLValidationNumber(
@@ -92,7 +101,11 @@ export class AuthService {
       if (!user) {
         throw new BadRequestException('잘못된 접근');
       }
-      const accessToken = this.accessJwtSign({ ...user });
+      const accessToken = this.accessJwtSign({
+        id: user.id,
+        phoneNumber: user.phoneNumber,
+        name: user.name
+      });
       console.log(accessToken);
 
       return {
@@ -117,6 +130,7 @@ export class AuthService {
     const queryRunner = this.dataSource.createQueryRunner();
     // 커넥트로 커넥션 땡겨옴
     await queryRunner.connect();
+
     await queryRunner.startTransaction();
     // 땡겨온 커넥션으로 유저 레포지토리를 받아옴 하지만 우리는 repository 패턴을 쓰므로 ( 따로 뺌으로 )
     // 의존성 주입을 해 커넥션이 동일한 레포지토리를 가져옴
@@ -156,6 +170,75 @@ export class AuthService {
     }
   }
 
+  async slackSendValidationNumber(
+    requestAdminSendValidationNumberDto: RequestAdminSendValidationNumberDto
+  ): Promise<ResponseAdminSendValidationNumberDto> {
+    //유저가 이미 회원가입했는지확인한다.
+    const searchUser = await this.userService.findUserByPhoneNumber(
+      requestAdminSendValidationNumberDto.phoneNumber
+    );
+
+    if (!searchUser) {
+      throw new BadRequestException('가입한 유저나 어드민 유저가 아닙니다.');
+    }
+    if (searchUser.role !== Role.Admin) {
+      throw new BadRequestException('가입한 유저나 어드민 유저가 아닙니다.');
+    }
+    // 레디스에서 전화번호가지고 정보를 빼내온다.
+    const slaceUserId = await this.slackService.findSlackUserIdByEmail(
+      requestAdminSendValidationNumberDto.slackEmail
+    );
+    if (!slaceUserId) {
+      throw new BadRequestException(
+        '가입한 슬랙 이메일을 올바르게 입력해 주세요'
+      );
+    }
+
+    const randomCode = generateRandomCode(4);
+    await this.redisSerivce.setWithTTLValidationNumber(
+      requestAdminSendValidationNumberDto.slackEmail,
+      randomCode,
+      180
+    );
+    await this.slackService.sendDMwithValidationNumber(slaceUserId, randomCode);
+
+    return { validationNumber: randomCode };
+  }
+
+  async slackLoginUser(
+    requestAdminLoginDto: RequestAdminLoginDto
+  ): Promise<ResponseAdminLoginDto> {
+    const findValidationNumberFromRedis =
+      await this.redisSerivce.getByKeyValidationNumber(
+        requestAdminLoginDto.slackEmail
+      );
+    if (!findValidationNumberFromRedis) {
+      throw new BadRequestException('인증 기한이 지났습니다.');
+    }
+
+    if (
+      findValidationNumberFromRedis !== requestAdminLoginDto.validationNumber
+    ) {
+      throw new BadRequestException('인증 번호가 맞지 않습니다.');
+    }
+
+    const searchUser = await this.userService.findUserByPhoneNumber(
+      requestAdminLoginDto.phoneNumber
+    );
+
+    if (!searchUser) {
+      throw new BadRequestException('가입한 유저나 어드민 유저가 아닙니다.');
+    }
+    if (searchUser.role !== Role.Admin) {
+      throw new BadRequestException('가입한 유저나 어드민 유저가 아닙니다.');
+    }
+    const accessToken = this.accessJwtSign({ ...searchUser });
+    return {
+      user: searchUser,
+      accessToken
+    };
+  }
+
   /**
    * 유저가 회원가입했는지 확인하는 함수
    * @param phoneNumber
@@ -165,6 +248,7 @@ export class AuthService {
     const searchUser = await this.userService.findUserByPhoneNumber(
       phoneNumber
     );
+    console.log('asdcfasdfasdfdsaf');
 
     let checkSingUpState = false;
     if (searchUser) checkSingUpState = true;
@@ -186,7 +270,11 @@ export class AuthService {
         expiresIn: 60 * 60 * 24 * 3
       });
     } catch (error) {
-      console.log(error);
+      Logger.log(error);
+
+      throw new InternalServerErrorException(
+        '어세스토큰 생성오류. 관리자한테 연락주세요'
+      );
     }
   }
 

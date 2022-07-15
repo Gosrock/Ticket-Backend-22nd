@@ -14,9 +14,9 @@ export class DatabaseModule {
             type: 'postgres',
             host: 'localhost',
             port: 5432,
-            username: 'gosrock',
+            username: 'postgres',
             password: 'gosrock22th',
-            database: 'ticket',
+            // database: 'ticket',
             entities: [__dirname + '/../**/*.entity.{js,ts}'],
             synchronize: true,
             logging: false
@@ -36,7 +36,7 @@ export class DatabaseModule {
             port: configService.get('POSTGRES_PORT'),
             username: configService.get('POSTGRES_USER'),
             password: configService.get('POSTGRES_PASSWORD'),
-            database: configService.get('POSTGRES_DB'),
+            // database: configService.get('POSTGRES_DB'),
             entities: [__dirname + '/../**/*.entity.{js,ts}'],
             synchronize: configService.get('NODE_ENV') === 'dev' ? true : false,
             logging: configService.get('NODE_ENV') === 'dev' ? true : false

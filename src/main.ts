@@ -1,3 +1,5 @@
+import 'reflect-metadata';
+
 import {
   ClassSerializerInterceptor,
   ValidationPipe,
@@ -7,7 +9,6 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SuccessInterceptor } from './common/interceptors/sucess.interceptor';
 import { setupSwagger } from './common/utils/swagger';
-import 'reflect-metadata';
 import {
   WinstonModule,
   utilities as nestWinstonModuleUtilities

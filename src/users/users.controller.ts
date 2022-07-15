@@ -16,7 +16,6 @@ import { UsersService } from './users.service';
 @ApiBearerAuth('accessToken')
 @Controller('users')
 @UseGuards(AccessTokenGuard)
-// @Roles(Role.User)
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
@@ -38,7 +37,7 @@ export class UsersController {
     description: '요청 성공시',
     type: User
   })
-  @Roles(Role.Admin, Role.User)
+  @Roles(Role.Admin)
   @Get('/role')
   async getRole(@ReqUser() user: User) {
     // findOneByUserId
