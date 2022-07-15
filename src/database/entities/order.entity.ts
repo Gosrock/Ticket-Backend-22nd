@@ -79,15 +79,23 @@ export class Order {
     type: () => User
   })
   @Expose()
-  @OneToMany(type => User, user => user.id, { eager: true })
+  @ManyToOne(type => User, user => user.order, { eager: false })
   public user: User;
+
+  @ApiProperty({
+    description: '주문을 처리한 어드민에 대한 외래키입니다.',
+    type: () => User
+  })
+  @Expose()
+  @ManyToOne(type => User)
+  public admin: User;
 
   @ApiProperty({
     description: '한개의 주문에 속한 티켓목록',
     type: () => Ticket
   })
   @Expose()
-  @OneToMany(type => Ticket, ticket => ticket.id, { eager: true })
+  @OneToMany(type => Ticket, ticket => ticket.user, { eager: true })
   public ticket: Ticket[];
 
   @ApiProperty({

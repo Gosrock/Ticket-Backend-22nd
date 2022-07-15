@@ -52,7 +52,7 @@ export class User {
   })
   public role: Role;
 
-  @OneToMany(() => Comment, comment => comment.user, { eager: true })
+  @OneToMany(type => Comment, comment => comment.user, { eager: true })
   public comments: Comment[];
 
   @ApiProperty({
@@ -60,7 +60,7 @@ export class User {
     type: () => [Order]
   })
   @Expose()
-  @OneToMany(type => Order, order => order.id, { eager: true })
+  @OneToMany(type => Order, order => order.user, { eager: true })
   public order: Order[];
 
   @ApiProperty({
@@ -68,7 +68,7 @@ export class User {
     type: () => [Ticket]
   })
   @Expose()
-  @OneToMany(type => Ticket, ticket => ticket.id, { eager: true })
+  @OneToMany(type => Ticket, ticket => ticket.user, { eager: true })
   public ticket: Ticket[];
 
   @ApiProperty({

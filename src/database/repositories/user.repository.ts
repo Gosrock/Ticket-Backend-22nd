@@ -11,11 +11,18 @@ export class UserRepository {
   ) {}
 
   async findByPhoneNumber(phoneNumber: string): Promise<User | null> {
-    const users = await this.userRepository.findOne({
-      where: {
-        phoneNumber: phoneNumber
-      }
-    });
+    console.log('phoneNumber', phoneNumber);
+    let users;
+    try {
+      users = await this.userRepository.findOne({
+        where: {
+          phoneNumber: phoneNumber
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
+
     return users;
   }
 

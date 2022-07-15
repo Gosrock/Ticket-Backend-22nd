@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { MaxLength } from 'class-validator';
 import { PerformanceDate, TicketStatus } from 'src/common/consts/enum';
+import { UsersController } from 'src/users/users.controller';
 import {
   Column,
   CreateDateColumn,
@@ -62,15 +63,15 @@ export class Ticket {
     type: () => Order
   })
   @Expose()
-  @ManyToOne(() => Order, order => order.id, { eager: false })
+  @ManyToOne(() => Order, order => order.user, { eager: false })
   public order: Order;
 
   @ApiProperty({
-    description: '주문을 처리한 어드민에 대한 외래키입니다.',
+    description: '티켓을 처리한 어드민에 대한 외래키입니다.',
     type: () => User
   })
   @Expose()
-  @ManyToOne(type => User, user => user.id, { eager: false })
+  @ManyToOne(type => User)
   public admin: User;
 
   @ApiProperty({
@@ -78,7 +79,7 @@ export class Ticket {
     type: () => User
   })
   @Expose()
-  @ManyToOne(type => User, user => user.id, { eager: false })
+  @ManyToOne(type => User, user => user.ticket, { eager: false })
   public user: User;
 
   @ApiProperty({

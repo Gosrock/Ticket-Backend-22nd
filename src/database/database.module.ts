@@ -14,7 +14,7 @@ export class DatabaseModule {
             type: 'postgres',
             host: 'localhost',
             port: 5432,
-            username: 'gosrock',
+            username: 'postgres',
             password: 'gosrock22th',
             // database: 'ticket',
             entities: [__dirname + '/../**/*.entity.{js,ts}'],

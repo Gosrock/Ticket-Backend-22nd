@@ -43,7 +43,7 @@ export class Comment {
     type: String
   })
   @Expose()
-  @ManyToOne(() => User, { eager: false })
+  @ManyToOne(type => User, user => user.comments, { eager: false })
   public user: User;
 
   @ApiProperty({
