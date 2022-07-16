@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, ValidationError } from '@nestjs/common';
 
 export class CustomValidationError extends HttpException {
   constructor(valdationErrorArray: ValidationError[]) {
-    const arrayOfError = valdationErrorArray
+    const objectsOfError = valdationErrorArray
       .map((error: ValidationError) => {
         const constrains = error.constraints;
         if (!constrains) return null;
@@ -23,7 +23,8 @@ export class CustomValidationError extends HttpException {
     super(
       {
         error: 'Validation Error',
-        message: arrayOfError,
+        message: '검증 오류',
+        validationErrorInfo: objectsOfError,
         statusCode: HttpStatus.BAD_REQUEST
       },
       HttpStatus.BAD_REQUEST
