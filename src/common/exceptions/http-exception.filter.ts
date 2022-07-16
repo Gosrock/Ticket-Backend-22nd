@@ -10,7 +10,7 @@ import {
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
-  catch(exception: unknown, host: ArgumentsHost) {
+  catch(exception: Error, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse();
     const request = ctx.getRequest();
@@ -26,7 +26,25 @@ export class AllExceptionsFilter implements ExceptionFilter {
       error = exception.getResponse();
     } else {
       statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
-      error = 'Internal server error';
+      // error = 'Internal server error';
+      const errorResponse = {
+        statusCode,
+        timestamp: new Date(),
+        path: request.url,
+        method: request.method,
+        error: {
+          error: 'Internal server error',
+          statusCode: statusCode,
+          message: '서버에러 관리자한테 문의 주세요'
+        }
+      };
+      Logger.error(
+        'ExceptionsFilter',
+        exception.stack,
+        request.method + request.url
+      );
+
+      return response.status(statusCode).json(errorResponse);
     }
 
     const errorResponse = {
@@ -39,6 +57,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     Logger.warn('errorResponse', JSON.stringify(errorResponse));
 
-    response.status(statusCode).json(errorResponse);
+    return response.status(statusCode).json(errorResponse);
   }
 }
