@@ -36,7 +36,7 @@ export class Ticket {
   public uuid: string;
 
   @ApiProperty({
-    description: '공연일자 입니다. (2022/09/01 또는 2022/09/02)',
+    description: '공연일자 입니다. (YB/OB)',
     enum: PerformanceDate
   })
   @Expose()
@@ -44,7 +44,7 @@ export class Ticket {
     type: 'enum',
     enum: PerformanceDate
   })
-  public date: string;
+  public date: PerformanceDate;
 
   @ApiProperty({
     description: '티켓의 상태입니다. (입장대기/입장완료)',

@@ -1,7 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TicketStatus } from 'src/common/consts/enum';
-import { CreateTicketDto } from 'src/tickets/dtos/create-ticket.dto';
+import { CreateTicketDto } from 'src/common/dtos/create-ticket.dto';
+import { UserProfileDto } from 'src/common/dtos/user-profile.dto';
+
 import { Repository } from 'typeorm';
 import { Order } from '../entities/order.entity';
 import { Ticket } from '../entities/ticket.entity';
@@ -115,10 +117,12 @@ export class TicketRepository {
    * 해당 ticketId를 참조하여 Ticket 엔티티의 status를 변경하고 DB에 저장한다
    * @param ticketId Ticket의 id
    * @param status 변경하고자 하려는 상태
+   * @param admin 변경하려는 어드민 정보
    */
   async updateStatus(
     ticketId: number,
-    status: TicketStatus
+    status: TicketStatus,
+    admin: User
   ): Promise<Ticket | null> {
     const ticket = await this.ticketRepository.findOne({
       where: {
@@ -132,7 +136,8 @@ export class TicketRepository {
 
     try {
       ticket.status = status;
-      await this.ticketRepository.save({ status });
+      ticket.admin = admin;
+      await this.ticketRepository.save(ticket);
     } catch (error) {
       console.log(`Error occurs in updateStatus: ${error}`);
     }
@@ -146,12 +151,8 @@ export class TicketRepository {
    * @param order 티켓이 속한 주문
    * @param user 티켓을 소유한 유저
    */
-  async createTicket(
-    createTicketDto: CreateTicketDto,
-    user: User,
-    order: Order
-  ): Promise<Ticket | null> {
-    const { date } = createTicketDto;
+  async createTicket(createTicketDto: CreateTicketDto): Promise<Ticket | null> {
+    const { user, order, date } = createTicketDto;
 
     //order = orderRepository.findOne(order)
 

@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CreateTicketDto } from 'src/common/dtos/create-ticket.dto';
 import { Order } from 'src/database/entities/order.entity';
 import { Ticket } from 'src/database/entities/ticket.entity';
 import { User } from 'src/database/entities/user.entity';
 import { TicketRepository } from 'src/database/repositories/ticket.repository';
-import { CreateTicketDto } from './dtos/create-ticket.dto';
 
 @Injectable()
 export class TicketsService {
@@ -32,15 +32,7 @@ export class TicketsService {
    * @param order 티켓이 속한 주문
    * @param user 티켓을 소유한 유저
    */
-  async createTicket(
-    createTicketDto: CreateTicketDto,
-    user: User,
-    order: Order
-  ): Promise<Ticket | null> {
-    return await this.ticketRepository.createTicket(
-      createTicketDto,
-      user,
-      order
-    );
+  async createTicket(createTicketDto: CreateTicketDto): Promise<Ticket | null> {
+    return await this.ticketRepository.createTicket(createTicketDto);
   }
 }
