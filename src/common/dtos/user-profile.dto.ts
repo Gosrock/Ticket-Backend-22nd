@@ -8,6 +8,14 @@ export class UserProfileDto extends PickType(PartialType(User), [
   'role',
   'createdAt'
 ] as const) {
+  constructor(user: User) {
+    super();
+    this.name = user.name;
+    this.phoneNumber = user.phoneNumber;
+    this.role = user.role;
+    this.createdAt = user.createdAt;
+  }
+
   static convertFrom(user: User): UserProfileDto {
     return plainToInstance(UserProfileDto, user, {
       excludeExtraneousValues: true

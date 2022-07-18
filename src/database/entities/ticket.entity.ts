@@ -1,15 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { MaxLength } from 'class-validator';
 import { PerformanceDate, TicketStatus } from 'src/common/consts/enum';
-import { UsersController } from 'src/users/users.controller';
+import { UserProfileDto } from 'src/common/dtos/user-profile.dto';
 import {
   Column,
   CreateDateColumn,
   Entity,
   Generated,
+  JoinColumn,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';

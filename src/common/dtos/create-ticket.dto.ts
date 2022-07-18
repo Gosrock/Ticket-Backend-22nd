@@ -6,13 +6,14 @@ import { UserProfileDto } from './user-profile.dto';
 export class CreateTicketDto extends PickType(PartialType(Ticket), [
   'date',
   'order',
+  'user',
   'createdAt',
   'updatedAt'
 ] as const) {
-  @ApiProperty({
-    description: '주문한 유저에 대한 정보입니다.',
-    type: () => UserProfileDto
-  })
-  @Expose()
-  public user: UserProfileDto;
+  // @ApiProperty({
+  //   description: '주문한 유저에 대한 정보입니다.',
+  //   type: () => UserProfileDto
+  // })
+  // @Expose()
+  // user: UserProfileDto;
 }
