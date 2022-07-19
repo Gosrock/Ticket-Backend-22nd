@@ -1,6 +1,7 @@
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ADMIN_CHANNELID, ORDER_CHANNELID } from './config/slack.const';
 import { SlackService } from './slack.service';
 
 @Module({
@@ -19,14 +20,14 @@ import { SlackService } from './slack.service';
   providers: [
     SlackService,
     {
-      provide: 'ADMIN_CHANNELID',
+      provide: ADMIN_CHANNELID,
       useFactory: (configService: ConfigService) => {
         return configService.get('SLACK_ADMIN_CHANNELID');
       },
       inject: [ConfigService]
     },
     {
-      provide: 'ORDER_CHANNELID',
+      provide: ORDER_CHANNELID,
       useFactory: (configService: ConfigService) => {
         return configService.get('SLACK_ORDER_CHANNELID');
       },

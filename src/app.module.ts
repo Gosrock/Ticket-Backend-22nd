@@ -34,7 +34,10 @@ import { UsersModule } from './users/users.module';
         POSTGRES_PORT: Joi.number().default(5432),
         POSTGRES_USER: Joi.string().default('gosrock'),
         POSTGRES_PASSWORD: Joi.string().default('gosrock22th'),
-        POSTGRES_DB: Joi.string().default('ticket')
+        POSTGRES_DB: Joi.string().default('ticket'),
+        SLACK_ORDER_CHANNELID: Joi.string(),
+        SLACK_ADMIN_CHANNELID: Joi.string(),
+        SLACK_BOT_TOKEN: Joi.string()
       })
     }),
     BullModule.forRootAsync({

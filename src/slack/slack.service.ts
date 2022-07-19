@@ -64,8 +64,56 @@ export class SlackService {
           .pipe(map(response => response.data))
       );
       console.log(value);
+      return value;
     } catch (error) {
       Logger.log(error);
+    }
+  }
+
+  async OrderStateChangedByAdminEvent(order: Order) {
+    try {
+      const value = await lastValueFrom(
+        this.httpService
+          .post('/chat.postMessage', {
+            channel: this.adminChannelId,
+            blocks: [
+              {
+                type: 'header',
+                text: {
+                  type: 'plain_text',
+                  text: `어드민 주문 상태 변경 알람`,
+                  emoji: true
+                }
+              },
+              {
+                type: 'section',
+                fields: [
+                  {
+                    type: 'mrkdwn',
+                    text: `*주문 아이디:*\n${order.id}`
+                  },
+                  {
+                    type: 'mrkdwn',
+                    text: `*주문 금액:*\n${order.ticketCount}`
+                  },
+                  {
+                    type: 'mrkdwn',
+                    text: `*주문 상태:*\n${order.status}`
+                  },
+                  {
+                    type: 'mrkdwn',
+                    text: `*관리자 정보:*\n${order.admin.name}`
+                  }
+                ]
+              }
+            ]
+          })
+          .pipe(map(response => response.data))
+      );
+      return value;
+    } catch (error) {
+      Logger.log(error);
+      // throw new Error(error);
     }
   }
 
@@ -89,7 +137,11 @@ export class SlackService {
                 fields: [
                   {
                     type: 'mrkdwn',
-                    text: `*주문자 정보:*\n${order.user.phoneNumber}`
+                    text: `*주문 아이디:*\n${order.id}`
+                  },
+                  {
+                    type: 'mrkdwn',
+                    text: `*주문자 입금자명:*\n${order.user.name}`
                   },
                   {
                     type: 'mrkdwn',
@@ -101,14 +153,14 @@ export class SlackService {
                   }
                 ]
               }
-            ],
-            icon_emoji: ':ghost:'
+            ]
           })
           .pipe(map(response => response.data))
       );
-      console.log(value);
+      return value;
     } catch (error) {
       Logger.log(error);
+      // throw new Error(error);
     }
   }
 }
