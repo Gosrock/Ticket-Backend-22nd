@@ -35,7 +35,7 @@ import { ResponseAdminLoginDto } from './dtos/AdminLogin.response.dto';
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
   constructor(
-    private userService: UsersService,
+    private userRepository: UserRepository,
     private dataSource: DataSource,
     private redisSerivce: RedisService,
     private configService: ConfigService,
@@ -94,9 +94,7 @@ export class AuthService {
         registerToken: this.registerJwtSign({ phoneNumber: userPhoneNumber })
       };
     } else {
-      const user = await this.userService.findUserByPhoneNumber(
-        userPhoneNumber
-      );
+      const user = await this.userRepository.findByPhoneNumber(userPhoneNumber);
       console.log(user);
       if (!user) {
         throw new BadRequestException('잘못된 접근');
@@ -174,7 +172,7 @@ export class AuthService {
     requestAdminSendValidationNumberDto: RequestAdminSendValidationNumberDto
   ): Promise<ResponseAdminSendValidationNumberDto> {
     //유저가 이미 회원가입했는지확인한다.
-    const searchUser = await this.userService.findUserByPhoneNumber(
+    const searchUser = await this.userRepository.findByPhoneNumber(
       requestAdminSendValidationNumberDto.phoneNumber
     );
 
@@ -222,7 +220,7 @@ export class AuthService {
       throw new BadRequestException('인증 번호가 맞지 않습니다.');
     }
 
-    const searchUser = await this.userService.findUserByPhoneNumber(
+    const searchUser = await this.userRepository.findByPhoneNumber(
       requestAdminLoginDto.phoneNumber
     );
 
@@ -245,9 +243,7 @@ export class AuthService {
    * @returns 회원가입했으면 참을 리턴한다.
    */
   async checkUserAlreadySignUp(phoneNumber: string): Promise<boolean> {
-    const searchUser = await this.userService.findUserByPhoneNumber(
-      phoneNumber
-    );
+    const searchUser = await this.userRepository.findByPhoneNumber(phoneNumber);
     console.log('asdcfasdfasdfdsaf');
 
     let checkSingUpState = false;
@@ -318,5 +314,9 @@ export class AuthService {
     } catch (e) {
       throw new UnauthorizedException();
     }
+  }
+
+  async findUserById(id: number): Promise<User | null> {
+    return await this.userRepository.findUserById(id);
   }
 }

@@ -1,7 +1,9 @@
 import 'reflect-metadata';
 
 import {
+  BadRequestException,
   ClassSerializerInterceptor,
+  ValidationError,
   ValidationPipe,
   VersioningType
 } from '@nestjs/common';
@@ -14,6 +16,7 @@ import {
   utilities as nestWinstonModuleUtilities
 } from 'nest-winston';
 import * as winston from 'winston';
+import { CustomValidationError } from './common/errors/ValidtionError';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -41,7 +44,11 @@ async function bootstrap() {
   app.enableCors({ origin: true, credentials: true });
 
   // 글로벌로 class 직렬화 선택
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  app.useGlobalInterceptors(
+    new ClassSerializerInterceptor(app.get(Reflector), {
+      excludeExtraneousValues: true
+    })
+  );
   // 성공시 인터셉터
   app.useGlobalInterceptors(new SuccessInterceptor());
   app.useGlobalPipes(
@@ -49,7 +56,10 @@ async function bootstrap() {
       // transform으로 형식변환가능한지 체크 dto에 transfrom 없어도 typescript type 보고 형변환 해줌
       //  enableImplicitConversion 옵션은 타입스크립트의 타입으로 추론가능하게 설정함
       transform: true,
-      transformOptions: { enableImplicitConversion: true }
+      transformOptions: { enableImplicitConversion: true },
+      exceptionFactory: (validationErrors: ValidationError[] = []) => {
+        return new CustomValidationError(validationErrors);
+      }
       // forbidNonWhitelisted: true,
     })
   );
