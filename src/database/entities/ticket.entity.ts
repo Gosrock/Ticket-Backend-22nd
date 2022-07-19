@@ -68,11 +68,12 @@ export class Ticket {
 
   @ApiProperty({
     description: '티켓을 처리한 어드민에 대한 외래키입니다.',
-    type: () => User
+    type: () => User,
+    nullable: true
   })
   @Expose()
   @ManyToOne(type => User)
-  public admin: User;
+  public admin: User | null;
 
   @ApiProperty({
     description: '주문한 유저에 대한 외래키입니다.',
