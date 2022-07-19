@@ -37,7 +37,8 @@ import { UsersModule } from './users/users.module';
         POSTGRES_DB: Joi.string().default('ticket'),
         SLACK_ORDER_CHANNELID: Joi.string(),
         SLACK_ADMIN_CHANNELID: Joi.string(),
-        SLACK_BOT_TOKEN: Joi.string()
+        SLACK_BOT_TOKEN: Joi.string(),
+        SLACK_BACKEND_CHANNELID: Joi.string()
       })
     }),
     BullModule.forRootAsync({

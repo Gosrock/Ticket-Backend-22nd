@@ -15,7 +15,6 @@ import { RegisterTokenGuard } from './guards/RegisterToken.guard';
 @Module({
   imports: [
     UsersModule,
-    SlackModule,
     TypeOrmModule.forFeature([User]),
     RedisModule.forRootAsync({
       imports: [ConfigModule],
