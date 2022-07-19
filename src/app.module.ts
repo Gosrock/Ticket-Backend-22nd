@@ -13,6 +13,8 @@ import { AllExceptionsFilter } from './common/exceptions/http-exception.filter';
 import { APP_FILTER } from '@nestjs/core';
 import { DatabaseModule } from './database/database.module';
 import { UsersModule } from './users/users.module';
+import { SmsModule } from './sms/sms.module';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -34,7 +36,11 @@ import { UsersModule } from './users/users.module';
         POSTGRES_PORT: Joi.number().default(5432),
         POSTGRES_USER: Joi.string().default('gosrock'),
         POSTGRES_PASSWORD: Joi.string().default('gosrock22th'),
-        POSTGRES_DB: Joi.string().default('ticket')
+        POSTGRES_DB: Joi.string().default('ticket'),
+        NAVER_SERVICE_ID: Joi.string(),
+        NAVER_ACCESS_KEY: Joi.string(),
+        NAVER_SECRET_KEY: Joi.string(),
+        NAVER_CALLER: Joi.string()
       })
     }),
     BullModule.forRootAsync({
@@ -60,7 +66,12 @@ import { UsersModule } from './users/users.module';
     SlackModule,
     SocketModule,
     DatabaseModule.forRoot({ isTest: false }),
-    UsersModule
+    UsersModule,
+    SmsModule,
+    ThrottlerModule.forRoot({
+      ttl: process.env.NODE_ENV === 'prod' ? 300 : 60,
+      limit: 3
+    })
   ],
 
   providers: [
