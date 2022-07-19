@@ -15,7 +15,13 @@ import { RegisterTokenGuard } from './guards/RegisterToken.guard';
 
 @Module({
   imports: [
-    SmsModule.forRoot({ isProd: false }),
+    SmsModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        isProd: configService.get('NODE_ENV') === 'prod' ? true : false
+      }),
+      inject: [ConfigService]
+    }),
     UsersModule,
     SlackModule,
     TypeOrmModule.forFeature([User]),
