@@ -16,7 +16,23 @@ import { SlackService } from './slack.service';
       inject: [ConfigService]
     })
   ],
-  providers: [SlackService],
+  providers: [
+    SlackService,
+    {
+      provide: 'ADMIN_CHANNELID',
+      useFactory: (configService: ConfigService) => {
+        return configService.get('SLACK_ADMIN_CHANNELID');
+      },
+      inject: [ConfigService]
+    },
+    {
+      provide: 'ORDER_CHANNELID',
+      useFactory: (configService: ConfigService) => {
+        return configService.get('SLACK_ORDER_CHANNELID');
+      },
+      inject: [ConfigService]
+    }
+  ],
   exports: [SlackService]
 })
 export class SlackModule {}
