@@ -14,6 +14,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { DatabaseModule } from './database/database.module';
 import { UsersModule } from './users/users.module';
 import { SmsModule } from './sms/sms.module';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -66,7 +67,11 @@ import { SmsModule } from './sms/sms.module';
     SocketModule,
     DatabaseModule.forRoot({ isTest: false }),
     UsersModule,
-    SmsModule
+    SmsModule,
+    ThrottlerModule.forRoot({
+      ttl: process.env.NODE_ENV === 'prod' ? 300 : 60,
+      limit: 3
+    })
   ],
 
   providers: [

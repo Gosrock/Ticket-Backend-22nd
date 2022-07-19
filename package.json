@@ -33,6 +33,7 @@
     "@nestjs/platform-express": "^8.0.0",
     "@nestjs/platform-socket.io": "^8.4.7",
     "@nestjs/swagger": "^5.0.9",
+    "@nestjs/throttler": "^3.0.0",
     "@nestjs/typeorm": "^8.1.4",
     "@nestjs/websockets": "^8.4.7",
     "@redis/client": "^1.2.0",
@@ -57,6 +58,7 @@
     "rxjs": "^7.2.0",
     "swagger-ui-express": "^4.4.0",
     "typeorm": "^0.3.7",
+    "uuid": "^8.3.2",
     "winston": "^3.8.1"
   },
   "lint-staged": {
@@ -74,6 +76,7 @@
     "@types/jsonwebtoken": "^8.5.8",
     "@types/node": "^16.0.0",
     "@types/supertest": "^2.0.11",
+    "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
     "codecov": "^3.8.3",
