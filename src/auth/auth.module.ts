@@ -5,6 +5,7 @@ import { User } from 'src/database/entities/user.entity';
 import { UserRepository } from 'src/database/repositories/user.repository';
 import { RedisModule } from 'src/redis/redis.module';
 import { SlackModule } from 'src/slack/slack.module';
+import { SmsModule } from 'src/sms/sms.module';
 import { UsersModule } from 'src/users/users.module';
 import { UsersService } from 'src/users/users.service';
 import { AuthController } from './auth.controller';
@@ -14,6 +15,7 @@ import { RegisterTokenGuard } from './guards/RegisterToken.guard';
 
 @Module({
   imports: [
+    SmsModule.forRoot({ isProd: false }),
     UsersModule,
     SlackModule,
     TypeOrmModule.forFeature([User]),

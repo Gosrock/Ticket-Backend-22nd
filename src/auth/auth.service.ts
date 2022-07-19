@@ -3,11 +3,9 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
-  LoggerService,
   UnauthorizedException
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { throwIfEmpty } from 'rxjs';
 import { User } from 'src/database/entities/user.entity';
 import { UserRepository } from 'src/database/repositories/user.repository';
 import { RedisService } from 'src/redis/redis.service';
@@ -24,12 +22,13 @@ import { RequestRegisterUserDto } from './dtos/RegisterUser.request.dto';
 import { DataSource } from 'typeorm';
 import { getConnectedRepository } from 'src/common/funcs/getConnectedRepository';
 import { ResponseRegisterUserDto } from './dtos/RegisterUser.response.dto';
-import { classToPlain, instanceToPlain } from 'class-transformer';
 import { RequestAdminSendValidationNumberDto } from './dtos/AdminSendValidationNumber.request.dto copy';
 import { SlackService } from 'src/slack/slack.service';
 import { ResponseAdminSendValidationNumberDto } from './dtos/AdminSendValidationNumber.response.dto';
 import { RequestAdminLoginDto } from './dtos/AdminLogin.request.dto';
 import { ResponseAdminLoginDto } from './dtos/AdminLogin.response.dto';
+import { SmsService } from 'src/sms/sms.service';
+import { MessageDto } from 'src/sms/dtos/message.dto';
 
 @Injectable()
 export class AuthService {
@@ -39,7 +38,8 @@ export class AuthService {
     private dataSource: DataSource,
     private redisSerivce: RedisService,
     private configService: ConfigService,
-    private slackService: SlackService
+    private slackService: SlackService,
+    private smsService: SmsService
   ) {}
 
   async requestPhoneValidationNumber(
@@ -60,6 +60,13 @@ export class AuthService {
       generatedRandomNumber,
       180
     );
+
+    const message = new MessageDto(
+      userPhoneNumber,
+      `고스락 티켓예매\n인증번호 [${generatedRandomNumber}]`
+    );
+
+    await this.smsService.sendMessages([message]);
 
     return {
       alreadySingUp: checkSingUpState,
