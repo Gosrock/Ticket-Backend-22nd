@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger, LoggerService } from '@nestjs/common';
 import { RedisClientType } from '@redis/client';
 import { createClient } from 'redis';
 import { ValidationNumberDto } from './dtos/ValidationNumber.dto';
-import { REDIS_CLIENT_PROVIDER } from './Redis.const';
+import { REDIS_CLIENT_PROVIDER } from './config/Redis.const';
 
 @Injectable()
 export class RedisService {

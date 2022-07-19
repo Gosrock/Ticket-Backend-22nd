@@ -13,6 +13,7 @@ import { AllExceptionsFilter } from './common/exceptions/http-exception.filter';
 import { APP_FILTER } from '@nestjs/core';
 import { DatabaseModule } from './database/database.module';
 import { UsersModule } from './users/users.module';
+import { SmsModule } from './sms/sms.module';
 
 @Module({
   imports: [
@@ -38,7 +39,11 @@ import { UsersModule } from './users/users.module';
         SLACK_ORDER_CHANNELID: Joi.string(),
         SLACK_ADMIN_CHANNELID: Joi.string(),
         SLACK_BOT_TOKEN: Joi.string(),
-        SLACK_BACKEND_CHANNELID: Joi.string()
+        SLACK_BACKEND_CHANNELID: Joi.string(),
+        NAVER_SERVICE_ID: Joi.string(),
+        NAVER_ACCESS_KEY: Joi.string(),
+        NAVER_SECRET_KEY: Joi.string(),
+        NAVER_CALLER: Joi.string()
       })
     }),
     BullModule.forRootAsync({
@@ -64,7 +69,8 @@ import { UsersModule } from './users/users.module';
     SlackModule,
     SocketModule,
     DatabaseModule.forRoot({ isTest: false }),
-    UsersModule
+    UsersModule,
+    SmsModule
   ],
 
   providers: [

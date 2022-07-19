@@ -9,6 +9,7 @@ import {
   BACKEND_CHANNELID,
   ORDER_CHANNELID
 } from './config/slack.const';
+import { NaverError } from 'src/sms/SMSError';
 @Injectable()
 export class SlackService {
   constructor(
@@ -40,8 +41,8 @@ export class SlackService {
 
       return data.user.id;
     } catch (error) {
-      Logger.log(error);
-      return null;
+      Logger.log(error.response.data);
+      throw new NaverError('문자발송실패', error.response.data);
     }
   }
 

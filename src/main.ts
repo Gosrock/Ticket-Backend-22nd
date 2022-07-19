@@ -27,6 +27,7 @@ async function bootstrap() {
           format: winston.format.combine(
             winston.format.timestamp(),
             nestWinstonModuleUtilities.format.nestLike('TicketBackend', {
+              colors: true,
               prettyPrint: true
             })
           )
