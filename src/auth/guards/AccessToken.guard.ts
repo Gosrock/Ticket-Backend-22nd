@@ -13,11 +13,7 @@ import { Role } from 'src/common/consts/enum';
 
 @Injectable()
 export class AccessTokenGuard implements CanActivate {
-  constructor(
-    private authService: AuthService,
-    private userService: UsersService,
-    private reflector: Reflector
-  ) {}
+  constructor(private authService: AuthService, private reflector: Reflector) {}
 
   canActivate(
     context: ExecutionContext
@@ -46,7 +42,7 @@ export class AccessTokenGuard implements CanActivate {
     console.log(roles);
 
     const payload = this.authService.verifyAccessJWT(jwtString);
-    const user = await this.userService.findUserById(payload.id);
+    const user = await this.authService.findUserById(payload.id);
     if (!user) {
       throw new UnauthorizedException('없는 유저입니다.');
     }
