@@ -19,7 +19,6 @@ import { SmsModule } from './sms/sms.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: process.env.NODE_ENV === 'test' ? '.env.local' : '.env',
       validationSchema: Joi.object({
         NODE_ENV: Joi.string()
           .valid('dev', 'prod', 'test', 'provision')
