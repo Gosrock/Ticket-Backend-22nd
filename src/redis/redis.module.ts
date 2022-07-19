@@ -9,9 +9,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { createClient, RedisClientOptions } from 'redis';
 import { FakeLogger } from './FakeLogger';
 import { RedisService } from './redis.service';
-import { RedisAsyncConfig } from './RedisAsyncConfig.interface';
-import { RedisOption } from './RedisOption.interface';
-import { REDIS_CLIENT_PROVIDER, REDIS_MODULE_OPTIONS } from './Redis.const';
+import { RedisAsyncConfig } from './config/RedisAsyncConfig.interface';
+import { RedisOption } from './config/RedisOption.interface';
+import {
+  REDIS_CLIENT_PROVIDER,
+  REDIS_MODULE_OPTIONS
+} from './config/Redis.const';
 import { RedisTestService } from './redisTest.service';
 
 export type RedisClientType = ReturnType<typeof createClient>;

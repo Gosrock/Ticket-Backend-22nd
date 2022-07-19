@@ -1,6 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { lastValueFrom, map } from 'rxjs';
+import { NaverError } from 'src/sms/SMSError';
 @Injectable()
 export class SlackService {
   constructor(private readonly httpService: HttpService) {}
@@ -22,8 +23,8 @@ export class SlackService {
 
       return data.user.id;
     } catch (error) {
-      Logger.log(error);
-      return null;
+      Logger.log(error.response.data);
+      throw new NaverError('문자발송실패', error.response.data);
     }
   }
 
