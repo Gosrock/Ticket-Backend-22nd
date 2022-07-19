@@ -5,6 +5,7 @@ import { lastValueFrom, map } from 'rxjs';
 import { MessageDto } from './dtos/message.dto';
 import { SendSMSDto } from './dtos/sendSMS.dto';
 import * as CryptoJS from 'crypto-js';
+import { NaverError } from './SMSError';
 @Injectable()
 export class SmsService {
   constructor(
@@ -37,14 +38,13 @@ export class SmsService {
           })
           .pipe(map(response => response.data))
       );
-      // Logger.log(data);
 
       if (data.ok !== true) {
         return null;
       }
     } catch (error) {
       Logger.log(error.response.data);
-      return null;
+      throw new NaverError('문자발송실패', error.response.data);
     }
   }
 

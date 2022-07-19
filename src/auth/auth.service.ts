@@ -64,7 +64,11 @@ export class AuthService {
       `고스락 티켓예매\n인증번호 [${generatedRandomNumber}]`
     );
 
-    await this.smsService.sendMessages([message]);
+    try {
+      await this.smsService.sendMessages([message]);
+    } catch (error) {
+      console.log(error);
+    }
 
     return {
       alreadySingUp: checkSingUpState,
