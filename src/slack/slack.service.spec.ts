@@ -2,8 +2,9 @@ import { HttpModule } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as Joi from 'joi';
-import { OrderStatus } from 'src/common/consts/enum';
+import { OrderStatus, TicketStatus } from 'src/common/consts/enum';
 import { Order } from 'src/database/entities/order.entity';
+import { Ticket } from 'src/database/entities/ticket.entity';
 import { User } from 'src/database/entities/user.entity';
 import { ADMIN_CHANNELID, ORDER_CHANNELID } from './config/slack.const';
 import { SlackService } from './slack.service';
@@ -96,7 +97,47 @@ describe('SlackService', () => {
     order.price = 5000;
     order.status = OrderStatus.DONE;
 
-    const value = await service.OrderStateChangedByAdminEvent(order);
+    const value = await service.orderStateChangedByAdminEvent(order);
+    console.log(value);
+    expect(value).toBeDefined();
+  });
+
+  it('관리자가 티켓의 상태를 변경하면 알림이 가야합니다.', async () => {
+    const ticket = new Ticket();
+    const adminUser = new User();
+    const orderUser = new User();
+    adminUser.id = 1;
+    adminUser.name = '테스트';
+    adminUser.phoneNumber = '테스트';
+    orderUser.id = 1;
+    orderUser.name = '손님';
+    orderUser.phoneNumber = '테스트';
+    ticket.id = 10001;
+    ticket.admin = adminUser;
+    ticket.user = orderUser;
+    ticket.status = TicketStatus.WAIT;
+
+    const value = await service.ticketStateChangedByAdminEvent(ticket);
+    console.log(value);
+    expect(value).toBeDefined();
+  });
+
+  it('티켓 입장 알림 이벤트가 가야합니다.', async () => {
+    const ticket = new Ticket();
+    const adminUser = new User();
+    const orderUser = new User();
+    adminUser.id = 1;
+    adminUser.name = '테스트';
+    adminUser.phoneNumber = '테스트';
+    orderUser.id = 1;
+    orderUser.name = '손님';
+    orderUser.phoneNumber = '테스트';
+    ticket.id = 10001;
+    ticket.admin = adminUser;
+    ticket.user = orderUser;
+    ticket.status = TicketStatus.DONE;
+
+    const value = await service.ticketEnterEvent(ticket);
     console.log(value);
     expect(value).toBeDefined();
   });

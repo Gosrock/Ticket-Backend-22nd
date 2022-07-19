@@ -3,6 +3,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { lastValueFrom, map } from 'rxjs';
 import { Order } from 'src/database/entities/order.entity';
+import { Ticket } from 'src/database/entities/ticket.entity';
 import { ADMIN_CHANNELID, ORDER_CHANNELID } from './config/slack.const';
 @Injectable()
 export class SlackService {
@@ -70,7 +71,7 @@ export class SlackService {
     }
   }
 
-  async OrderStateChangedByAdminEvent(order: Order) {
+  async orderStateChangedByAdminEvent(order: Order) {
     try {
       const value = await lastValueFrom(
         this.httpService
@@ -150,6 +151,96 @@ export class SlackService {
                   {
                     type: 'mrkdwn',
                     text: `*주문금액:*\n${order.price}`
+                  }
+                ]
+              }
+            ]
+          })
+          .pipe(map(response => response.data))
+      );
+      return value;
+    } catch (error) {
+      Logger.log(error);
+      // throw new Error(error);
+    }
+  }
+
+  async ticketStateChangedByAdminEvent(ticket: Ticket) {
+    try {
+      const value = await lastValueFrom(
+        this.httpService
+          .post('/chat.postMessage', {
+            channel: this.adminChannelId,
+            blocks: [
+              {
+                type: 'header',
+                text: {
+                  type: 'plain_text',
+                  text: `어드민 티켓 상태 변경 알람`,
+                  emoji: true
+                }
+              },
+              {
+                type: 'section',
+                fields: [
+                  {
+                    type: 'mrkdwn',
+                    text: `*티켓 아이디:*\n${ticket.id}`
+                  },
+                  {
+                    type: 'mrkdwn',
+                    text: `*티켓 주문자:*\n${ticket.user.name}`
+                  },
+                  {
+                    type: 'mrkdwn',
+                    text: `*티켓 상태:*\n${ticket.status}`
+                  },
+                  {
+                    type: 'mrkdwn',
+                    text: `*관리자:*\n${ticket.admin?.name}`
+                  }
+                ]
+              }
+            ]
+          })
+          .pipe(map(response => response.data))
+      );
+      return value;
+    } catch (error) {
+      Logger.log(error);
+      // throw new Error(error);
+    }
+  }
+
+  async ticketEnterEvent(ticket: Ticket) {
+    try {
+      const value = await lastValueFrom(
+        this.httpService
+          .post('/chat.postMessage', {
+            channel: this.adminChannelId,
+            blocks: [
+              {
+                type: 'header',
+                text: {
+                  type: 'plain_text',
+                  text: `티켓 입장 알람`,
+                  emoji: true
+                }
+              },
+              {
+                type: 'section',
+                fields: [
+                  {
+                    type: 'mrkdwn',
+                    text: `*티켓 아이디:*\n${ticket.id}`
+                  },
+                  {
+                    type: 'mrkdwn',
+                    text: `*티켓 주문자:*\n${ticket.user.name}`
+                  },
+                  {
+                    type: 'mrkdwn',
+                    text: `*관리자:*\n${ticket.admin?.name}`
                   }
                 ]
               }
