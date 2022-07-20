@@ -1,6 +1,5 @@
 import {
   Body,
-  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -8,7 +7,6 @@ import {
   Patch,
   Query,
   UseGuards,
-  UseInterceptors,
   UsePipes,
   ValidationPipe
 } from '@nestjs/common';
@@ -16,7 +14,6 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiOperation,
-  ApiParam,
   ApiResponse,
   ApiTags,
   ApiUnauthorizedResponse
@@ -29,7 +26,6 @@ import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
 import { PageDto } from 'src/common/dtos/page/page.dto';
 import { TicketFindDto } from 'src/common/dtos/ticket-find.dto';
 import { UpdateTicketStatusDto } from 'src/common/dtos/update-ticket-status.dto';
-import { TicketStatusValidationPipe } from 'src/common/pipes/ticket-status-validation.pipe';
 import { Order } from 'src/database/entities/order.entity';
 import { Ticket } from 'src/database/entities/ticket.entity';
 import { User } from 'src/database/entities/user.entity';
@@ -99,7 +95,6 @@ export class TicketsController {
   })
   @Get('/find')
   @Roles(Role.Admin)
-  @UseInterceptors(ClassSerializerInterceptor) //json 직렬화
   @UsePipes(ValidationPipe)
   getTicketsWith(
     @Query() ticketFindDto: TicketFindDto,
@@ -168,20 +163,10 @@ export class TicketsController {
   @Roles(Role.Admin)
   @UsePipes(ValidationPipe)
   @Patch('/status')
-  updateTicketStatus(@Body('') updateTicketStatusDto: UpdateTicketStatusDto) {
-    const user = {
-      id: 1,
-      name: '노경민',
-      phoneNumber: '01012345678',
-      role: Role.Admin,
-      order: [],
-      ticket: [],
-      comments: [],
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    //테스트용
-
+  updateTicketStatus(
+    @Body('') updateTicketStatusDto: UpdateTicketStatusDto,
+    @ReqUser() user: User
+  ) {
     return this.ticketService.updateTicketStatus(updateTicketStatusDto, user);
   }
 

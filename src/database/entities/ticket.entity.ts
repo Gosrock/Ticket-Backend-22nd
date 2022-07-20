@@ -30,7 +30,7 @@ export class Ticket {
     type: String
   })
   @Expose()
-  @Column('varchar', { length: 20 })
+  @Column('varchar', { length: 14 })
   public uuid: string;
 
   @ApiProperty({
@@ -95,6 +95,6 @@ export class Ticket {
 
   @BeforeInsert()
   setUuid() {
-    this.uuid = nanoid(20).toString();
+    this.uuid = nanoid(14).toString();
   }
 }
