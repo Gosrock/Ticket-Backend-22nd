@@ -23,7 +23,6 @@ import { RegisterTokenGuard } from './guards/RegisterToken.guard';
       inject: [ConfigService]
     }),
     UsersModule,
-    SlackModule,
     TypeOrmModule.forFeature([User]),
     RedisModule.forRootAsync({
       imports: [ConfigModule],

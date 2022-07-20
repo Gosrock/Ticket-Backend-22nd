@@ -20,7 +20,6 @@ import { ThrottlerModule } from '@nestjs/throttler';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: process.env.NODE_ENV === 'test' ? '.env.local' : '.env',
       validationSchema: Joi.object({
         NODE_ENV: Joi.string()
           .valid('dev', 'prod', 'test', 'provision')
@@ -37,6 +36,10 @@ import { ThrottlerModule } from '@nestjs/throttler';
         POSTGRES_USER: Joi.string().default('gosrock'),
         POSTGRES_PASSWORD: Joi.string().default('gosrock22th'),
         POSTGRES_DB: Joi.string().default('ticket'),
+        SLACK_ORDER_CHANNELID: Joi.string(),
+        SLACK_ADMIN_CHANNELID: Joi.string(),
+        SLACK_BOT_TOKEN: Joi.string(),
+        SLACK_BACKEND_CHANNELID: Joi.string(),
         NAVER_SERVICE_ID: Joi.string(),
         NAVER_ACCESS_KEY: Joi.string(),
         NAVER_SECRET_KEY: Joi.string(),
