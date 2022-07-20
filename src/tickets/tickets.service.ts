@@ -1,7 +1,9 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Role } from 'src/common/consts/enum';
 import { CreateTicketDto } from 'src/common/dtos/create-ticket.dto';
-import { FindTicketDto } from 'src/common/dtos/find-ticket.dto';
+import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
+import { PageDto } from 'src/common/dtos/page/page.dto';
+import { TicketFindDto } from 'src/common/dtos/ticket-find.dto';
 import { UpdateTicketStatusDto } from 'src/common/dtos/update-ticket-status.dto';
 import { Ticket } from 'src/database/entities/ticket.entity';
 import { User } from 'src/database/entities/user.entity';
@@ -44,8 +46,14 @@ export class TicketsService {
     return await this.ticketRepository.findAllByUserId(userId);
   }
 
-  async findAllWith(findTicketDto: FindTicketDto): Promise<Ticket[] | null> {
-    return await this.ticketRepository.findAllWith(findTicketDto);
+  async findAllWith(
+    ticketFindDto: TicketFindDto,
+    pageOptionsDto: PageOptionsDto
+  ): Promise<PageDto<Ticket>> {
+    return await this.ticketRepository.findAllWith(
+      ticketFindDto,
+      pageOptionsDto
+    );
   }
 
   async updateTicketStatus(

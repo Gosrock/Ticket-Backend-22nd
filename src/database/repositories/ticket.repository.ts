@@ -6,7 +6,11 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from 'src/common/consts/enum';
 import { CreateTicketDto } from 'src/common/dtos/create-ticket.dto';
-import { FindTicketDto } from 'src/common/dtos/find-ticket.dto';
+import { PageMetaDto } from 'src/common/dtos/page/page-meta.dto';
+import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
+import { PageDto } from 'src/common/dtos/page/page.dto';
+import { PagingDto } from 'src/common/dtos/paging.dto';
+import { TicketFindDto } from 'src/common/dtos/ticket-find.dto';
 import { UpdateTicketStatusDto } from 'src/common/dtos/update-ticket-status.dto';
 
 import { Repository } from 'typeorm';
@@ -89,6 +93,52 @@ export class TicketRepository {
   }
 
   /**
+   * 해당 ticketStatus를 참조하여 해당하는 Ticket 엔티티를 가지고 온다 (관리자용)
+   * @param ticketStatus TicketStatus Enum
+   */
+  async findAllWith(
+    ticketFindDto: TicketFindDto,
+    pageOptionsDto: PageOptionsDto
+  ): Promise<PageDto<Ticket>> {
+    // const { status, date } = ticketFindDto;
+    // const tickets = await this.ticketRepository.find({
+    //   where: {
+    //     status,
+    //     date
+    //   }
+    // });
+    // console.log(ticketFindDto);
+
+    // if (!tickets || tickets.length === 0) {
+    //   throw new NotFoundException(`Can't find Tickets with status: ${status}`);
+    // }
+    // return tickets;
+    const { status, date } = ticketFindDto;
+    const queryBuilder = this.ticketRepository.createQueryBuilder('ticket');
+
+    //조건부 검색
+    if (status) {
+      queryBuilder.andWhere({ status });
+    }
+    if (date) {
+      queryBuilder.andWhere({ date });
+    }
+
+    queryBuilder
+      .orderBy('ticket.createdAt', pageOptionsDto.order)
+      .skip(pageOptionsDto.skip)
+      .take(pageOptionsDto.take);
+
+    const itemCount = await queryBuilder.getCount();
+    const { entities } = await queryBuilder.getRawAndEntities();
+
+    const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
+
+    console.log(1);
+    return new PageDto(entities, pageMetaDto);
+  }
+
+  /**
    * 해당 userId를 참조하여 유저가 가진 모든 Ticket 엔티티를 가지고 온다
    * @param userId User의 id
    */
@@ -103,26 +153,6 @@ export class TicketRepository {
       throw new NotFoundException(
         `Can't find Tickets belongs to id: ${userId}`
       );
-    }
-    return tickets;
-  }
-
-  /**
-   * 해당 ticketStatus를 참조하여 해당하는 Ticket 엔티티를 가지고 온다 (관리자용)
-   * @param ticketStatus TicketStatus Enum
-   */
-  async findAllWith(findTicketDto: FindTicketDto): Promise<Ticket[] | null> {
-    const { status, date } = findTicketDto;
-    const tickets = await this.ticketRepository.find({
-      where: {
-        status,
-        date
-      }
-    });
-    console.log(findTicketDto);
-
-    if (!tickets || tickets.length === 0) {
-      throw new NotFoundException(`Can't find Tickets with status: ${status}`);
     }
     return tickets;
   }

@@ -1,10 +1,9 @@
-import { PickType, PartialType, ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { IsOptional } from 'class-validator';
-import { Ticket } from 'src/database/entities/ticket.entity';
 import { PerformanceDate, TicketStatus } from '../consts/enum';
 
-export class FindTicketDto {
+export class TicketFindDto {
   @ApiProperty({
     description: '티켓 상태',
     enum: TicketStatus,

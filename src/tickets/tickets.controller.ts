@@ -1,14 +1,18 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   NotFoundException,
   Param,
   Patch,
   Query,
   UnauthorizedException,
-  UseGuards
+  UseGuards,
+  UseInterceptors
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -22,7 +26,9 @@ import { AccessTokenGuard } from 'src/auth/guards/AccessToken.guard';
 import { PerformanceDate, Role, TicketStatus } from 'src/common/consts/enum';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { ReqUser } from 'src/common/decorators/user.decorator';
-import { FindTicketDto } from 'src/common/dtos/find-ticket.dto';
+import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
+import { PagingDto } from 'src/common/dtos/paging.dto';
+import { TicketFindDto } from 'src/common/dtos/ticket-find.dto';
 import { UpdateTicketStatusDto } from 'src/common/dtos/update-ticket-status.dto';
 import { UserProfileDto } from 'src/common/dtos/user-profile.dto';
 import { PerformanceDateValidationPipe } from 'src/common/pipes/performance-date-validation.pipe';
@@ -37,11 +43,12 @@ import { TicketsService } from './tickets.service';
 @ApiTags('tickets')
 @ApiBearerAuth('accessToken')
 @Controller('tickets')
-@UseGuards(AccessTokenGuard)
+//@UseGuards(AccessTokenGuard)
 export class TicketsController {
-  constructor(private ticketService: TicketsService
-    ,private usersService: UsersService//삭제예정
-    ) {}
+  constructor(
+    private ticketService: TicketsService,
+    private usersService: UsersService //삭제예정
+  ) {}
 
   //실제 사용
   // @Get()
@@ -59,17 +66,16 @@ export class TicketsController {
   })
   @ApiUnauthorizedResponse({
     status: 400,
-    description: 'AccessToken이 없거나 어드민이 아닐 경우',
-    type: UnauthorizedException
+    description: 'AccessToken이 없거나 어드민이 아닐 경우'
   })
   @Get('')
-  @Roles(Role.Admin)
+  //@Roles(Role.Admin)
   getAllTickets() {
     return this.ticketService.findAll();
   }
 
   @ApiOperation({
-    summary: '해당 조건의 티켓을 모두 불러온다, querystring으로 전달'
+    summary: '[어드민]해당 조건의 티켓을 모두 불러온다, querystring으로 전달'
   })
   @ApiResponse({
     status: 200,
@@ -78,9 +84,12 @@ export class TicketsController {
   })
   @Get('/find')
   @Roles(Role.Admin)
-  getTicketsWith(@Query() findTicketDto: FindTicketDto) {
-    console.log(findTicketDto);
-    return this.ticketService.findAllWith(findTicketDto);
+  @UseInterceptors(ClassSerializerInterceptor) //json 직렬화
+  getTicketsWith(
+    @Query() ticketFindDto: TicketFindDto,
+    @Query() pageOptionsDto: PageOptionsDto
+  ) {
+    return this.ticketService.findAllWith(ticketFindDto, pageOptionsDto);
   }
 
   @ApiOperation({ summary: '임시 티켓 생성 (db 저장 테스트용)' })
@@ -125,7 +134,7 @@ export class TicketsController {
   // createTicketTest() {
   // }
 
-  @ApiOperation({ summary: '티켓 하나의 status를 변경한다' })
+  @ApiOperation({ summary: '[어드민] 티켓 하나의 status를 변경한다' })
   @ApiBody({ type: UpdateTicketStatusDto })
   @ApiResponse({
     status: 200,
@@ -154,7 +163,7 @@ export class TicketsController {
     return this.ticketService.updateTicketStatus(updateTicketStatusDto, user);
   }
 
-  @ApiOperation({ summary: '해당 id의 티켓을 제거한다' })
+  @ApiOperation({ summary: '[어드민] 해당 id의 티켓을 제거한다' })
   @ApiResponse({
     status: 200,
     description: '요청 성공시',
