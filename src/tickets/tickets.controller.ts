@@ -3,12 +3,25 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Patch,
-  Query
+  Query,
+  UnauthorizedException,
+  UseGuards
 } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse
+} from '@nestjs/swagger';
+import { AccessTokenGuard } from 'src/auth/guards/AccessToken.guard';
 import { PerformanceDate, Role, TicketStatus } from 'src/common/consts/enum';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { ReqUser } from 'src/common/decorators/user.decorator';
 import { FindTicketDto } from 'src/common/dtos/find-ticket.dto';
 import { UpdateTicketStatusDto } from 'src/common/dtos/update-ticket-status.dto';
 import { UserProfileDto } from 'src/common/dtos/user-profile.dto';
@@ -18,12 +31,17 @@ import { TicketUuidValidationPipe } from 'src/common/pipes/ticket-uuid-validatio
 import { Order } from 'src/database/entities/order.entity';
 import { Ticket } from 'src/database/entities/ticket.entity';
 import { User } from 'src/database/entities/user.entity';
+import { UsersService } from 'src/users/users.service';
 import { TicketsService } from './tickets.service';
 
 @ApiTags('tickets')
+@ApiBearerAuth('accessToken')
 @Controller('tickets')
+@UseGuards(AccessTokenGuard)
 export class TicketsController {
-  constructor(private ticketService: TicketsService) {}
+  constructor(private ticketService: TicketsService
+    ,private usersService: UsersService//삭제예정
+    ) {}
 
   //실제 사용
   // @Get()
@@ -31,8 +49,21 @@ export class TicketsController {
   //   return this.ticketService.findAllByUserId(user.id);
   // }
 
-  //테스트용
-  @Get()
+  @ApiOperation({
+    summary: '[어드민]모든 티켓을 불러온다'
+  })
+  @ApiResponse({
+    status: 200,
+    description: '요청 성공시',
+    type: Ticket
+  })
+  @ApiUnauthorizedResponse({
+    status: 400,
+    description: 'AccessToken이 없거나 어드민이 아닐 경우',
+    type: UnauthorizedException
+  })
+  @Get('')
+  @Roles(Role.Admin)
   getAllTickets() {
     return this.ticketService.findAll();
   }
@@ -46,9 +77,9 @@ export class TicketsController {
     type: Ticket
   })
   @Get('/find')
+  @Roles(Role.Admin)
   getTicketsWith(@Query() findTicketDto: FindTicketDto) {
     console.log(findTicketDto);
-    //어드민 전용 가드 필요
     return this.ticketService.findAllWith(findTicketDto);
   }
 
@@ -58,36 +89,9 @@ export class TicketsController {
     description: '요청 성공시',
     type: Ticket
   })
-  @Get('/create')
-  testCreateTicket() {
-    // userprofiledto
-    //
-    const user = {
-      id: 1,
-      name: '노경민',
-      phoneNumber: '01012345678',
-      role: Role.User,
-      order: [],
-      ticket: [],
-      comments: [],
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-
-    // const order = {
-    //   id: 10050,
-    //   selection: OrderDate.YB,
-    //   ticketCount: 1,
-    //   status: OrderStatus.DONE,
-    //   price: 5000,
-    //   isFree: false,
-    //   user,
-    //   admin: user,
-    //   ticket: [],
-    //   createdAt: new Date(),
-    //   updatedAt: new Date()
-    // };
-    const dto = new UserProfileDto(user);
+  @Get('/create/:userId')
+  async testCreateTicket(@Param('userId') userId: number) {
+    const user = (await this.usersService.findUserById(userId)) as User;
 
     const createTicketDto = {
       date: PerformanceDate.YB,
@@ -99,7 +103,9 @@ export class TicketsController {
     return this.ticketService.createTicket(createTicketDto);
   }
 
-  @ApiOperation({ summary: '해당 uuid를 포함하는 티켓을 가져온다' })
+  @ApiOperation({
+    summary: '해당 uuid를 포함하는 티켓을 가져온다, req.user 필요'
+  })
   @ApiResponse({
     status: 200,
     description: '요청 성공시',
@@ -108,9 +114,11 @@ export class TicketsController {
   @Get('/:uuid')
   getTicketByUuid(
     @Param('uuid', TicketUuidValidationPipe)
-    uuid: string
+    uuid: string,
+    @ReqUser() user: User
   ) {
-    return this.ticketService.findByUuid(uuid);
+    console.log(user);
+    return this.ticketService.findByUuid(uuid, user);
   }
 
   // @Get('/createTest')
@@ -124,6 +132,7 @@ export class TicketsController {
     description: '요청 성공시',
     type: Ticket
   })
+  @Roles(Role.Admin)
   @Patch('/status')
   updateTicketStatus(
     @Body('', TicketStatusValidationPipe)
@@ -151,6 +160,7 @@ export class TicketsController {
     description: '요청 성공시',
     type: Ticket
   })
+  @Roles(Role.Admin)
   @Delete('/delete/:uuid')
   deleteTicketByUuid(@Param('uuid') ticketUuid: string) {
     return this.ticketService.deleteTicketByUuid(ticketUuid);

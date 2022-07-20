@@ -1,5 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Role } from 'src/common/consts/enum';
 import { CreateTicketDto } from 'src/common/dtos/create-ticket.dto';
 import { FindTicketDto } from 'src/common/dtos/find-ticket.dto';
 import { UpdateTicketStatusDto } from 'src/common/dtos/update-ticket-status.dto';
@@ -35,17 +40,19 @@ export class TicketRepository {
   /**
    * uuid를 참조하여 DB의 Ticket 엔티티 하나를 가지고 온다
    * @param ticketUuid 가지고 오려는 Ticket의 uuid
+   * @returns Ticket Promise
    */
   async findByUuid(ticketUuid: string): Promise<Ticket | null> {
-    const ticket = await this.ticketRepository.findOne({
-      where: {
-        uuid: ticketUuid
-      }
-    });
+    const ticket = await this.ticketRepository
+      .createQueryBuilder('ticket')
+      .where({ uuid: ticketUuid })
+      .leftJoinAndSelect('ticket.user', 'user')
+      .getOne();
 
     if (!ticket) {
       throw new NotFoundException(`Can't find Ticket with id ${ticketUuid}`);
     }
+
     return ticket;
   }
 
