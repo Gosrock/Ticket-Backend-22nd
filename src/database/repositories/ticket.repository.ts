@@ -77,18 +77,11 @@ export class TicketRepository {
   //   return tickets;
   // }
   async findAll(): Promise<Ticket[]> {
-    //const tickets = await this.ticketRepository.find();
-
-    const tickets = await this.ticketRepository
+    return await this.ticketRepository
       .createQueryBuilder('ticket')
       .leftJoinAndSelect('ticket.user', 'user')
       .leftJoinAndSelect('ticket.order', 'order')
       .getMany();
-
-    if (tickets.length === 0) {
-      throw new NotFoundException(`Can't find Tickets at all`);
-    }
-    return tickets;
   }
 
   /**
@@ -134,18 +127,10 @@ export class TicketRepository {
    * @param userId User의 id
    */
   async findAllByUserId(userId: number): Promise<Ticket[]> {
-    const tickets = await this.ticketRepository
+    return await this.ticketRepository
       .createQueryBuilder('ticket')
       .where({ user: userId })
       .getMany();
-
-    if (!tickets || tickets.length <= 0) {
-      throw new NotFoundException(
-        `Can't find Tickets belongs to id: ${userId}`
-      );
-    }
-
-    return tickets;
   }
 
   /**
