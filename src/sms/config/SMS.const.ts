@@ -1,0 +1,1 @@
+export const SMS_MODULE_OPTIONS = 'SMS_MODULE_OPTIONS';

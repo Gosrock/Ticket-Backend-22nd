@@ -7,13 +7,16 @@ import {
   UnauthorizedException,
   Logger
 } from '@nestjs/common';
+import { Request, Response } from 'express';
+import { SlackService } from 'src/slack/slack.service';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
-  catch(exception: Error, host: ArgumentsHost) {
+  constructor(private slackService: SlackService) {}
+  async catch(exception: Error, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
-    const response = ctx.getResponse();
-    const request = ctx.getRequest();
+    const response = ctx.getResponse<Response>();
+    const request = ctx.getRequest<Request>();
 
     let statusCode: number;
     let error: any;
@@ -42,6 +45,11 @@ export class AllExceptionsFilter implements ExceptionFilter {
         'ExceptionsFilter',
         exception.stack,
         request.method + request.url
+      );
+      await this.slackService.backendInternelServerError(
+        request.method + request.url,
+        JSON.stringify(request.body),
+        exception.stack
       );
 
       return response.status(statusCode).json(errorResponse);

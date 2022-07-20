@@ -3,11 +3,9 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
-  LoggerService,
   UnauthorizedException
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { throwIfEmpty } from 'rxjs';
 import { User } from 'src/database/entities/user.entity';
 import { UserRepository } from 'src/database/repositories/user.repository';
 import { RedisService } from 'src/redis/redis.service';
@@ -24,12 +22,13 @@ import { RequestRegisterUserDto } from './dtos/RegisterUser.request.dto';
 import { DataSource } from 'typeorm';
 import { getConnectedRepository } from 'src/common/funcs/getConnectedRepository';
 import { ResponseRegisterUserDto } from './dtos/RegisterUser.response.dto';
-import { classToPlain, instanceToPlain } from 'class-transformer';
 import { RequestAdminSendValidationNumberDto } from './dtos/AdminSendValidationNumber.request.dto copy';
 import { SlackService } from 'src/slack/slack.service';
 import { ResponseAdminSendValidationNumberDto } from './dtos/AdminSendValidationNumber.response.dto';
 import { RequestAdminLoginDto } from './dtos/AdminLogin.request.dto';
 import { ResponseAdminLoginDto } from './dtos/AdminLogin.response.dto';
+import { SmsService } from 'src/sms/sms.service';
+import { MessageDto } from 'src/sms/dtos/message.dto';
 
 @Injectable()
 export class AuthService {
@@ -39,19 +38,20 @@ export class AuthService {
     private dataSource: DataSource,
     private redisSerivce: RedisService,
     private configService: ConfigService,
-    private slackService: SlackService
+    private slackService: SlackService,
+    private smsService: SmsService
   ) {}
 
   async requestPhoneValidationNumber(
     requestPhoneNumberDto: RequestPhoneNumberDto
   ): Promise<ResponseRequestValidationDto> {
+    let test;
+    console.log(test.adf.asdf);
     //TODO : 전화번호 인증번호 발송 로직 추가 , 이찬진 2022.07.14
     const userPhoneNumber = requestPhoneNumberDto.phoneNumber;
     //유저가 이미 회원가입했는지확인한다.
-    console.log('asdcfasdfasdfdsaf');
     const checkSingUpState = await this.checkUserAlreadySignUp(userPhoneNumber);
     // generate randomNumber
-    console.log('asdcfasdfasdfdsaf');
 
     const generatedRandomNumber = generateRandomCode(4);
     // insert to redis
@@ -60,6 +60,17 @@ export class AuthService {
       generatedRandomNumber,
       180
     );
+
+    const message = new MessageDto(
+      userPhoneNumber,
+      `고스락 티켓예매\n인증번호 [${generatedRandomNumber}]`
+    );
+
+    try {
+      await this.smsService.sendMessages([message]);
+    } catch (error) {
+      console.log(error);
+    }
 
     return {
       alreadySingUp: checkSingUpState,

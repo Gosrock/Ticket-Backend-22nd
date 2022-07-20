@@ -21,18 +21,24 @@ import { ResponseRequestValidationDto } from './dtos/RequestValidation.response.
 import { RequestValidateNumberDto } from './dtos/ValidateNumber.request.dto';
 import { ResponseValidateNumberDto } from './dtos/ValidateNumber.response.dto';
 import { RegisterTokenGuard } from './guards/RegisterToken.guard';
+import { ThrottlerBehindProxyGuard } from './guards/TrottlerBehindProxy.guard';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @UseGuards(ThrottlerBehindProxyGuard)
   @ApiOperation({ summary: '휴대전화번호 인증번호를 요청한다.' })
   @ApiBody({ type: RequestPhoneNumberDto })
   @ApiResponse({
     status: 200,
     description: '요청 성공시',
     type: ResponseRequestValidationDto
+  })
+  @ApiResponse({
+    status: 429,
+    description: '과도한 요청을 보낼시에'
   })
   @Post('message/send')
   async requestPhoneValidationNumber(
@@ -82,6 +88,7 @@ export class AuthController {
     );
   }
 
+  @UseGuards(ThrottlerBehindProxyGuard)
   @ApiOperation({ summary: '슬랙 인증번호를 발송한다 (관리자 용 )' })
   @ApiResponse({
     status: 200,
@@ -91,6 +98,10 @@ export class AuthController {
   @ApiResponse({
     status: 400,
     description: '슬랙에 들어와있는 유저가 아닐때 , 어드민 유저가 아닐 때'
+  })
+  @ApiResponse({
+    status: 429,
+    description: '과도한 요청을 보낼시에'
   })
   @ApiBody({ type: RequestAdminSendValidationNumberDto })
   @Post('/slack/send')
