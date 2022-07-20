@@ -1,20 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { MaxLength } from 'class-validator';
 import { PerformanceDate, TicketStatus } from 'src/common/consts/enum';
-import { UsersController } from 'src/users/users.controller';
 import {
+  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
   Generated,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
 import { Order } from './order.entity';
 import { User } from './user.entity';
+import { nanoid } from 'nanoid';
 
 @Entity()
 export class Ticket {
@@ -31,12 +30,11 @@ export class Ticket {
     type: String
   })
   @Expose()
-  @Column()
-  @Generated('uuid')
+  @Column('varchar', { length: 14 })
   public uuid: string;
 
   @ApiProperty({
-    description: '공연일자 입니다. (2022/09/01 또는 2022/09/02)',
+    description: '공연일자 입니다. (YB/OB)',
     enum: PerformanceDate
   })
   @Expose()
@@ -44,7 +42,7 @@ export class Ticket {
     type: 'enum',
     enum: PerformanceDate
   })
-  public date: string;
+  public date: PerformanceDate;
 
   @ApiProperty({
     description: '티켓의 상태입니다. (입장대기/입장완료)',
@@ -94,4 +92,9 @@ export class Ticket {
   @Expose()
   @UpdateDateColumn()
   public updatedAt: Date;
+
+  @BeforeInsert()
+  setUuid() {
+    this.uuid = nanoid(14).toString();
+  }
 }

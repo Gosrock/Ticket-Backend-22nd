@@ -84,7 +84,8 @@ export class Order {
 
   @ApiProperty({
     description: '주문을 처리한 어드민에 대한 외래키입니다.',
-    type: () => User
+    type: () => User,
+    nullable: true
   })
   @Expose()
   @ManyToOne(type => User)
