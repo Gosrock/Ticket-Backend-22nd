@@ -7,8 +7,7 @@ import {
   Patch,
   Query,
   UseGuards,
-  UsePipes,
-  ValidationPipe
+  UsePipes
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -95,7 +94,6 @@ export class TicketsController {
   })
   @Get('/find')
   @Roles(Role.Admin)
-  @UsePipes(ValidationPipe)
   getTicketsWith(
     @Query() ticketFindDto: TicketFindDto,
     @Query() pageOptionsDto: PageOptionsDto
@@ -161,7 +159,6 @@ export class TicketsController {
     description: '어드민이 아닐 경우'
   })
   @Roles(Role.Admin)
-  @UsePipes(ValidationPipe)
   @Patch('/status')
   updateTicketStatus(
     @Body('') updateTicketStatusDto: UpdateTicketStatusDto,
