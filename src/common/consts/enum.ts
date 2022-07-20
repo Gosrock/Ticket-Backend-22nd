@@ -14,6 +14,11 @@ enum PerformanceDate {
   OB = 'OB'
 }
 
+enum PageOrder {
+  ASC = 'ASC',
+  DESC = 'DESC'
+}
+
 enum OrderStatus {
   WAIT = '확인대기',
   DONE = '입금확인',
@@ -30,4 +35,12 @@ enum JWTType {
   REGISTER = 'REGISTER_SECRET'
 }
 
-export { Role, OrderDate, PerformanceDate, TicketStatus, OrderStatus, JWTType };
+export {
+  Role,
+  OrderDate,
+  PerformanceDate,
+  TicketStatus,
+  PageOrder,
+  OrderStatus,
+  JWTType
+};

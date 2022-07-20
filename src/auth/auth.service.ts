@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -46,7 +48,7 @@ export class AuthService {
     requestPhoneNumberDto: RequestPhoneNumberDto
   ): Promise<ResponseRequestValidationDto> {
     let test;
-    console.log(test.adf.asdf);
+    //console.log(test.adf.asdf);
     //TODO : 전화번호 인증번호 발송 로직 추가 , 이찬진 2022.07.14
     const userPhoneNumber = requestPhoneNumberDto.phoneNumber;
     //유저가 이미 회원가입했는지확인한다.

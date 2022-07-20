@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -43,4 +43,11 @@ export class UsersController {
     // findOneByUserId
     return await this.userService.testGetUser(user);
   }
+
+  //유저 롤 변경하는 테스트용 함수입니다
+  @Post('/role')
+  async changeRole(@Query('userId') userId: number, @Query('role') role: Role) {
+    return await this.userService.changeRole(userId, role);
+  }
+  //유저 롤 변경하는 테스트용 함수입니다
 }
