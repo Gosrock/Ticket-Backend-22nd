@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsOptional } from 'class-validator';
+import { IsEnum, IsOptional } from 'class-validator';
 import { PerformanceDate, TicketStatus } from '../consts/enum';
 
 export class TicketFindDto {
@@ -9,6 +9,7 @@ export class TicketFindDto {
     enum: TicketStatus,
     required: false
   })
+  @IsEnum(TicketStatus)
   @IsOptional()
   @Expose()
   readonly status: TicketStatus;
@@ -18,6 +19,7 @@ export class TicketFindDto {
     enum: PerformanceDate,
     required: false
   })
+  @IsEnum(PerformanceDate)
   @IsOptional()
   @Expose()
   readonly date: PerformanceDate;

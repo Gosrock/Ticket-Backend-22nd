@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Role } from 'src/common/consts/enum';
 import { CreateTicketDto } from 'src/common/dtos/create-ticket.dto';
 import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
@@ -8,6 +8,7 @@ import { UpdateTicketStatusDto } from 'src/common/dtos/update-ticket-status.dto'
 import { Ticket } from 'src/database/entities/ticket.entity';
 import { User } from 'src/database/entities/user.entity';
 import { TicketRepository } from 'src/database/repositories/ticket.repository';
+import { UserRepository } from 'src/database/repositories/user.repository';
 
 @Injectable()
 export class TicketsService {
@@ -33,16 +34,13 @@ export class TicketsService {
     }
 
     return ticket;
-    //!!!! 티켓에 유저 정보까지 조인해서 프론트에 넘겨줘야하나 고민중 !!!!
-    //!!!! 티켓에 유저 정보까지 조인해서 프론트에 넘겨줘야하나 고민중 !!!!
-    //!!!! 티켓에 유저 정보까지 조인해서 프론트에 넘겨줘야하나 고민중 !!!!
   }
 
-  async findAll(): Promise<Ticket[] | null> {
+  async findAll(): Promise<Ticket[]> {
     return await this.ticketRepository.findAll();
   }
 
-  async findAllByUserId(userId: number): Promise<Ticket[] | null> {
+  async findAllByUserId(userId: number): Promise<Ticket[]> {
     return await this.ticketRepository.findAllByUserId(userId);
   }
 
@@ -59,7 +57,7 @@ export class TicketsService {
   async updateTicketStatus(
     updateTicketStatusDto: UpdateTicketStatusDto,
     admin: User
-  ): Promise<Ticket | null> {
+  ): Promise<Ticket> {
     return await this.ticketRepository.updateStatus(
       updateTicketStatusDto,
       admin

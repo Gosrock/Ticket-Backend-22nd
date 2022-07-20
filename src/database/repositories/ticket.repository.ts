@@ -28,7 +28,7 @@ export class TicketRepository {
    * id를 참조하여 DB의 Ticket 엔티티 하나를 가지고 온다
    * @param ticketId 가지고 오려는 Ticket의 id
    */
-  async findById(ticketId: number): Promise<Ticket | null> {
+  async findById(ticketId: number): Promise<Ticket> {
     const ticket = await this.ticketRepository.findOne({
       where: {
         id: ticketId
@@ -46,11 +46,10 @@ export class TicketRepository {
    * @param ticketUuid 가지고 오려는 Ticket의 uuid
    * @returns Ticket Promise
    */
-  async findByUuid(ticketUuid: string): Promise<Ticket | null> {
+  async findByUuid(ticketUuid: string): Promise<Ticket> {
     const ticket = await this.ticketRepository
       .createQueryBuilder('ticket')
       .where({ uuid: ticketUuid })
-      .leftJoinAndSelect('ticket.user', 'user')
       .getOne();
 
     if (!ticket) {
@@ -76,13 +75,12 @@ export class TicketRepository {
   //   }
   //   return tickets;
   // }
-  async findAll(): Promise<Ticket[] | null> {
+  async findAll(): Promise<Ticket[]> {
     //const tickets = await this.ticketRepository.find();
 
     const tickets = await this.ticketRepository
       .createQueryBuilder('ticket')
       .leftJoinAndSelect('ticket.user', 'user')
-      .leftJoinAndSelect('ticket.admin', 'admin')
       .leftJoinAndSelect('ticket.order', 'order')
       .getMany();
 
@@ -95,24 +93,12 @@ export class TicketRepository {
   /**
    * 해당 ticketStatus를 참조하여 해당하는 Ticket 엔티티를 가지고 온다 (관리자용)
    * @param ticketStatus TicketStatus Enum
+   * @param pageOptionsDto 페이지네이션 메타 정보
    */
   async findAllWith(
     ticketFindDto: TicketFindDto,
     pageOptionsDto: PageOptionsDto
   ): Promise<PageDto<Ticket>> {
-    // const { status, date } = ticketFindDto;
-    // const tickets = await this.ticketRepository.find({
-    //   where: {
-    //     status,
-    //     date
-    //   }
-    // });
-    // console.log(ticketFindDto);
-
-    // if (!tickets || tickets.length === 0) {
-    //   throw new NotFoundException(`Can't find Tickets with status: ${status}`);
-    // }
-    // return tickets;
     const { status, date } = ticketFindDto;
     const queryBuilder = this.ticketRepository.createQueryBuilder('ticket');
 
@@ -126,6 +112,10 @@ export class TicketRepository {
 
     queryBuilder
       .orderBy('ticket.createdAt', pageOptionsDto.order)
+      .leftJoin('ticket.user', 'user')
+      .addSelect(['user.name', 'user.phoneNumber'])
+      .leftJoin('ticket.admin', 'admin')
+      .addSelect(['admin.name'])
       .skip(pageOptionsDto.skip)
       .take(pageOptionsDto.take);
 
@@ -142,18 +132,18 @@ export class TicketRepository {
    * 해당 userId를 참조하여 유저가 가진 모든 Ticket 엔티티를 가지고 온다
    * @param userId User의 id
    */
-  async findAllByUserId(userId: number): Promise<Ticket[] | null> {
-    const tickets = await this.ticketRepository.find({
-      where: {
-        id: userId
-      }
-    });
+  async findAllByUserId(userId: number): Promise<Ticket[]> {
+    const tickets = await this.ticketRepository
+      .createQueryBuilder('ticket')
+      .where({ user: userId })
+      .getMany();
 
-    if (!tickets) {
+    if (!tickets || tickets.length <= 0) {
       throw new NotFoundException(
         `Can't find Tickets belongs to id: ${userId}`
       );
     }
+
     return tickets;
   }
 
@@ -166,7 +156,7 @@ export class TicketRepository {
   async updateStatus(
     updateTicketStatus: UpdateTicketStatusDto,
     admin: User
-  ): Promise<Ticket | null> {
+  ): Promise<Ticket> {
     const { ticketId, status } = updateTicketStatus;
     const ticket = await this.ticketRepository.findOne({
       where: {
@@ -181,6 +171,7 @@ export class TicketRepository {
     try {
       ticket.status = status;
       ticket.admin = admin;
+
       await this.ticketRepository.save(ticket);
     } catch (error) {
       console.log(`Error occurs in updateStatus: ${error}`);
@@ -195,7 +186,7 @@ export class TicketRepository {
    * @param order 티켓이 속한 주문
    * @param user 티켓을 소유한 유저
    */
-  async createTicket(createTicketDto: CreateTicketDto): Promise<Ticket | null> {
+  async createTicket(createTicketDto: CreateTicketDto): Promise<Ticket> {
     const { user, order, date } = createTicketDto;
 
     //order = orderRepository.findOne(order)
@@ -266,7 +257,7 @@ export class TicketRepository {
    * @param ticketId 해당 티켓의 id
    * @returns 제거한 티켓 반환
    */
-  async deleteAllTickets(): Promise<void | null> {
+  async deleteAllTickets(): Promise<void> {
     await this.findAll().then(tickets => {
       tickets?.map(ticket => {
         this.deleteTicketById(ticket.id);

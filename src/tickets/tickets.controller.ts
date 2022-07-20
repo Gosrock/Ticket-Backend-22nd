@@ -4,34 +4,31 @@ import {
   Controller,
   Delete,
   Get,
-  HttpCode,
-  HttpStatus,
-  NotFoundException,
   Param,
   Patch,
   Query,
-  UnauthorizedException,
   UseGuards,
-  UseInterceptors
+  UseInterceptors,
+  UsePipes,
+  ValidationPipe
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
   ApiOperation,
+  ApiParam,
   ApiResponse,
   ApiTags,
   ApiUnauthorizedResponse
 } from '@nestjs/swagger';
 import { AccessTokenGuard } from 'src/auth/guards/AccessToken.guard';
-import { PerformanceDate, Role, TicketStatus } from 'src/common/consts/enum';
+import { PerformanceDate, Role } from 'src/common/consts/enum';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { ReqUser } from 'src/common/decorators/user.decorator';
 import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
-import { PagingDto } from 'src/common/dtos/paging.dto';
+import { PageDto } from 'src/common/dtos/page/page.dto';
 import { TicketFindDto } from 'src/common/dtos/ticket-find.dto';
 import { UpdateTicketStatusDto } from 'src/common/dtos/update-ticket-status.dto';
-import { UserProfileDto } from 'src/common/dtos/user-profile.dto';
-import { PerformanceDateValidationPipe } from 'src/common/pipes/performance-date-validation.pipe';
 import { TicketStatusValidationPipe } from 'src/common/pipes/ticket-status-validation.pipe';
 import { TicketUuidValidationPipe } from 'src/common/pipes/ticket-uuid-validation.pipe';
 import { Order } from 'src/database/entities/order.entity';
@@ -43,7 +40,7 @@ import { TicketsService } from './tickets.service';
 @ApiTags('tickets')
 @ApiBearerAuth('accessToken')
 @Controller('tickets')
-//@UseGuards(AccessTokenGuard)
+@UseGuards(AccessTokenGuard)
 export class TicketsController {
   constructor(
     private ticketService: TicketsService,
@@ -57,7 +54,26 @@ export class TicketsController {
   // }
 
   @ApiOperation({
-    summary: '[어드민]모든 티켓을 불러온다'
+    summary: '해당 유저의 모든 티켓을 불러온다'
+  })
+  @ApiResponse({
+    status: 200,
+    description: '요청 성공시',
+    type: Ticket,
+    isArray: true
+  })
+  @ApiUnauthorizedResponse({
+    status: 401,
+    description: 'AccessToken이 없을 경우'
+  })
+  @Get('')
+  getAllTicketsById(@ReqUser() user: User) {
+    return this.ticketService.findAllByUserId(user.id);
+  }
+
+  /* 테스트용 라우팅 */
+  @ApiOperation({
+    summary: '[테스트용, 삭제예정]조건없이 모든 티켓을 불러온다'
   })
   @ApiResponse({
     status: 200,
@@ -65,11 +81,11 @@ export class TicketsController {
     type: Ticket
   })
   @ApiUnauthorizedResponse({
-    status: 400,
+    status: 401,
     description: 'AccessToken이 없거나 어드민이 아닐 경우'
   })
-  @Get('')
-  //@Roles(Role.Admin)
+  @Get('all')
+  @Roles(Role.Admin)
   getAllTickets() {
     return this.ticketService.findAll();
   }
@@ -80,11 +96,12 @@ export class TicketsController {
   @ApiResponse({
     status: 200,
     description: '요청 성공시',
-    type: Ticket
+    type: PageDto
   })
   @Get('/find')
   @Roles(Role.Admin)
   @UseInterceptors(ClassSerializerInterceptor) //json 직렬화
+  @UsePipes(ValidationPipe)
   getTicketsWith(
     @Query() ticketFindDto: TicketFindDto,
     @Query() pageOptionsDto: PageOptionsDto
@@ -120,6 +137,10 @@ export class TicketsController {
     description: '요청 성공시',
     type: User
   })
+  @ApiUnauthorizedResponse({
+    status: 401,
+    description: 'AccessToken 권한이 없을 경우'
+  })
   @Get('/:uuid')
   getTicketByUuid(
     @Param('uuid', TicketUuidValidationPipe)
@@ -141,12 +162,14 @@ export class TicketsController {
     description: '요청 성공시',
     type: Ticket
   })
+  @ApiUnauthorizedResponse({
+    status: 401,
+    description: '어드민이 아닐 경우'
+  })
   @Roles(Role.Admin)
+  @UsePipes(ValidationPipe)
   @Patch('/status')
-  updateTicketStatus(
-    @Body('', TicketStatusValidationPipe)
-    updateTicketStatusDto: UpdateTicketStatusDto
-  ) {
+  updateTicketStatus(@Body('') updateTicketStatusDto: UpdateTicketStatusDto) {
     const user = {
       id: 1,
       name: '노경민',
@@ -168,6 +191,10 @@ export class TicketsController {
     status: 200,
     description: '요청 성공시',
     type: Ticket
+  })
+  @ApiUnauthorizedResponse({
+    status: 401,
+    description: '어드민이 아닐 경우'
   })
   @Roles(Role.Admin)
   @Delete('/delete/:uuid')

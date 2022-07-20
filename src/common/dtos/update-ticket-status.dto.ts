@@ -10,6 +10,7 @@ export class UpdateTicketStatusDto {
   ticketId: number;
 
   @ApiProperty({ description: '티켓 상태', enum: TicketStatus })
+  @IsEnum(TicketStatus)
   @Expose()
   status: TicketStatus;
 }
