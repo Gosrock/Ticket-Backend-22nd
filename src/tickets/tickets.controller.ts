@@ -30,7 +30,6 @@ import { PageDto } from 'src/common/dtos/page/page.dto';
 import { TicketFindDto } from 'src/common/dtos/ticket-find.dto';
 import { UpdateTicketStatusDto } from 'src/common/dtos/update-ticket-status.dto';
 import { TicketStatusValidationPipe } from 'src/common/pipes/ticket-status-validation.pipe';
-import { TicketUuidValidationPipe } from 'src/common/pipes/ticket-uuid-validation.pipe';
 import { Order } from 'src/database/entities/order.entity';
 import { Ticket } from 'src/database/entities/ticket.entity';
 import { User } from 'src/database/entities/user.entity';
@@ -143,7 +142,7 @@ export class TicketsController {
   })
   @Get('/:uuid')
   getTicketByUuid(
-    @Param('uuid', TicketUuidValidationPipe)
+    @Param('uuid')
     uuid: string,
     @ReqUser() user: User
   ) {

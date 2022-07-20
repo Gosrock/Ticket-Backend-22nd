@@ -50,10 +50,11 @@ export class TicketRepository {
     const ticket = await this.ticketRepository
       .createQueryBuilder('ticket')
       .where({ uuid: ticketUuid })
+      .leftJoinAndSelect('ticket.user', 'user')
       .getOne();
 
     if (!ticket) {
-      throw new NotFoundException(`Can't find Ticket with id ${ticketUuid}`);
+      throw new NotFoundException(`Can't find Ticket with uuid ${ticketUuid}`);
     }
 
     return ticket;

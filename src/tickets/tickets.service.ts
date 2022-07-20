@@ -29,7 +29,7 @@ export class TicketsService {
     const ticket = await this.ticketRepository.findByUuid(ticketUuid);
 
     //어드민이거나 Ticket.user.id === user.id 일때만 리턴
-    if (user.role !== Role.Admin && ticket?.user?.id !== user.id) {
+    if (ticket.user.id !== user.id && user.role !== Role.Admin) {
       throw new UnauthorizedException('해등 티켓에 대한 접근 권한이 없습니다');
     }
 

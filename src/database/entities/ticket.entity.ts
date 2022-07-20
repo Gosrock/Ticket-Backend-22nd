@@ -1,19 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { PerformanceDate, TicketStatus } from 'src/common/consts/enum';
-import { UserProfileDto } from 'src/common/dtos/user-profile.dto';
 import {
+  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
   Generated,
-  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
 import { Order } from './order.entity';
 import { User } from './user.entity';
+import { nanoid } from 'nanoid';
 
 @Entity()
 export class Ticket {
@@ -30,8 +30,7 @@ export class Ticket {
     type: String
   })
   @Expose()
-  @Column()
-  @Generated('uuid')
+  @Column('varchar', { length: 20 })
   public uuid: string;
 
   @ApiProperty({
@@ -93,4 +92,9 @@ export class Ticket {
   @Expose()
   @UpdateDateColumn()
   public updatedAt: Date;
+
+  @BeforeInsert()
+  setUuid() {
+    this.uuid = nanoid(20).toString();
+  }
 }
