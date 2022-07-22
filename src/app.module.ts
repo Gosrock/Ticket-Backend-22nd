@@ -48,7 +48,22 @@ import { CustomConfigModule } from './config/customConfig.module';
       ttl: process.env.NODE_ENV === 'prod' ? 300 : 60,
       limit: 3
     }),
-    CustomConfigModule
+    CustomConfigModule,
+    RedisModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        isTest: false,
+        logging: false,
+        redisConnectOption: {
+          url:
+            'redis://' +
+            configService.get('REDIS_HOST') +
+            ':' +
+            configService.get('REDIS_PORT')
+        }
+      }),
+      inject: [ConfigService]
+    })
   ],
 
   providers: [

@@ -7,7 +7,11 @@ import { CustomConfigModule } from 'src/config/customConfig.module';
 import { Order } from 'src/database/entities/order.entity';
 import { Ticket } from 'src/database/entities/ticket.entity';
 import { User } from 'src/database/entities/user.entity';
-import { ADMIN_CHANNELID, ORDER_CHANNELID } from './config/slack.const';
+import {
+  ADMIN_CHANNELID,
+  BACKEND_CHANNELID,
+  ORDER_CHANNELID
+} from './config/slack.const';
 import { SlackService } from './slack.service';
 
 describe('SlackService', () => {
@@ -37,6 +41,10 @@ describe('SlackService', () => {
         {
           provide: ORDER_CHANNELID,
           useValue: 'C03MKF2JJ4X'
+        },
+        {
+          provide: BACKEND_CHANNELID,
+          useValue: 'C03Q3D1C43C'
         }
       ]
     }).compile();
