@@ -13,7 +13,6 @@ import { TicketsService } from './tickets.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Ticket]),
-    AuthModule,
     UsersModule //삭제예정
   ],
   providers: [TicketsService, TicketRepository],

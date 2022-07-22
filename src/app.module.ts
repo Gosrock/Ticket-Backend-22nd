@@ -62,6 +62,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
       }),
       inject: [ConfigService]
     }),
+
     QueueModule,
     AuthModule,
     TicketsModule,
@@ -74,6 +75,21 @@ import { ThrottlerModule } from '@nestjs/throttler';
     ThrottlerModule.forRoot({
       ttl: process.env.NODE_ENV === 'prod' ? 300 : 60,
       limit: 3
+    }),
+    RedisModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        isTest: false,
+        logging: false,
+        redisConnectOption: {
+          url:
+            'redis://' +
+            configService.get('REDIS_HOST') +
+            ':' +
+            configService.get('REDIS_PORT')
+        }
+      }),
+      inject: [ConfigService]
     })
   ],
 

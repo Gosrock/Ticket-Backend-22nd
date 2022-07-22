@@ -9,7 +9,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { RedisModule } from 'src/redis/redis.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), forwardRef(() => AuthModule)],
+  imports: [TypeOrmModule.forFeature([User])],
   providers: [UsersService, UserRepository],
   exports: [UsersService],
   controllers: [UsersController]
