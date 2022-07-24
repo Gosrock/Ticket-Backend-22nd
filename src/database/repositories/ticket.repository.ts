@@ -13,7 +13,7 @@ import { PagingDto } from 'src/common/dtos/paging.dto';
 import { TicketFindDto } from 'src/common/dtos/ticket-find.dto';
 import { UpdateTicketStatusDto } from 'src/common/dtos/update-ticket-status.dto';
 
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Ticket } from '../entities/ticket.entity';
 import { User } from '../entities/user.entity';
 
@@ -21,7 +21,8 @@ import { User } from '../entities/user.entity';
 export class TicketRepository {
   constructor(
     @InjectRepository(Ticket)
-    private ticketRepository: Repository<Ticket>
+    private ticketRepository: Repository<Ticket>,
+    private dataSource: DataSource
   ) {}
 
   /**
@@ -144,6 +145,8 @@ export class TicketRepository {
     admin: User
   ): Promise<Ticket> {
     const { ticketId, status } = updateTicketStatus;
+    const queryRunner = this.dataSource.createQueryRunner();
+
     const ticket = await this.ticketRepository.findOne({
       where: {
         id: ticketId
@@ -154,13 +157,17 @@ export class TicketRepository {
       throw new NotFoundException(`Can't find Tickets with id: ${ticketId}`);
     }
 
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
     try {
       ticket.status = status;
       ticket.admin = admin;
-
-      await this.ticketRepository.save(ticket);
+      await queryRunner.commitTransaction();
     } catch (error) {
       console.log(`Error occurs in updateStatus: ${error}`);
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
     }
 
     return ticket;
