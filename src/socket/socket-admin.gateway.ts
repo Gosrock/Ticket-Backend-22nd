@@ -24,7 +24,7 @@ export class SocketAdminGateway
 {
   @WebSocketServer() public io: Namespace;
 
-  //   //어드민 QR 코드 찍는 화면 입장 처리
+  //   //어드민 QR 코드 찍는 화면 입장 처리, 어드민 정보 socket에 기록해야됩니다
   //   @SubscribeMessage('enter')
   //   handleEntering(
   //     @ConnectedSocket() adminSocket: Socket,

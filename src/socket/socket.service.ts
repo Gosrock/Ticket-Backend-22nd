@@ -1,7 +1,6 @@
 import { GatewayTimeoutException, Injectable } from '@nestjs/common';
 import { TicketOnSocketDto } from 'src/common/dtos/ticket-on-socket.dto';
 import { SocketUserGateway } from './socket-user.gateway';
-import { SocketGateway } from './socket.gateway';
 
 @Injectable()
 export class SocketService {

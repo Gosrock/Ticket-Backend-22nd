@@ -13,7 +13,7 @@ export class SocketController {
   constructor(private socketService: SocketService) {}
 
   @ApiOperation({
-    summary: '[테스트] 소켓 연결 테스트'
+    summary: '[] 더미 컨트롤러 입니다'
   })
   @Get('')
   async connectTo(@ReqUser() user: User, ticketUuid: string) {
