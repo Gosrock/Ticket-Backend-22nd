@@ -14,7 +14,7 @@ export class SlackOrderStateChangeDto {
    */
   constructor(
     orderId: number,
-    orderTicketCount: string,
+    orderTicketCount: number,
     orderStatus: OrderStatus,
     adminName: string
   ) {
@@ -34,7 +34,7 @@ export class SlackOrderStateChangeDto {
    * 티켓의 수량
    */
   @Expose()
-  orderTicketCount: string;
+  orderTicketCount: number;
 
   /**
    * 주문 상태

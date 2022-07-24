@@ -1,4 +1,5 @@
 import { Expose } from 'class-transformer';
+import { TicketStatus } from 'src/common/consts/enum';
 
 /**
  * 티켓의 상태가 변경되면 알림을 주기위한 함수의 DTO
@@ -14,7 +15,7 @@ export class SlackTicketStateChangeDto {
   constructor(
     ticketId: number,
     userName: string,
-    ticketStatus: number,
+    ticketStatus: TicketStatus,
     adminName: string | null
   ) {
     this.ticketId = ticketId;
@@ -39,7 +40,7 @@ export class SlackTicketStateChangeDto {
    * 티켓 상태
    */
   @Expose()
-  ticketStatus: number;
+  ticketStatus: TicketStatus;
 
   /**
    * 관리자 명

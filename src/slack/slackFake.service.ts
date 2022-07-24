@@ -5,21 +5,37 @@ import { lastValueFrom, map } from 'rxjs';
 import { Order } from 'src/database/entities/order.entity';
 import { Ticket } from 'src/database/entities/ticket.entity';
 import { ADMIN_CHANNELID, ORDER_CHANNELID } from './config/slack.const';
+import {
+  SlackNewOrderDto,
+  SlackOrderStateChangeDto,
+  SlackTicketQREnterEventDto,
+  SlackTicketStateChangeDto,
+  SlackValidationNumberDMDto
+} from './dtos';
+
 @Injectable()
 export class SlackFakeService {
   constructor() {}
 
   async findSlackUserIdByEmail(email: string) {}
 
-  async sendDMwithValidationNumber(id: string, validationNumber: string) {}
+  async sendDMwithValidationNumber(
+    slackValidationNumberDMDto: SlackValidationNumberDMDto
+  ) {}
 
-  async orderStateChangedByAdminEvent(order: Order) {}
+  async orderStateChangedByAdminEvent(
+    slackOrderStateChangeDto: SlackOrderStateChangeDto
+  ) {}
 
-  async newOrderAlarm(order: Order) {}
+  async newOrderAlarm(slackNewOrderDto: SlackNewOrderDto) {}
 
-  async ticketStateChangedByAdminEvent(ticket: Ticket) {}
+  async ticketStateChangedByAdminEvent(
+    slackTicketStateChangeDto: SlackTicketStateChangeDto
+  ) {}
 
-  async ticketQREnterEvent(ticket: Ticket) {}
+  async ticketQREnterEvent(
+    slackTicketQREnterEventDto: SlackTicketQREnterEventDto
+  ) {}
 
   async backendInternelServerError(
     path: string,

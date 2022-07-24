@@ -15,7 +15,7 @@ export class SlackNewOrderDto {
     orderId: number,
     userName: string,
     orderTicketCount: number,
-    orderPrice: string
+    orderPrice: number
   ) {
     this.orderId = orderId;
     this.userName = userName;
@@ -45,5 +45,5 @@ export class SlackNewOrderDto {
    * 주문 가격
    */
   @Expose()
-  orderPrice: string;
+  orderPrice: number;
 }
