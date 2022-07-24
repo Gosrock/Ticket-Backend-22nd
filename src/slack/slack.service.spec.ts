@@ -3,10 +3,15 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as Joi from 'joi';
 import { OrderStatus, TicketStatus } from 'src/common/consts/enum';
+import { CustomConfigModule } from 'src/config/customConfig.module';
 import { Order } from 'src/database/entities/order.entity';
 import { Ticket } from 'src/database/entities/ticket.entity';
 import { User } from 'src/database/entities/user.entity';
-import { ADMIN_CHANNELID, ORDER_CHANNELID } from './config/slack.const';
+import {
+  ADMIN_CHANNELID,
+  BACKEND_CHANNELID,
+  ORDER_CHANNELID
+} from './config/slack.const';
 import { SlackService } from './slack.service';
 
 describe('SlackService', () => {
@@ -15,29 +20,7 @@ describe('SlackService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        ConfigModule.forRoot({
-          isGlobal: true,
-          // envFilePath: process.env.NODE_ENV === 'test' ? '.env.local' : '.env',
-          validationSchema: Joi.object({
-            NODE_ENV: Joi.string()
-              .valid('dev', 'prod', 'test', 'provision')
-              .default('dev'),
-            PORT: Joi.number().default(8080),
-            ACCESS_SECRET: Joi.string(),
-            REGISTER_SECRET: Joi.string(),
-            SWAGGER_USER: Joi.string(),
-            SWAGGER_PASSWORD: Joi.string(),
-            REDIS_HOST: Joi.string(),
-            REDIS_PORT: Joi.number(),
-            POSTGRES_HOST: Joi.string().default('localhost'),
-            POSTGRES_PORT: Joi.number().default(5432),
-            POSTGRES_USER: Joi.string().default('gosrock'),
-            POSTGRES_PASSWORD: Joi.string().default('gosrock22th'),
-            POSTGRES_DB: Joi.string().default('ticket'),
-            SLACK_ORDER_CHANNELID: Joi.string(),
-            SLACK_ADMIN_CHANNELID: Joi.string()
-          })
-        }),
+        CustomConfigModule,
         HttpModule.registerAsync({
           imports: [ConfigModule],
           useFactory: async (configService: ConfigService) => ({
@@ -58,6 +41,10 @@ describe('SlackService', () => {
         {
           provide: ORDER_CHANNELID,
           useValue: 'C03MKF2JJ4X'
+        },
+        {
+          provide: BACKEND_CHANNELID,
+          useValue: 'C03Q3D1C43C'
         }
       ]
     }).compile();

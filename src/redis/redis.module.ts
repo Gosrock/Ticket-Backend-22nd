@@ -1,5 +1,6 @@
 import {
   DynamicModule,
+  Global,
   Logger,
   LoggerService,
   Module,
@@ -23,6 +24,8 @@ export type RedisClientType = ReturnType<typeof createClient>;
  * 인증 관련 휴대전화번호 저장이나 간단한 캐시등을 사용하는 모듈
  * 2022-07-13 이찬진
  */
+
+@Global()
 @Module({})
 export class RedisModule {
   static forRootAsync(redisAsyncConfig: RedisAsyncConfig): DynamicModule {
