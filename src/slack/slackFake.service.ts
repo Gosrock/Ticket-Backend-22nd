@@ -19,7 +19,7 @@ export class SlackFakeService {
 
   async ticketStateChangedByAdminEvent(ticket: Ticket) {}
 
-  async ticketEnterEvent(ticket: Ticket) {}
+  async ticketQREnterEvent(ticket: Ticket) {}
 
   async backendInternelServerError(
     path: string,
