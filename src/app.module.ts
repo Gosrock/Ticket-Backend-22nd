@@ -81,7 +81,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
     {
       provide: APP_FILTER,
       useClass: AllExceptionsFilter
-    }
+    },
   ]
 })
 export class AppModule {}
