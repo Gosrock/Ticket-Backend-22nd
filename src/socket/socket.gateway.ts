@@ -1,4 +1,3 @@
-import { NotFoundException } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -17,35 +16,31 @@ import { TicketOnSocketDto } from 'src/common/dtos/ticket-on-socket.dto';
   cors: {
     origin: '*'
   },
-  namespace: '/socket/admin' //socket/admin or socket/user
+  namespace: /^\/socket\/(admin|user)$/ //socket/admin or socket/user
 })
-export class SocketAdminGateway
+export class SocketGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer() public io: Namespace;
 
-  //   //어드민 QR 코드 찍는 화면 입장 처리
-  //   @SubscribeMessage('enter')
-  //   handleEntering(
-  //     @ConnectedSocket() adminSocket: Socket,
-  //     @MessageBody() name: string
-  //   ) {
-  //     console.log(
-  //       `WebSocketGateway::nsp: ${adminSocket.nsp.name} 에서 어드민 대기중 ${name}`
-  //     );
-  //   }
-
-  //유저의 입장 요청 (어드민이 QR 코드 찍었을때)
   @SubscribeMessage('enter')
-  handleRequest(
-    @ConnectedSocket() adminSocket: Socket,
+  handleEntering(
+    @ConnectedSocket() client: Socket,
     @MessageBody() ticketOnSocketDto: TicketOnSocketDto
   ) {
-    //QR 코드에 ticket dto 정보가 담겨져 있을거라고 예상하고 구현했습니다
     const { uuid, date, status } = ticketOnSocketDto;
-    if (!uuid) throw new NotFoundException('uuid not found');
-
     const userSocket = this.io.server.of('socket/user');
+    const adminSocket = this.io.server.of('socket/admin');
+
+    console.log(
+      `WebSocketGateway:: ticketUuid: ${uuid}가 소켓 서버 접속 및 입장시도, nsp: ${client.nsp.name}`
+    );
+
+    /*
+     * namespace => socket/user 일때 기능
+     */
+
+    client.join(uuid as string);
 
     //입장 대기 상태가 아닌 경우 반려
     if (status !== TicketStatus.WAIT) {
@@ -55,25 +50,27 @@ export class SocketAdminGateway
         message: '티켓 상태를 확인하세요'
       };
 
-      userSocket.emit(uuid, failMessage);
+      userSocket.emit(uuid as string, failMessage);
       adminSocket.emit('alert', failMessage);
       return;
     }
 
     //상태 확인 이후 어드민, 유저에 입장 성공 알림
-    const successMessage = {
+    const ret = {
       ticketUuid: uuid,
       success: true,
       message: '입장 완료'
     };
-    userSocket.emit(uuid, successMessage);
-    adminSocket.emit('alert', successMessage);
+    //adminSocket.emit('alert', ret);
+    client.emit('alert', ret);
+
+    this.io.server.of('socket/admin').emit('alert', 'test for admin');
   }
 
   //interface 구현부
 
   afterInit(server: Server) {
-    console.log('SocketAdminGateway Init');
+    console.log('web socket init');
   }
   handleConnection(@ConnectedSocket() client: Socket) {
     console.log('connected', client.nsp.name);

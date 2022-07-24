@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from 'src/auth/auth.module';
-import { SocketController } from './socket.controller';
 import { SocketAdminGateway } from './socket-admin.gateway';
-import { SocketService } from './socket.service';
 import { SocketUserGateway } from './socket-user.gateway';
+import { SocketController } from './socket.controller';
+import { SocketGateway } from './socket.gateway';
+import { SocketService } from './socket.service';
 
 @Module({
   imports: [AuthModule],
