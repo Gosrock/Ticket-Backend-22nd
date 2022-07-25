@@ -20,7 +20,7 @@ import {
 import { AccessTokenGuard } from 'src/auth/guards/AccessToken.guard';
 import { PerformanceDate, Role } from 'src/common/consts/enum';
 import { Roles } from 'src/common/decorators/roles.decorator';
-import { ApiPaginatedDto } from 'src/common/decorators/test.decorator';
+import { ApiPaginatedDto } from 'src/common/decorators/ApiPaginatedDto.decorator';
 import { ReqUser } from 'src/common/decorators/user.decorator';
 import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
 import { PageDto } from 'src/common/dtos/page/page.dto';
