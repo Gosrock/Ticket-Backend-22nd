@@ -195,7 +195,6 @@ export class TicketsService {
       return ticket;
     } catch (e) {
       await queryRunner.rollbackTransaction();
-      throw e;
       //티켓 찾을때 Not Found Error 캐치
       if (e) {
         throw e;
