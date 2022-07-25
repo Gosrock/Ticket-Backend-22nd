@@ -2,8 +2,7 @@ import {
   forwardRef,
   Inject,
   Logger,
-  UnauthorizedException,
-  UseGuards
+  UnauthorizedException
 } from '@nestjs/common';
 import {
   ConnectedSocket,
@@ -15,9 +14,8 @@ import {
 } from '@nestjs/websockets';
 import { Namespace, Server, Socket } from 'socket.io';
 import { TicketsService } from 'src/tickets/tickets.service';
-import { SocketGuard } from './socket.guard';
 
-@UseGuards(SocketGuard)
+// @UseGuards(SocketGuard)
 @WebSocketGateway({
   cors: {
     origin: '*'

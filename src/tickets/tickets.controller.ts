@@ -109,8 +109,8 @@ export class TicketsController {
     description: '요청 성공시',
     type: Ticket
   })
-  @Get('/create')
-  async testCreateTicket(@ReqUser() user: User) {
+  @Post('/create')
+  async testCreateTicket(user: User) {
     const createTicketDto = {
       date: PerformanceDate.YB,
       order: new Order(),

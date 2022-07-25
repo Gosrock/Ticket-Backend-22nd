@@ -13,8 +13,8 @@ import { Role } from 'src/common/consts/enum';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { SocketGuard } from './socket.guard';
 
-@UseGuards(SocketGuard)
-@Roles(Role.Admin)
+// @UseGuards(SocketGuard)
+// @Roles(Role.Admin)
 @WebSocketGateway({
   cors: {
     origin: '*'
@@ -54,6 +54,9 @@ export class SocketAdminGateway
       const user = await this.authService.findUserById(payload.id);
       if (!user) {
         throw new UnauthorizedException('없는 유저입니다.');
+      }
+      if (user.role !== Role.Admin) {
+        throw new UnauthorizedException('권한이 없습니다');
       }
       this.logger.log(`${client.id} connected`);
     } catch (e) {
