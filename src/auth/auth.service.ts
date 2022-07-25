@@ -31,6 +31,7 @@ import { RequestAdminLoginDto } from './dtos/AdminLogin.request.dto';
 import { ResponseAdminLoginDto } from './dtos/AdminLogin.response.dto';
 import { SmsService } from 'src/sms/sms.service';
 import { MessageDto } from 'src/sms/dtos/message.dto';
+import { SlackValidationNumberDMDto } from 'src/slack/dtos/SlackValidationNumberDM.dto';
 
 @Injectable()
 export class AuthService {
@@ -47,7 +48,7 @@ export class AuthService {
   async requestPhoneValidationNumber(
     requestPhoneNumberDto: RequestPhoneNumberDto
   ): Promise<ResponseRequestValidationDto> {
-    let test;
+    console.log(this.dataSource);
     //console.log(test.adf.asdf);
     //TODO : 전화번호 인증번호 발송 로직 추가 , 이찬진 2022.07.14
     const userPhoneNumber = requestPhoneNumberDto.phoneNumber;
@@ -173,8 +174,8 @@ export class AuthService {
     } catch (e) {
       // 에러가 발생하면 롤백
       await queryRunner.rollbackTransaction();
-      this.logger.error(e);
-      throw new InternalServerErrorException('서버에러');
+
+      throw e;
     } finally {
       // 직접 생성한 QueryRunner는 해제시켜 주어야 함
       await queryRunner.release();
@@ -211,7 +212,9 @@ export class AuthService {
       randomCode,
       180
     );
-    await this.slackService.sendDMwithValidationNumber(slaceUserId, randomCode);
+    await this.slackService.sendDMwithValidationNumber(
+      new SlackValidationNumberDMDto(slaceUserId, randomCode)
+    );
 
     return { validationNumber: randomCode };
   }
