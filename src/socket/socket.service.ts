@@ -1,19 +1,37 @@
 import { GatewayTimeoutException, Injectable } from '@nestjs/common';
+import { TicketEntryResponseDto } from 'src/common/dtos/ticket-entry-response.dto';
 import { TicketOnSocketDto } from 'src/common/dtos/ticket-on-socket.dto';
+import { Logger } from 'winston';
+import { SocketAdminGateway } from './socket-admin.gateway';
 import { SocketUserGateway } from './socket-user.gateway';
 
 @Injectable()
 export class SocketService {
-  constructor(private userGateway: SocketUserGateway) {}
+  constructor(
+    private userGateway: SocketUserGateway,
+    private adminGateway: SocketAdminGateway
+  ) {}
 
-  async connect(ticketOnSocketDto: TicketOnSocketDto) {
+  async emitToUser(ticketEntryResponseDto: TicketEntryResponseDto) {
     try {
-      this.userGateway.io.emit('enter', ticketOnSocketDto);
+      const { uuid } = ticketEntryResponseDto;
+      this.userGateway.io.emit(uuid, ticketEntryResponseDto);
     } catch (error) {
       console.log(error);
       throw new GatewayTimeoutException('소켓 서버에 연결할 수 없습니다');
     }
 
-    console.log(`SocketService:: connect to ${ticketOnSocketDto.uuid}`);
+    console.log(`[SocketService]emit to user: ${ticketEntryResponseDto.uuid}`);
+  }
+
+  async emitToAdmin(ticketEntryResponseDto: TicketEntryResponseDto) {
+    try {
+      this.adminGateway.io.emit('enter', ticketEntryResponseDto);
+    } catch (error) {
+      console.log(error);
+      throw new GatewayTimeoutException('소켓 서버에 연결할 수 없습니다');
+    }
+
+    console.log(`[SocketService]emit to admin: ${ticketEntryResponseDto.uuid}`);
   }
 }

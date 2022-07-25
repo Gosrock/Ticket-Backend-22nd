@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Patch,
+  Post,
   Query,
   UseGuards,
   UsePipes
@@ -23,6 +24,7 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { ReqUser } from 'src/common/decorators/user.decorator';
 import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
 import { PageDto } from 'src/common/dtos/page/page.dto';
+import { TicketEntryDateValidationDto } from 'src/common/dtos/ticket-entry-date-validation.dto copy';
 import { TicketFindDto } from 'src/common/dtos/ticket-find.dto';
 import { UpdateTicketStatusDto } from 'src/common/dtos/update-ticket-status.dto';
 import { Order } from 'src/database/entities/order.entity';
@@ -101,7 +103,7 @@ export class TicketsController {
     return this.ticketService.findAllWith(ticketFindDto, pageOptionsDto);
   }
 
-  @ApiOperation({ summary: '임시 티켓 생성 (db 저장 테스트용)' })
+  @ApiOperation({ summary: '[테스트용] 임시 티켓 생성' })
   @ApiResponse({
     status: 200,
     description: '요청 성공시',
@@ -127,7 +129,7 @@ export class TicketsController {
   @ApiResponse({
     status: 200,
     description: '요청 성공시',
-    type: User
+    type: Ticket
   })
   @ApiUnauthorizedResponse({
     status: 401,
@@ -143,9 +145,32 @@ export class TicketsController {
     return this.ticketService.findByUuid(uuid, user);
   }
 
-  // @Get('/createTest')
-  // createTicketTest() {
-  // }
+  @ApiOperation({
+    summary: '[어드민] 티켓 QR코드 찍었을 때 uuid를 받아 소켓 이벤트를 전송'
+  })
+  @ApiBody({ type: TicketEntryDateValidationDto })
+  @ApiResponse({
+    status: 200 || 201,
+    description: '요청 성공시',
+    type: TicketEntryDateValidationDto
+  })
+  @ApiUnauthorizedResponse({
+    status: 401,
+    description: 'AccessToken 어드민 권한이 없을 경우'
+  })
+  @Roles(Role.Admin)
+  @Post('/:uuid/enter')
+  postTicketEntryValidation(
+    @Param('uuid') uuid: string,
+    @Body('') ticketEntryDateValidationDto: TicketEntryDateValidationDto,
+    @ReqUser() admin: User
+  ) {
+    return this.ticketService.entryValidation(
+      ticketEntryDateValidationDto,
+      uuid,
+      admin
+    );
+  }
 
   @ApiOperation({ summary: '[어드민] 티켓 하나의 status를 변경한다' })
   @ApiBody({ type: UpdateTicketStatusDto })
@@ -183,7 +208,7 @@ export class TicketsController {
     return this.ticketService.deleteTicketByUuid(ticketUuid);
   }
 
-  @ApiOperation({ summary: '티켓 모두 제거 (테스트용)' })
+  @ApiOperation({ summary: '[테스트용] 티켓 모두 제거' })
   @Delete('/deleteAll')
   deleteAllTickets() {
     return this.ticketService.deleteAllTickets();

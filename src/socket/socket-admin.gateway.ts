@@ -24,18 +24,7 @@ export class SocketAdminGateway
 {
   @WebSocketServer() public io: Namespace;
 
-  //   //어드민 QR 코드 찍는 화면 입장 처리, 어드민 정보 socket에 기록해야됩니다
-  //   @SubscribeMessage('enter')
-  //   handleEntering(
-  //     @ConnectedSocket() adminSocket: Socket,
-  //     @MessageBody() name: string
-  //   ) {
-  //     console.log(
-  //       `WebSocketGateway::nsp: ${adminSocket.nsp.name} 에서 어드민 대기중 ${name}`
-  //     );
-  //   }
-
-  //유저의 입장 요청 (어드민이 QR 코드 찍었을때)
+  //유저의 입장 확인 이벤트
   @SubscribeMessage('enter')
   handleRequest(
     @ConnectedSocket() adminSocket: Socket,
