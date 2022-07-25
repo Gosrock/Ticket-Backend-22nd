@@ -10,6 +10,11 @@ import {
   ORDER_CHANNELID
 } from './config/slack.const';
 import { NaverError } from 'src/sms/SMSError';
+import { SlackValidationNumberDMDto } from './dtos/SlackValidationNumberDM.dto';
+import { SlackOrderStateChangeDto } from './dtos/SlackOrderStateChange.dto';
+import { SlackNewOrderDto } from './dtos/SlackNewOrder.dto';
+import { SlackTicketQREnterEventDto } from './dtos/SlackTicketQREnterEvent.dto';
+import { SlackTicketStateChangeDto } from './dtos/SlackTicketStateChange.dto';
 @Injectable()
 export class SlackService {
   constructor(
@@ -19,6 +24,7 @@ export class SlackService {
     @Inject(BACKEND_CHANNELID) private backendChannelId: string
   ) {}
 
+  /// 큐에 담을 필요없습니다!!!! 필요한 로직입니다...
   /**
    * 슬랙에 등록된 유저의 이메일을 조회해서 해당 유저의 id(channelId)값을 알아옵니다.
    * @param email 슬랙에 등록된 유저의 이메일 값
@@ -42,22 +48,23 @@ export class SlackService {
       return data.user.id;
     } catch (error) {
       Logger.log(error.response.data);
-      throw new NaverError('문자발송실패', error.response.data);
+      return null;
     }
   }
 
   /**
    * 유저한테 고스락 알림봇이 인증번호를 슬랙으로 보냅니다. 개인 디엠 채널로 옵니다.
-   * @param id  채널 아이디( 슬랙 유저의 고유 아이디 )
-   * @param validationNumber 보낼 검증 번호
-   * @returns 202 입니다 리턴값이 없습니다.
+   * @param slackValidationNumberDMDto
+   * @returns
    */
-  async sendDMwithValidationNumber(id: string, validationNumber: string) {
+  async sendDMwithValidationNumber(
+    slackValidationNumberDMDto: SlackValidationNumberDMDto
+  ) {
     try {
       const value = await lastValueFrom(
         this.httpService
           .post('/chat.postMessage', {
-            channel: id,
+            channel: slackValidationNumberDMDto.slackChannelId,
             blocks: [
               {
                 type: 'header',
@@ -72,7 +79,7 @@ export class SlackService {
                 fields: [
                   {
                     type: 'mrkdwn',
-                    text: `*인증번호:*\n${validationNumber}`
+                    text: `*인증번호:*\n${slackValidationNumberDMDto.validationNumber}`
                   }
                 ]
               }
@@ -89,12 +96,16 @@ export class SlackService {
   }
 
   /**
-   * 주문이 업데이트 된 이후에 주문 객체를 받습니다.
+   * 주문이 업데이트 된 이후에 콜합니다.
    * 관리자 채널에 해당 변경 알림을 전송합니다.
-   * @param order 주문 엔티티를 받습니다.
+   * @param slackOrderStateChangeDto SlackOrderStateChangeDto
    * @returns
    */
-  async orderStateChangedByAdminEvent(order: Order) {
+  async orderStateChangedByAdminEvent(
+    slackOrderStateChangeDto: SlackOrderStateChangeDto
+  ) {
+    const { orderId, orderTicketCount, orderStatus, adminName } =
+      slackOrderStateChangeDto;
     try {
       const value = await lastValueFrom(
         this.httpService
@@ -114,19 +125,19 @@ export class SlackService {
                 fields: [
                   {
                     type: 'mrkdwn',
-                    text: `*주문 아이디:*\n${order.id}`
+                    text: `*주문 아이디:*\n${orderId}`
                   },
                   {
                     type: 'mrkdwn',
-                    text: `*주문 금액:*\n${order.ticketCount}`
+                    text: `*주문 금액:*\n${orderTicketCount}`
                   },
                   {
                     type: 'mrkdwn',
-                    text: `*주문 상태:*\n${order.status}`
+                    text: `*주문 상태:*\n${orderStatus}`
                   },
                   {
                     type: 'mrkdwn',
-                    text: `*관리자 정보:*\n${order.admin.name}`
+                    text: `*관리자 정보:*\n${adminName}`
                   }
                 ]
               }
@@ -142,12 +153,14 @@ export class SlackService {
   }
 
   /**
-   * 새로 생성된 주문을 인자로 받습니다
+   * 새로 생성된 주문이있으면 콜합니다.
    * 티켓예매 알림 채널에 알림을 전송합니다.
-   * @param order 새로 생성된주문
+   * @param slackNewOrderDto 새로 생성된주문
    * @returns 리턴값이 없습니다.
    */
-  async newOrderAlarm(order: Order) {
+  async newOrderAlarm(slackNewOrderDto: SlackNewOrderDto) {
+    const { orderId, userName, orderTicketCount, orderPrice } =
+      slackNewOrderDto;
     try {
       const value = await lastValueFrom(
         this.httpService
@@ -167,19 +180,19 @@ export class SlackService {
                 fields: [
                   {
                     type: 'mrkdwn',
-                    text: `*주문 아이디:*\n${order.id}`
+                    text: `*주문 아이디:*\n${orderId}`
                   },
                   {
                     type: 'mrkdwn',
-                    text: `*주문자 입금자명:*\n${order.user.name}`
+                    text: `*주문자 입금자명:*\n${userName}`
                   },
                   {
                     type: 'mrkdwn',
-                    text: `*주문매수:*\n${order.ticketCount}`
+                    text: `*주문매수:*\n${orderTicketCount}`
                   },
                   {
                     type: 'mrkdwn',
-                    text: `*주문금액:*\n${order.price}`
+                    text: `*주문금액:*\n${orderPrice}`
                   }
                 ]
               }
@@ -195,12 +208,17 @@ export class SlackService {
   }
 
   /**
-   * 변경된 정보를 가지고있는 티켓 객체를 인자로 받습니다
+   * 티켓의 정보가 바뀌면 슬랙에도 알리기 위해서 콜합니다.
+   * QR입장시에는 QR입장용 함수를 사용합니다. (이함수아님)
    * 관리자 채널에 어드민티켓 상태 변경알림을 전송합니다.
-   * @param ticket 변경된 정보를 가지고있는 티켓 객체
+   * @param slackTicketStateChangeDto 변경된 정보를 가지고있는 티켓 객체에서 나온 dto
    * @returns 리턴값이 없습니다.
    */
-  async ticketStateChangedByAdminEvent(ticket: Ticket) {
+  async ticketStateChangedByAdminEvent(
+    slackTicketStateChangeDto: SlackTicketStateChangeDto
+  ) {
+    const { ticketId, userName, ticketStatus, adminName } =
+      slackTicketStateChangeDto;
     try {
       const value = await lastValueFrom(
         this.httpService
@@ -220,19 +238,19 @@ export class SlackService {
                 fields: [
                   {
                     type: 'mrkdwn',
-                    text: `*티켓 아이디:*\n${ticket.id}`
+                    text: `*티켓 아이디:*\n${ticketId}`
                   },
                   {
                     type: 'mrkdwn',
-                    text: `*티켓 주문자:*\n${ticket.user.name}`
+                    text: `*티켓 주문자:*\n${userName}`
                   },
                   {
                     type: 'mrkdwn',
-                    text: `*티켓 상태:*\n${ticket.status}`
+                    text: `*티켓 상태:*\n${ticketStatus}`
                   },
                   {
                     type: 'mrkdwn',
-                    text: `*관리자:*\n${ticket.admin?.name}`
+                    text: `*관리자:*\n${adminName ? adminName : '관리자미정'}`
                   }
                 ]
               }
@@ -249,10 +267,13 @@ export class SlackService {
 
   /**
    * 입장 이벤트가 발생하면 관리자채널에 입장알림을 전송합니다.
-   * @param ticket 입장처리가 된 티켓객체
+   * @param slackTicketQREnterEventDto 입장처리가 된 티켓객체에서 나온 정보를 담은 dto
    * @returns 리턴값이 없습니다.
    */
-  async ticketEnterEvent(ticket: Ticket) {
+  async ticketQREnterEvent(
+    slackTicketQREnterEventDto: SlackTicketQREnterEventDto
+  ) {
+    const { ticketId, userName, adminName } = slackTicketQREnterEventDto;
     try {
       const value = await lastValueFrom(
         this.httpService
@@ -272,15 +293,15 @@ export class SlackService {
                 fields: [
                   {
                     type: 'mrkdwn',
-                    text: `*티켓 아이디:*\n${ticket.id}`
+                    text: `*티켓 아이디:*\n${ticketId}`
                   },
                   {
                     type: 'mrkdwn',
-                    text: `*티켓 주문자:*\n${ticket.user.name}`
+                    text: `*티켓 주문자:*\n${userName}`
                   },
                   {
                     type: 'mrkdwn',
-                    text: `*관리자:*\n${ticket.admin?.name}`
+                    text: `*관리자:*\n${adminName ? adminName : '관리자미정'}`
                   }
                 ]
               }
