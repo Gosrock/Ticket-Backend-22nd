@@ -13,7 +13,6 @@ import {
 import { Namespace, Server, Socket } from 'socket.io';
 import { Role } from 'src/common/consts/enum';
 import { Roles } from 'src/common/decorators/roles.decorator';
-import { TicketEntryResponseDto } from 'src/common/dtos/ticket-entry-response.dto';
 import { SocketGuard } from '../auth/guards/Socket.guard';
 
 @UseGuards(SocketGuard)
@@ -33,7 +32,7 @@ export class SocketAdminGateway
   //유저의 입장 확인 이벤트
   @SubscribeMessage('enter')
   handleRequest(
-    @ConnectedSocket() adminSocket: Socket,
+    @ConnectedSocket() adminSocket: Socket
     //@MessageBody() ticketEntryResponseDto: TicketEntryResponseDto
   ) {
     adminSocket.emit('enter', '소켓 서버에 연결되었습니다');

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { IsEnum } from 'class-validator';
-import { PerformanceDate } from '../consts/enum';
+import { PerformanceDate } from '../../common/consts/enum';
 
 /**
  * @param date 티켓 날짜

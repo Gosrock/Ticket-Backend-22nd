@@ -10,9 +10,7 @@ import {
   WebSocketServer
 } from '@nestjs/websockets';
 import { Namespace, Server, Socket } from 'socket.io';
-import { AccessTokenGuard } from 'src/auth/guards/AccessToken.guard';
-import { TicketStatus } from 'src/common/consts/enum';
-import { TicketOnSocketDto } from 'src/common/dtos/ticket-on-socket.dto';
+import { TicketOnSocketDto } from 'src/tickets/dtos/ticket-on-socket.dto';
 import { SocketGuard } from '../auth/guards/Socket.guard';
 
 @UseGuards(SocketGuard)

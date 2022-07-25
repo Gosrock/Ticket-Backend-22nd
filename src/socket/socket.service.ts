@@ -1,7 +1,5 @@
 import { GatewayTimeoutException, Injectable } from '@nestjs/common';
-import { TicketEntryResponseDto } from 'src/common/dtos/ticket-entry-response.dto';
-import { TicketOnSocketDto } from 'src/common/dtos/ticket-on-socket.dto';
-import { Logger } from 'winston';
+import { TicketEntryResponseDto } from 'src/tickets/dtos/ticket-entry-response.dto';
 import { SocketAdminGateway } from './socket-admin.gateway';
 import { SocketUserGateway } from './socket-user.gateway';
 

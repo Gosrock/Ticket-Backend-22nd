@@ -3,23 +3,22 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
-  NotFoundException,
   UnauthorizedException
 } from '@nestjs/common';
 import { Role, TicketStatus } from 'src/common/consts/enum';
-import { CreateTicketDto } from 'src/common/dtos/create-ticket.dto';
 import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
 import { PageDto } from 'src/common/dtos/page/page.dto';
-import { TicketEntryResponseDto } from 'src/common/dtos/ticket-entry-response.dto';
-import { TicketEntryDateValidationDto } from 'src/common/dtos/ticket-entry-date-validation.dto copy';
-import { TicketFindDto } from 'src/common/dtos/ticket-find.dto';
-import { UpdateTicketStatusDto } from 'src/common/dtos/update-ticket-status.dto';
+import { TicketEntryDateValidationDto } from 'src/tickets/dtos/ticket-entry-date-validation.dto copy';
 import { getConnectedRepository } from 'src/common/funcs/getConnectedRepository';
 import { Ticket } from 'src/database/entities/ticket.entity';
 import { User } from 'src/database/entities/user.entity';
 import { TicketRepository } from 'src/database/repositories/ticket.repository';
 import { SocketService } from 'src/socket/socket.service';
 import { DataSource } from 'typeorm';
+import { CreateTicketDto } from './dtos/create-ticket.dto';
+import { TicketEntryResponseDto } from './dtos/ticket-entry-response.dto';
+import { TicketFindDto } from './dtos/ticket-find.dto';
+import { UpdateTicketStatusDto } from './dtos/update-ticket-status.dto';
 
 @Injectable()
 export class TicketsService {

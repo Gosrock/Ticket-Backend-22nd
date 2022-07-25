@@ -1,9 +1,8 @@
-import { PickType, PartialType, ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsNumber, IsEnum, IsBoolean, IsString } from 'class-validator';
+import { IsEnum, IsBoolean, IsString } from 'class-validator';
+import { PerformanceDate, TicketStatus } from 'src/common/consts/enum';
 import { Ticket } from 'src/database/entities/ticket.entity';
-import { User } from 'src/database/entities/user.entity';
-import { PerformanceDate, TicketStatus } from '../consts/enum';
 
 /**
  * @param uuid 티켓의 uuid

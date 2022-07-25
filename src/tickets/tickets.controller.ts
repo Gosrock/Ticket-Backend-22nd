@@ -21,17 +21,18 @@ import {
 import { AccessTokenGuard } from 'src/auth/guards/AccessToken.guard';
 import { PerformanceDate, Role } from 'src/common/consts/enum';
 import { Roles } from 'src/common/decorators/roles.decorator';
+import { ApiPaginatedDto } from 'src/common/decorators/ApiPaginatedDto.decorator';
 import { ReqUser } from 'src/common/decorators/user.decorator';
 import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
 import { PageDto } from 'src/common/dtos/page/page.dto';
-import { TicketEntryDateValidationDto } from 'src/common/dtos/ticket-entry-date-validation.dto copy';
-import { TicketFindDto } from 'src/common/dtos/ticket-find.dto';
-import { UpdateTicketStatusDto } from 'src/common/dtos/update-ticket-status.dto';
+import { TicketEntryDateValidationDto } from 'src/tickets/dtos/ticket-entry-date-validation.dto copy';
 import { Order } from 'src/database/entities/order.entity';
 import { Ticket } from 'src/database/entities/ticket.entity';
 import { User } from 'src/database/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 import { TicketsService } from './tickets.service';
+import { TicketFindDto } from './dtos/ticket-find.dto';
+import { UpdateTicketStatusDto } from './dtos/update-ticket-status.dto';
 
 @ApiTags('tickets')
 @ApiBearerAuth('accessToken')
@@ -89,11 +90,12 @@ export class TicketsController {
   @ApiOperation({
     summary: '[어드민]해당 조건의 티켓을 모두 불러온다, querystring으로 전달'
   })
-  @ApiResponse({
-    status: 200,
-    description: '요청 성공시',
-    type: PageDto
-  })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: '요청 성공시',
+  //   type: PageDto<Ticket>
+  // })
+  @ApiPaginatedDto({ model: Ticket, description: '페이지네이션' })
   @Get('/find')
   @Roles(Role.Admin)
   getTicketsWith(
@@ -109,10 +111,8 @@ export class TicketsController {
     description: '요청 성공시',
     type: Ticket
   })
-  @Get('/create/:userId')
-  async testCreateTicket(@Param('userId') userId: number) {
-    const user = (await this.usersService.findUserById(userId)) as User;
-
+  @Get('/create')
+  async testCreateTicket(@ReqUser() user: User) {
     const createTicketDto = {
       date: PerformanceDate.YB,
       order: new Order(),
