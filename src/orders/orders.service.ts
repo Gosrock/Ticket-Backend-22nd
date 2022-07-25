@@ -67,9 +67,12 @@ export class OrdersService {
 		);
 
 		try {
+			// 주문 생성
 			const order = await connectedOrder.createOrder(requestOrderDto, user, totalPrice);
 
-			//티켓 수량 만큼 반복해서 생성
+			// ticketList에 생성할 티켓을 모두 담은 후 한번에 비동기요청
+			const ticketList = new Array;
+
 			for (let i = 0; i < ticketCount; i++) {
 				if (selection === OrderDate.BOTH || selection === OrderDate.YB) {
 					const createTicketDto = {
@@ -77,7 +80,7 @@ export class OrdersService {
 						order,
 						user
 					}
-					await connectedTicket.createTicket(createTicketDto);
+					ticketList.push(createTicketDto);
 				}
 				if (selection === OrderDate.BOTH || selection === OrderDate.OB) {
 					const createTicketDto = {
@@ -85,9 +88,11 @@ export class OrdersService {
 						order,
 						user
 					}
-					await connectedTicket.createTicket(createTicketDto);
+					ticketList.push(createTicketDto);
 				}
 			}
+			await Promise.all(ticketList.map((dto) => connectedTicket.createTicket(dto)));
+
 			await queryRunner.commitTransaction();
 			return order;
 
