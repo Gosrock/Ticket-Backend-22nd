@@ -5,13 +5,12 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from 'src/common/consts/enum';
-import { CreateTicketDto } from 'src/common/dtos/create-ticket.dto';
 import { PageMetaDto } from 'src/common/dtos/page/page-meta.dto';
 import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
 import { PageDto } from 'src/common/dtos/page/page.dto';
 import { PagingDto } from 'src/common/dtos/paging.dto';
-import { TicketFindDto } from 'src/common/dtos/ticket-find.dto';
-import { UpdateTicketStatusDto } from 'src/common/dtos/update-ticket-status.dto';
+import { CreateTicketDto } from 'src/tickets/dtos/create-ticket.dto';
+import { TicketFindDto } from 'src/tickets/dtos/ticket-find.dto';
 
 import { Repository } from 'typeorm';
 import { Ticket } from '../entities/ticket.entity';
@@ -134,36 +133,12 @@ export class TicketRepository {
   }
 
   /**
-   * 해당 ticketId를 참조하여 Ticket 엔티티의 status를 변경하고 DB에 저장한다
-   * @param ticketId Ticket의 id
-   * @param status 변경하고자 하려는 상태
-   * @param admin 변경하려는 어드민 정보
+   * 해당 티켓을 저장한다
+   * @param ticket 저장할 티켓
    */
-  async updateStatus(
-    updateTicketStatus: UpdateTicketStatusDto,
-    admin: User
-  ): Promise<Ticket> {
-    const { ticketId, status } = updateTicketStatus;
-    const ticket = await this.ticketRepository.findOne({
-      where: {
-        id: ticketId
-      }
-    });
-
-    if (!ticket) {
-      throw new NotFoundException(`Can't find Tickets with id: ${ticketId}`);
-    }
-
-    try {
-      ticket.status = status;
-      ticket.admin = admin;
-
-      await this.ticketRepository.save(ticket);
-    } catch (error) {
-      console.log(`Error occurs in updateStatus: ${error}`);
-    }
-
-    return ticket;
+  async saveTicket(ticket: Ticket): Promise<Ticket> {
+    const savedTicket = await this.ticketRepository.save(ticket);
+    return savedTicket;
   }
 
   /**
