@@ -1,19 +1,17 @@
-import { Logger, NotFoundException, UseGuards } from '@nestjs/common';
+import { Logger, UnauthorizedException, UseGuards } from '@nestjs/common';
 import {
   ConnectedSocket,
-  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   OnGatewayInit,
-  SubscribeMessage,
   WebSocketGateway,
-  WebSocketServer,
-  WsResponse
+  WebSocketServer
 } from '@nestjs/websockets';
 import { Namespace, Server, Socket } from 'socket.io';
+import { AuthService } from 'src/auth/auth.service';
 import { Role } from 'src/common/consts/enum';
 import { Roles } from 'src/common/decorators/roles.decorator';
-import { SocketGuard } from '../auth/guards/Socket.guard';
+import { SocketGuard } from './socket.guard';
 
 @UseGuards(SocketGuard)
 @Roles(Role.Admin)
@@ -27,27 +25,45 @@ export class SocketAdminGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   private readonly logger = new Logger(SocketAdminGateway.name);
-  @WebSocketServer() public io: Namespace;
+  constructor(private authService: AuthService) {}
 
-  //유저의 입장 확인 이벤트
-  @SubscribeMessage('enter')
-  handleRequest(
-    @ConnectedSocket() adminSocket: Socket
-    //@MessageBody() ticketEntryResponseDto: TicketEntryResponseDto
-  ) {
-    adminSocket.emit('enter', '소켓 서버에 연결되었습니다');
-  }
+  @WebSocketServer() public io: Namespace;
 
   //interface 구현부
 
   afterInit(server: Server) {
+    // remove the namespace
+    this.io.server._nsps.delete('/');
     this.logger.log('SocketAdminGateway Init');
   }
 
-  @UseGuards(SocketGuard)
-  handleConnection(@ConnectedSocket() client: Socket) {
-    this.logger.log(`${client.id} connected`);
+  //소켓 헤더에서 엑세스토큰 검사
+  async handleConnection(@ConnectedSocket() client: Socket) {
+    try {
+      const accessToken =
+        process.env.NODE_ENV == 'dev'
+          ? client.handshake.headers.authorization
+          : client.handshake.auth?.token;
+
+      if (!accessToken) {
+        throw new UnauthorizedException('잘못된 헤더 요청');
+      }
+      const payload = this.authService.verifyAccessJWT(accessToken);
+
+      this.logger.log(`${client.id} connected`);
+      const user = await this.authService.findUserById(payload.id);
+      if (!user) {
+        throw new UnauthorizedException('없는 유저입니다.');
+      }
+      this.logger.log(`${client.id} connected`);
+    } catch (e) {
+      this.logger.error(
+        `${client.id} 연결 강제 종료, status: ${e.status}, ${e.message}`
+      );
+      client.disconnect();
+    }
   }
+
   handleDisconnect(@ConnectedSocket() client: Socket) {
     this.logger.log(`${client.id} disconnected`);
   }

@@ -1,17 +1,21 @@
-import { Logger, NotFoundException, UseGuards } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Logger,
+  UnauthorizedException,
+  UseGuards
+} from '@nestjs/common';
 import {
   ConnectedSocket,
-  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   OnGatewayInit,
-  SubscribeMessage,
   WebSocketGateway,
   WebSocketServer
 } from '@nestjs/websockets';
 import { Namespace, Server, Socket } from 'socket.io';
-import { TicketOnSocketDto } from 'src/tickets/dtos/ticket-on-socket.dto';
-import { SocketGuard } from '../auth/guards/Socket.guard';
+import { TicketsService } from 'src/tickets/tickets.service';
+import { SocketGuard } from './socket.guard';
 
 @UseGuards(SocketGuard)
 @WebSocketGateway({
@@ -24,31 +28,46 @@ export class SocketUserGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   private readonly logger = new Logger(SocketUserGateway.name);
-  private isAlreadyConnteced = false;
+  constructor(
+    @Inject(forwardRef(() => TicketsService))
+    private ticketsService: TicketsService
+  ) {}
   @WebSocketServer() public io: Namespace;
 
-  //유저 입장 (QR 코드 띄운 상태)
-  @SubscribeMessage('enter')
-  handleEntering(
-    @ConnectedSocket() userSocket: Socket,
-    @MessageBody() ticketOnSocketDto: TicketOnSocketDto
-  ) {
-    const { uuid } = ticketOnSocketDto;
-    if (!uuid) throw new NotFoundException('uuid non-exist');
-
-    this.logger.log(`${uuid} 입장 대기 중입니다`);
-
-    //해당 uuid 에 대한 소켓 listening
-    userSocket.join(uuid);
-  }
   //interface 구현부
 
   afterInit(server: Server) {
     this.logger.log('SocketUserGateway Init');
   }
-  handleConnection(@ConnectedSocket() client: Socket) {
-    this.logger.log(`${client.id} connected`);
+
+  //티켓 uuid로 존재하는 티켓인지 검사 후 연결
+  async handleConnection(@ConnectedSocket() client: Socket) {
+    try {
+      const ticketUuid =
+        process.env.NODE_ENV == 'dev'
+          ? client.handshake.headers.authorization
+          : client.handshake.auth?.ticketUuid;
+
+      if (!ticketUuid) {
+        throw new UnauthorizedException('잘못된 헤더 요청');
+      }
+
+      const ticket = await this.ticketsService.findByUuidSocket(ticketUuid);
+      if (!ticket) {
+        throw new UnauthorizedException('없는 유저입니다.');
+      }
+      this.logger.log(`${client.id} connected`);
+
+      //room: uuid로 강제 연결
+      client.join(ticketUuid);
+    } catch (e) {
+      this.logger.error(
+        `${client.id} 연결 강제 종료, status: ${e.status}, ${e.message}`
+      );
+      client.disconnect();
+    }
   }
+
   handleDisconnect(@ConnectedSocket() client: Socket) {
     this.logger.log(`${client.id} disconnected`);
   }

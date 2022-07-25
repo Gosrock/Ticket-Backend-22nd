@@ -1,4 +1,9 @@
-import { GatewayTimeoutException, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  GatewayTimeoutException,
+  Inject,
+  Injectable
+} from '@nestjs/common';
 import { TicketEntryResponseDto } from 'src/tickets/dtos/ticket-entry-response.dto';
 import { SocketAdminGateway } from './socket-admin.gateway';
 import { SocketUserGateway } from './socket-user.gateway';
@@ -6,7 +11,9 @@ import { SocketUserGateway } from './socket-user.gateway';
 @Injectable()
 export class SocketService {
   constructor(
+    @Inject(forwardRef(() => SocketUserGateway))
     private userGateway: SocketUserGateway,
+    @Inject(forwardRef(() => SocketAdminGateway))
     private adminGateway: SocketAdminGateway
   ) {}
 
@@ -18,8 +25,6 @@ export class SocketService {
       console.log(error);
       throw new GatewayTimeoutException('소켓 서버에 연결할 수 없습니다');
     }
-
-    console.log(`[SocketService]emit to user: ${ticketEntryResponseDto.uuid}`);
   }
 
   async emitToAdmin(ticketEntryResponseDto: TicketEntryResponseDto) {
@@ -29,7 +34,5 @@ export class SocketService {
       console.log(error);
       throw new GatewayTimeoutException('소켓 서버에 연결할 수 없습니다');
     }
-
-    console.log(`[SocketService]emit to admin: ${ticketEntryResponseDto.uuid}`);
   }
 }

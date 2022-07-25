@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -48,6 +50,16 @@ export class TicketsService {
       throw new UnauthorizedException('해등 티켓에 대한 접근 권한이 없습니다');
     }
 
+    return ticket;
+  }
+
+  /**
+   * socket용 find 메서드
+   * @param ticketUuid 가지고 오려는 Ticket의 uuid
+   * @returns Ticket Promise
+   */
+  async findByUuidSocket(ticketUuid: string): Promise<Ticket | null> {
+    const ticket = await this.ticketRepository.findByUuid(ticketUuid);
     return ticket;
   }
 

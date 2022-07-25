@@ -7,8 +7,7 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
-  UsePipes
+  UseGuards
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -24,7 +23,6 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { ApiPaginatedDto } from 'src/common/decorators/ApiPaginatedDto.decorator';
 import { ReqUser } from 'src/common/decorators/user.decorator';
 import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
-import { PageDto } from 'src/common/dtos/page/page.dto';
 import { TicketEntryDateValidationDto } from 'src/tickets/dtos/ticket-entry-date-validation.dto copy';
 import { Order } from 'src/database/entities/order.entity';
 import { Ticket } from 'src/database/entities/ticket.entity';

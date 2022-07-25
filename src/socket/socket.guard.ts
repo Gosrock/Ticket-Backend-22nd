@@ -24,26 +24,18 @@ export class SocketGuard implements CanActivate {
     return this.validateHeader(client, context);
   }
 
-  private async validateHeader(client: Socket, context: ExecutionContext) {
+  public async validateHeader(client: Socket, context: ExecutionContext) {
     //가드에 걸리면 에러 리턴 + 소켓 강제 연결 종료
-    const socketDisconnectWithMessage = message => {
-      this.logger.error(`${client.id} 연결 강제 종료 - ${message}`);
-      client.emit('response', {
-        status: 401,
-        success: false,
-        message: message
-      });
-      client.disconnect();
-    };
-
     try {
-      const accessToken = client.handshake.headers.authorization;
+      const accessToken =
+        process.env.NODE_ENV == 'dev'
+          ? client.handshake.headers.authorization
+          : client.handshake.auth?.accessToken;
+
       if (!accessToken) {
-        socketDisconnectWithMessage('잘못된 헤더 요청');
         throw new UnauthorizedException('잘못된 헤더 요청');
       }
       if (Array.isArray(accessToken)) {
-        socketDisconnectWithMessage('잘못된 헤더 요청');
         throw new UnauthorizedException('잘못된 헤더 요청');
       }
       const payload = this.authService.verifyAccessJWT(accessToken);
@@ -55,7 +47,6 @@ export class SocketGuard implements CanActivate {
 
       const user = await this.authService.findUserById(payload.id);
       if (!user) {
-        socketDisconnectWithMessage('없는 유저입니다');
         throw new UnauthorizedException('없는 유저입니다.');
       }
       const newObj: any = client;
@@ -74,11 +65,14 @@ export class SocketGuard implements CanActivate {
         } else if (user.role === Role.Admin) {
           return true;
         } else {
-          socketDisconnectWithMessage('권한이 없습니다');
           throw new UnauthorizedException('권한이 없습니다.');
         }
       }
     } catch (e) {
+      this.logger.error(
+        `${client.id} 연결 강제 종료, status: ${e.status}, ${e.message}`
+      );
+      client.disconnect();
       throw new WsException(e.message);
     }
   }
