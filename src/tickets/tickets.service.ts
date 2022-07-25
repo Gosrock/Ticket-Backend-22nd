@@ -1,4 +1,9 @@
-import { Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+  UnauthorizedException
+} from '@nestjs/common';
 import { Role } from 'src/common/consts/enum';
 import { CreateTicketDto } from 'src/common/dtos/create-ticket.dto';
 import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
@@ -14,7 +19,10 @@ import { DataSource } from 'typeorm';
 
 @Injectable()
 export class TicketsService {
-  constructor(private ticketRepository: TicketRepository, private dataSource: DataSource) {}
+  constructor(
+    private ticketRepository: TicketRepository,
+    private dataSource: DataSource
+  ) {}
 
   async findById(ticketId: number): Promise<Ticket | null> {
     return await this.ticketRepository.findById(ticketId);
@@ -56,7 +64,7 @@ export class TicketsService {
     );
   }
 
-    /**
+  /**
    * 해당 ticketId를 참조하여 Ticket 엔티티의 status를 변경하고 DB에 저장한다
    * @param ticketId Ticket의 id
    * @param status 변경하고자 하려는 상태
@@ -71,7 +79,11 @@ export class TicketsService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
-    const connectedRepository = getConnectedRepository(TicketRepository, queryRunner, Ticket);
+    const connectedRepository = getConnectedRepository(
+      TicketRepository,
+      queryRunner,
+      Ticket
+    );
 
     try {
       const { ticketId, status } = updateTicketStatusDto;
@@ -84,7 +96,7 @@ export class TicketsService {
 
       await queryRunner.commitTransaction();
       return ticket;
-    } catch(e) {
+    } catch (e) {
       await queryRunner.rollbackTransaction();
 
       //티켓 찾을때 Not Found Error 캐치
