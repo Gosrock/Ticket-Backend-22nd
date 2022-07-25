@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { Logger, NotFoundException, UseGuards } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -10,9 +10,12 @@ import {
   WebSocketServer
 } from '@nestjs/websockets';
 import { Namespace, Server, Socket } from 'socket.io';
+import { AccessTokenGuard } from 'src/auth/guards/AccessToken.guard';
 import { TicketStatus } from 'src/common/consts/enum';
 import { TicketOnSocketDto } from 'src/common/dtos/ticket-on-socket.dto';
+import { SocketGuard } from '../auth/guards/Socket.guard';
 
+@UseGuards(SocketGuard)
 @WebSocketGateway({
   cors: {
     origin: '*'
@@ -22,6 +25,8 @@ import { TicketOnSocketDto } from 'src/common/dtos/ticket-on-socket.dto';
 export class SocketUserGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
+  private readonly logger = new Logger(SocketUserGateway.name);
+  private isAlreadyConnteced = false;
   @WebSocketServer() public io: Namespace;
 
   //유저 입장 (QR 코드 띄운 상태)
@@ -33,9 +38,7 @@ export class SocketUserGateway
     const { uuid } = ticketOnSocketDto;
     if (!uuid) throw new NotFoundException('uuid non-exist');
 
-    console.log(
-      `WebSocketGateway::nsp: ${userSocket.nsp.name} 에서 입장 대기중 ${uuid}`
-    );
+    this.logger.log(`${uuid} 입장 대기 중입니다`);
 
     //해당 uuid 에 대한 소켓 listening
     userSocket.join(uuid);
@@ -43,12 +46,12 @@ export class SocketUserGateway
   //interface 구현부
 
   afterInit(server: Server) {
-    console.log('SocketUserGateway Init');
+    this.logger.log('SocketUserGateway Init');
   }
   handleConnection(@ConnectedSocket() client: Socket) {
-    console.log('connected', client.nsp.name);
+    this.logger.log(`${client.id} connected`);
   }
   handleDisconnect(@ConnectedSocket() client: Socket) {
-    console.log('disconnected', client.nsp.name);
+    this.logger.log(`${client.id} disconnected`);
   }
 }
