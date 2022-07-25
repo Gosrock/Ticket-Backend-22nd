@@ -1,12 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Exclude, Expose, Type } from 'class-transformer';
 import { PerformanceDate, TicketStatus } from 'src/common/consts/enum';
 import {
+  AfterLoad,
   BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
   Generated,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn
@@ -14,6 +16,7 @@ import {
 import { Order } from './order.entity';
 import { User } from './user.entity';
 import { nanoid } from 'nanoid';
+import { UserProfileDto } from 'src/common/dtos/user-profile.dto';
 
 @Entity()
 export class Ticket {
@@ -56,27 +59,30 @@ export class Ticket {
   })
   public status: TicketStatus;
 
-  @ApiProperty({
-    description: '주문번호에 대한 외래키입니다.',
-    type: () => Order
-  })
-  @Expose()
+  // 티켓 엔티티에는 사실 주문번호를 굳이 클라이언트한테 넘겨줄 필요가없는듯?
+  // @ApiProperty({
+  //   description: '주문번호에 대한 외래키입니다.',
+  //   type: () => Order
+  // })
+  @Exclude()
   @ManyToOne(() => Order, order => order.user, { eager: false })
   public order: Order;
 
   @ApiProperty({
     description: '티켓을 처리한 어드민에 대한 외래키입니다.',
-    type: () => User,
+    type: () => UserProfileDto,
     nullable: true
   })
+  @Type(() => UserProfileDto)
   @Expose()
   @ManyToOne(type => User)
   public admin: User | null;
 
   @ApiProperty({
     description: '주문한 유저에 대한 외래키입니다.',
-    type: () => User
+    type: () => UserProfileDto
   })
+  @Type(() => UserProfileDto)
   @Expose()
   @ManyToOne(type => User, user => user.ticket, { eager: false })
   public user: User;

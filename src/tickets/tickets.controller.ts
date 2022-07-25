@@ -107,10 +107,8 @@ export class TicketsController {
     description: '요청 성공시',
     type: Ticket
   })
-  @Get('/create/:userId')
-  async testCreateTicket(@Param('userId') userId: number) {
-    const user = (await this.usersService.findUserById(userId)) as User;
-
+  @Get('/create')
+  async testCreateTicket(@ReqUser() user: User) {
     const createTicketDto = {
       date: PerformanceDate.YB,
       order: new Order(),

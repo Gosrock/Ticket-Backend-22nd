@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose, Transform } from 'class-transformer';
+import { Expose, Transform, Type } from 'class-transformer';
 import { MaxLength } from 'class-validator';
 import { OrderStatus, OrderDate } from 'src/common/consts/enum';
+import { UserProfileDto } from 'src/common/dtos/user-profile.dto';
 import {
   Column,
   CreateDateColumn,
@@ -76,17 +77,19 @@ export class Order {
 
   @ApiProperty({
     description: '주문을 진행한 유저의 외래키',
-    type: () => User
+    type: () => UserProfileDto
   })
+  @Type(() => UserProfileDto)
   @Expose()
   @ManyToOne(type => User, user => user.order, { eager: false })
   public user: User;
 
   @ApiProperty({
     description: '주문을 처리한 어드민에 대한 외래키입니다.',
-    type: () => User,
+    type: () => UserProfileDto,
     nullable: true
   })
+  @Type(() => UserProfileDto)
   @Expose()
   @ManyToOne(type => User)
   public admin: User;
