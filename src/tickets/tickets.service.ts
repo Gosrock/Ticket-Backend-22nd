@@ -1,26 +1,33 @@
 import {
+  BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   InternalServerErrorException,
-  NotFoundException,
+  Logger,
   UnauthorizedException
 } from '@nestjs/common';
-import { Role } from 'src/common/consts/enum';
-import { CreateTicketDto } from 'src/common/dtos/create-ticket.dto';
+import { Role, TicketStatus } from 'src/common/consts/enum';
 import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
 import { PageDto } from 'src/common/dtos/page/page.dto';
-import { TicketFindDto } from 'src/common/dtos/ticket-find.dto';
-import { UpdateTicketStatusDto } from 'src/common/dtos/update-ticket-status.dto';
+import { TicketEntryDateValidationDto } from 'src/tickets/dtos/ticket-entry-date-validation.dto copy';
 import { getConnectedRepository } from 'src/common/funcs/getConnectedRepository';
 import { Ticket } from 'src/database/entities/ticket.entity';
 import { User } from 'src/database/entities/user.entity';
 import { TicketRepository } from 'src/database/repositories/ticket.repository';
-import { UserRepository } from 'src/database/repositories/user.repository';
+import { SocketService } from 'src/socket/socket.service';
 import { DataSource } from 'typeorm';
+import { CreateTicketDto } from './dtos/create-ticket.dto';
+import { TicketEntryResponseDto } from './dtos/ticket-entry-response.dto';
+import { TicketFindDto } from './dtos/ticket-find.dto';
+import { UpdateTicketStatusDto } from './dtos/update-ticket-status.dto';
 
 @Injectable()
 export class TicketsService {
+  private readonly logger = new Logger(TicketsService.name);
   constructor(
     private ticketRepository: TicketRepository,
+    private socketService: SocketService,
     private dataSource: DataSource
   ) {}
 
@@ -46,6 +53,16 @@ export class TicketsService {
     return ticket;
   }
 
+  /**
+   * socket용 find 메서드
+   * @param ticketUuid 가지고 오려는 Ticket의 uuid
+   * @returns Ticket Promise
+   */
+  async findByUuidSocket(ticketUuid: string): Promise<Ticket | null> {
+    const ticket = await this.ticketRepository.findByUuid(ticketUuid);
+    return ticket;
+  }
+
   async findAll(): Promise<Ticket[]> {
     return await this.ticketRepository.findAll();
   }
@@ -62,6 +79,92 @@ export class TicketsService {
       ticketFindDto,
       pageOptionsDto
     );
+  }
+
+  /**
+   * 어드민이 티켓을 찍었을때 연결할 url에서 검증을 완료한 후 소켓 메세지 전송
+   * @param uuid TicketValidationDto -> uuid
+   * @param admin 현재 로그인 중인 어드민
+   */
+  async entryValidation(
+    ticketEntryDateValidationDto: TicketEntryDateValidationDto,
+    uuid: string,
+    admin: User
+  ): Promise<TicketEntryResponseDto> {
+    this.logger.log('TicketEntryValidation');
+
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    const connectedRepository = getConnectedRepository(
+      TicketRepository,
+      queryRunner,
+      Ticket
+    );
+
+    try {
+      const { date } = ticketEntryDateValidationDto;
+      const ticket = await connectedRepository.findByUuid(uuid);
+
+      // 티켓 날짜 오류(공연 날짜가 일치하지 않음)
+      if (ticket.date !== date) {
+        const failureResponse = new TicketEntryResponseDto(
+          ticket,
+          admin.name,
+          false,
+          '[입장실패] - 공연 날짜가 일치하지 않습니다'
+        );
+        this.logger.error('티켓 날짜 오류 - 공연 날짜가 일치하지 않습니다');
+        this.socketService.emitToUser(failureResponse);
+        this.socketService.emitToAdmin(failureResponse);
+        throw new BadRequestException('공연 날짜가 일치하지 않습니다');
+      }
+
+      // 티켓 상태 오류('입장대기'가 아님)
+      if (ticket.status !== TicketStatus.WAIT) {
+        const failureResponse = new TicketEntryResponseDto(
+          ticket,
+          admin.name,
+          false,
+          '[입장실패] - 이미 입장 완료된 티켓입니다'
+        );
+        this.logger.error('티켓 상태 오류 - 이미 입장 완료된 티켓입니다');
+        this.socketService.emitToUser(failureResponse);
+        this.socketService.emitToAdmin(failureResponse);
+        throw new BadRequestException('이미 입장 완료된 티켓입니다');
+      }
+
+      //성공 시
+      ticket.status = TicketStatus.DONE;
+      ticket.admin = admin;
+
+      await connectedRepository.saveTicket(ticket);
+
+      await queryRunner.commitTransaction();
+
+      const successResponse = new TicketEntryResponseDto(
+        ticket,
+        admin.name,
+        true,
+        `[입장성공] ${ticket.user?.name}님이 입장하셨습니다`
+      );
+
+      this.socketService.emitToUser(successResponse);
+      this.socketService.emitToAdmin(successResponse);
+      return successResponse;
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+
+      // 내부 예외 그대로 던짐
+      if (e) {
+        throw e;
+      }
+      throw new InternalServerErrorException('Ticket db 에러');
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   /**
@@ -100,8 +203,8 @@ export class TicketsService {
       await queryRunner.rollbackTransaction();
 
       //티켓 찾을때 Not Found Error 캐치
-      if (e.status == 404) {
-        throw new NotFoundException(e.response.message);
+      if (e) {
+        throw e;
       }
       throw new InternalServerErrorException('Ticket db 에러');
     } finally {

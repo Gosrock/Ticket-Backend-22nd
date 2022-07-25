@@ -70,7 +70,7 @@ import { CustomConfigModule } from './config/customConfig.module';
     {
       provide: APP_FILTER,
       useClass: AllExceptionsFilter
-    }
+    },
   ]
 })
 export class AppModule {}

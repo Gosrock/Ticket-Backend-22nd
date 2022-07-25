@@ -1,7 +1,6 @@
 import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { Ticket } from 'src/database/entities/ticket.entity';
-import { UserProfileDto } from './user-profile.dto';
 
 export class CreateTicketDto extends PickType(PartialType(Ticket), [
   'date',

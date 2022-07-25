@@ -5,13 +5,12 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from 'src/common/consts/enum';
-import { CreateTicketDto } from 'src/common/dtos/create-ticket.dto';
 import { PageMetaDto } from 'src/common/dtos/page/page-meta.dto';
 import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
 import { PageDto } from 'src/common/dtos/page/page.dto';
 import { PagingDto } from 'src/common/dtos/paging.dto';
-import { TicketFindDto } from 'src/common/dtos/ticket-find.dto';
-import { UpdateTicketStatusDto } from 'src/common/dtos/update-ticket-status.dto';
+import { CreateTicketDto } from 'src/tickets/dtos/create-ticket.dto';
+import { TicketFindDto } from 'src/tickets/dtos/ticket-find.dto';
 
 import { Repository } from 'typeorm';
 import { Ticket } from '../entities/ticket.entity';
