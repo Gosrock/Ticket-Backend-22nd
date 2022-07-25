@@ -150,8 +150,6 @@ export class TicketRepository {
   async createTicket(createTicketDto: CreateTicketDto): Promise<Ticket> {
     const { user, order, date } = createTicketDto;
 
-    //order = orderRepository.findOne(order)
-
     const ticket = this.ticketRepository.create({
       date: date,
       user: user,
