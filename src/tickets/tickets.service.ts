@@ -114,11 +114,9 @@ export class TicketsService {
           ticket,
           admin.name,
           false,
-          '[입장실패] - 공연 날짜가 일치하지 않습니다'
+          '[입장실패] 공연 날짜가 일치하지 않습니다'
         );
-        this.logger.error('티켓 날짜 오류 - 공연 날짜가 일치하지 않습니다');
-        this.socketService.emitToUser(failureResponse);
-        this.socketService.emitToAdmin(failureResponse);
+        this.socketService.emitToAll(failureResponse);
         throw new BadRequestException('공연 날짜가 일치하지 않습니다');
       }
 
@@ -128,11 +126,9 @@ export class TicketsService {
           ticket,
           admin.name,
           false,
-          '[입장실패] - 이미 입장 완료된 티켓입니다'
+          '[입장실패] 이미 입장 완료된 티켓입니다'
         );
-        this.logger.error('티켓 상태 오류 - 이미 입장 완료된 티켓입니다');
-        this.socketService.emitToUser(failureResponse);
-        this.socketService.emitToAdmin(failureResponse);
+        this.socketService.emitToAll(failureResponse);
         throw new BadRequestException('이미 입장 완료된 티켓입니다');
       }
 
@@ -150,18 +146,14 @@ export class TicketsService {
         true,
         `[입장성공] ${ticket.user?.name}님이 입장하셨습니다`
       );
-
-      this.socketService.emitToUser(successResponse);
-      this.socketService.emitToAdmin(successResponse);
+      this.logger.log(`${ticket.user?.name}님이 입장하셨습니다`);
+      this.socketService.emitToAll(successResponse);
       return successResponse;
     } catch (e) {
       await queryRunner.rollbackTransaction();
-
+      this.logger.error(`티켓 상태 오류 - ${e.message}`);
       // 내부 예외 그대로 던짐
-      if (e) {
-        throw e;
-      }
-      throw new InternalServerErrorException('Ticket db 에러');
+      throw e;
     } finally {
       await queryRunner.release();
     }
