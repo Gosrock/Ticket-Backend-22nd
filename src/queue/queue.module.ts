@@ -9,7 +9,7 @@ import { QueueService } from './queue.service';
   imports: [
     BullModule.registerQueue(
       {
-        name: 'updateTicketStatusQ'
+        name: 'slackAlarmQ'
       },
     ),
   ],

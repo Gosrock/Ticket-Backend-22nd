@@ -8,17 +8,15 @@ import { SlackTicketStateChangeDto } from 'src/slack/dtos';
 
 @Injectable()
 export class QueueService {
-    constructor(@InjectQueue('updateTicketStatusQ') private updateTicketStatusQ: Queue) {}
+    constructor(@InjectQueue('slackAlarmQ') private slackAlarmQ: Queue) {}
 
     async updateTicketStatusJob(ticket: Ticket, admin: User) {
         console.log("admin: " + admin.name);
         console.log(ticket);
-        const job = await this.updateTicketStatusQ.add('updateTicketStatus', {
+        const job = await this.slackAlarmQ.add('updateTicketStatus', {
             adminName: admin.name,
             ticketId: ticket.id,
-            ticketStatus: ticket.status,
             userName: ticket.user.name,
         })
     }
-
 }
