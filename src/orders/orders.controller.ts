@@ -24,6 +24,7 @@ import { RequestOrderDto } from 'src/orders/dtos/request-order.dto';
 import { Ticket } from 'src/database/entities/ticket.entity';
 import { TicketsService } from 'src/tickets/tickets.service';
 import { OrderIdValidationPipe } from 'src/common/pipes/orderId-validation.pipe';
+import { ResponseOrderDto } from './dtos/response-order.dto';
 
 @ApiTags('orders')
 @ApiBearerAuth('accessToken')
@@ -41,7 +42,7 @@ export class OrdersController {
   @ApiResponse({
     status: 200,
     description: '요청 성공시',
-    type: Order
+    type: ResponseOrderDto
   })
   @ApiUnauthorizedResponse({
     status: 401,
@@ -51,7 +52,7 @@ export class OrdersController {
   createOrder(
     @Body() requestOrderDto: RequestOrderDto,
     @ReqUser() user: User
-  ): Promise<Order> {
+  ): Promise<ResponseOrderDto> {
     return this.orderService.createOrder(requestOrderDto, user);
   }
 
