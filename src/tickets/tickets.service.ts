@@ -210,7 +210,8 @@ export class TicketsService {
    * @param createTicketDto 티켓 생성 dto
    */
   async createTicket(createTicketDto: CreateTicketDto): Promise<Ticket | null> {
-    return await this.ticketRepository.createTicket(createTicketDto);
+    const result = await this.ticketRepository.createTicket(createTicketDto);
+    return result;
   }
 
   async deleteTicketByUuid(ticketUuid: string): Promise<Ticket | null> {

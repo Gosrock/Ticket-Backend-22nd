@@ -11,6 +11,9 @@ import { QueueService } from './queue.service';
       {
         name: 'slackAlarmQ'
       },
+      {
+        name: 'naverSmsQ'
+      },
     ),
   ],
   providers: [QueueService, QueueConsumer,],

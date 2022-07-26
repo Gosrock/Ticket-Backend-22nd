@@ -8,7 +8,7 @@ import { SlackTicketStateChangeDto } from 'src/slack/dtos';
 
 @Injectable()
 export class QueueService {
-    constructor(@InjectQueue('slackAlarmQ') private slackAlarmQ: Queue) {}
+    constructor(@InjectQueue('slackAlarmQ') private slackAlarmQ: Queue, @InjectQueue('naverSmsQ') private naverSmsQ: Queue) {}
 
     async updateTicketStatusJob(ticket: Ticket, admin: User) {
         console.log("admin: " + admin.name);
@@ -17,6 +17,13 @@ export class QueueService {
             adminName: admin.name,
             ticketId: ticket.id,
             userName: ticket.user.name,
+        })
+    }
+
+    async sendNaverSmsMessageJob(phoneNumber: String, ) {
+        const job = await this.naverSmsQ.add('sendNaverSmsMessage', {
+            to: phoneNumber,
+            content:  
         })
     }
 }
