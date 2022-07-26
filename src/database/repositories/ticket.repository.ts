@@ -140,7 +140,7 @@ export class TicketRepository {
   async findAllByOrderId(orderId: number): Promise<Ticket[]> {
     return await this.ticketRepository
       .createQueryBuilder('ticket')
-      .where({ order: orderId - 10000 })
+      .where({ order: orderId })
       .getMany();
   }
 
