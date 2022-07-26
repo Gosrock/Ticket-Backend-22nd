@@ -3,7 +3,7 @@ import e from 'express';
 import { TicketStatus } from '../consts/enum';
 
 export class TicketStatusValidationPipe implements PipeTransform {
-  readonly StatusOptions = [TicketStatus.DONE, TicketStatus.WAIT];
+  readonly StatusOptions = [TicketStatus.DONE, TicketStatus.ENTERWAIT];
 
   transform(value: any) {
     if (typeof value === 'object') {

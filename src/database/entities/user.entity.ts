@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
-import { Role } from 'src/common/consts/enum';
+import { Role } from '../../common/consts/enum';
 import {
   Column,
   CreateDateColumn,
