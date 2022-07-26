@@ -133,7 +133,7 @@ export class TicketRepository {
   }
 
   /**
-   * 
+   *
    * @param orderId 조회할 주문id
    * @returns 해당 주문에 속한 Ticket 배열
    */
