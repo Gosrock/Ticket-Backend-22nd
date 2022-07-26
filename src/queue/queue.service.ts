@@ -39,7 +39,7 @@ export class QueueService {
     const url = 'https://gosrock.band/tickets/';
     let obIdx = 1;
     let ybIdx = 1;
-   const totalTicketCnt = order.selection == OrderDate.BOTH ? order.ticketCount/2 : order.ticketCount
+    const totalTicketCnt = order.selection == OrderDate.BOTH ? order.ticketCount/2 : order.ticketCount
     const messageDtoList = ticketList.map(ticket => {
       switch (ticket.date) {
         case PerformanceDate.OB:
