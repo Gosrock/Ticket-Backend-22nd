@@ -16,6 +16,8 @@ import { Ticket } from 'src/database/entities/ticket.entity';
 import { User } from 'src/database/entities/user.entity';
 import { TicketRepository } from 'src/database/repositories/ticket.repository';
 import { SocketService } from 'src/socket/socket.service';
+import { UserRepository } from 'src/database/repositories/user.repository';
+import { QueueService } from 'src/queue/queue.service';
 import { DataSource } from 'typeorm';
 import { CreateTicketDto } from './dtos/create-ticket.dto';
 import { TicketEntryResponseDto } from './dtos/ticket-entry-response.dto';
@@ -188,12 +190,12 @@ export class TicketsService {
       ticket.admin = admin;
 
       await connectedRepository.saveTicket(ticket);
-
+      await this.queueService.updateTicketStatusJob(ticket, admin);
       await queryRunner.commitTransaction();
       return ticket;
     } catch (e) {
       await queryRunner.rollbackTransaction();
-
+      throw e;
       //티켓 찾을때 Not Found Error 캐치
       if (e) {
         throw e;

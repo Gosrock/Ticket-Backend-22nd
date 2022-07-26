@@ -68,7 +68,7 @@ export class User {
     type: () => [Ticket]
   })
   @Expose()
-  @OneToMany(type => Ticket, ticket => ticket.user, { eager: true })
+  @OneToMany(type => Ticket, ticket => ticket.user, { eager: false })
   public ticket: Ticket[];
 
   @ApiProperty({
