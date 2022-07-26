@@ -3,7 +3,7 @@ import { Expose, Type } from 'class-transformer';
 import { User } from 'src/database/entities/user.entity';
 
 export class ResponseRegisterUserDto {
-  @ApiProperty({ description: '유저 정보입니다.', type: String })
+  @ApiProperty({ description: '유저 정보입니다.', type: User })
   @Type(() => User)
   @Expose()
   user: User;
