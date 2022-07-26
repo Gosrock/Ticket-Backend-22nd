@@ -1,4 +1,4 @@
-import { Logger, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Logger, UnauthorizedException } from '@nestjs/common';
 import {
   ConnectedSocket,
   OnGatewayConnection,
@@ -10,8 +10,6 @@ import {
 import { Namespace, Server, Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
 import { Role } from 'src/common/consts/enum';
-import { Roles } from 'src/common/decorators/roles.decorator';
-import { SocketGuard } from './socket.guard';
 
 // @UseGuards(SocketGuard)
 // @Roles(Role.Admin)

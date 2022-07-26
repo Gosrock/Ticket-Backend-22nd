@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose, Type } from 'class-transformer';
-import { PerformanceDate, TicketStatus } from 'src/common/consts/enum';
+import { PerformanceDate, TicketStatus } from '../../common/consts/enum';
 import {
   AfterLoad,
   BeforeInsert,
@@ -16,7 +16,7 @@ import {
 import { Order } from './order.entity';
 import { User } from './user.entity';
 import { nanoid } from 'nanoid';
-import { UserProfileDto } from 'src/common/dtos/user-profile.dto';
+import { UserProfileDto } from '../../common/dtos/user-profile.dto';
 
 @Entity()
 export class Ticket {
@@ -55,7 +55,7 @@ export class Ticket {
   @Column({
     type: 'enum',
     enum: TicketStatus,
-    default: TicketStatus.WAIT
+    default: TicketStatus.ORDERWAIT
   })
   public status: TicketStatus;
 

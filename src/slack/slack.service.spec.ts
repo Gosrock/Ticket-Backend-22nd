@@ -76,7 +76,12 @@ describe('SlackService', () => {
 
   it('관리자가 티켓의 상태를 변경하면 알림이 가야합니다.', async () => {
     const value = await service.ticketStateChangedByAdminEvent(
-      new SlackTicketStateChangeDto(1, '테스트', TicketStatus.WAIT, '테스트2')
+      new SlackTicketStateChangeDto(
+        1,
+        '테스트',
+        TicketStatus.ENTERWAIT,
+        '테스트2'
+      )
     );
     console.log(value);
     expect(value).toBeDefined();

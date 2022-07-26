@@ -16,6 +16,8 @@ import { Ticket } from 'src/database/entities/ticket.entity';
 import { User } from 'src/database/entities/user.entity';
 import { TicketRepository } from 'src/database/repositories/ticket.repository';
 import { SocketService } from 'src/socket/socket.service';
+import { UserRepository } from 'src/database/repositories/user.repository';
+import { QueueService } from 'src/queue/queue.service';
 import { DataSource } from 'typeorm';
 import { CreateTicketDto } from './dtos/create-ticket.dto';
 import { TicketEntryResponseDto } from './dtos/ticket-entry-response.dto';
@@ -28,7 +30,8 @@ export class TicketsService {
   constructor(
     private ticketRepository: TicketRepository,
     private socketService: SocketService,
-    private dataSource: DataSource
+    private dataSource: DataSource,
+    private queueService: QueueService
   ) {}
 
   async findById(ticketId: number): Promise<Ticket | null> {
@@ -69,6 +72,10 @@ export class TicketsService {
 
   async findAllByUserId(userId: number): Promise<Ticket[]> {
     return await this.ticketRepository.findAllByUserId(userId);
+  }
+
+  async findAllByOrderId(orderId: number): Promise<Ticket[]> {
+    return await this.ticketRepository.findAllByOrderId(orderId);
   }
 
   async findAllWith(
@@ -114,25 +121,21 @@ export class TicketsService {
           ticket,
           admin.name,
           false,
-          '[입장실패] - 공연 날짜가 일치하지 않습니다'
+          '[입장실패] 공연 날짜가 일치하지 않습니다'
         );
-        this.logger.error('티켓 날짜 오류 - 공연 날짜가 일치하지 않습니다');
-        this.socketService.emitToUser(failureResponse);
-        this.socketService.emitToAdmin(failureResponse);
+        this.socketService.emitToAll(failureResponse);
         throw new BadRequestException('공연 날짜가 일치하지 않습니다');
       }
 
       // 티켓 상태 오류('입장대기'가 아님)
-      if (ticket.status !== TicketStatus.WAIT) {
+      if (ticket.status !== TicketStatus.ENTERWAIT) {
         const failureResponse = new TicketEntryResponseDto(
           ticket,
           admin.name,
           false,
-          '[입장실패] - 이미 입장 완료된 티켓입니다'
+          '[입장실패] 이미 입장 완료된 티켓입니다'
         );
-        this.logger.error('티켓 상태 오류 - 이미 입장 완료된 티켓입니다');
-        this.socketService.emitToUser(failureResponse);
-        this.socketService.emitToAdmin(failureResponse);
+        this.socketService.emitToAll(failureResponse);
         throw new BadRequestException('이미 입장 완료된 티켓입니다');
       }
 
@@ -150,18 +153,14 @@ export class TicketsService {
         true,
         `[입장성공] ${ticket.user?.name}님이 입장하셨습니다`
       );
-
-      this.socketService.emitToUser(successResponse);
-      this.socketService.emitToAdmin(successResponse);
+      this.logger.log(`${ticket.user?.name}님이 입장하셨습니다`);
+      this.socketService.emitToAll(successResponse);
       return successResponse;
     } catch (e) {
       await queryRunner.rollbackTransaction();
-
+      this.logger.error(`티켓 상태 오류 - ${e.message}`);
       // 내부 예외 그대로 던짐
-      if (e) {
-        throw e;
-      }
-      throw new InternalServerErrorException('Ticket db 에러');
+      throw e;
     } finally {
       await queryRunner.release();
     }
@@ -196,12 +195,11 @@ export class TicketsService {
       ticket.admin = admin;
 
       await connectedRepository.saveTicket(ticket);
-
+      await this.queueService.updateTicketStatusJob(ticket, admin);
       await queryRunner.commitTransaction();
       return ticket;
     } catch (e) {
       await queryRunner.rollbackTransaction();
-
       //티켓 찾을때 Not Found Error 캐치
       if (e) {
         throw e;
@@ -217,7 +215,8 @@ export class TicketsService {
    * @param createTicketDto 티켓 생성 dto
    */
   async createTicket(createTicketDto: CreateTicketDto): Promise<Ticket | null> {
-    return await this.ticketRepository.createTicket(createTicketDto);
+    const result = await this.ticketRepository.createTicket(createTicketDto);
+    return result;
   }
 
   async deleteTicketByUuid(ticketUuid: string): Promise<Ticket | null> {

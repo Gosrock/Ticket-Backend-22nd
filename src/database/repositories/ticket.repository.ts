@@ -31,7 +31,8 @@ export class TicketRepository {
     const ticket = await this.ticketRepository.findOne({
       where: {
         id: ticketId
-      }
+      },
+      relations: ['user']
     });
 
     if (!ticket) {
@@ -133,6 +134,18 @@ export class TicketRepository {
   }
 
   /**
+   *
+   * @param orderId 조회할 주문id
+   * @returns 해당 주문에 속한 Ticket 배열
+   */
+  async findAllByOrderId(orderId: number): Promise<Ticket[]> {
+    return await this.ticketRepository
+      .createQueryBuilder('ticket')
+      .where({ order: orderId })
+      .getMany();
+  }
+
+  /**
    * 해당 티켓을 저장한다
    * @param ticket 저장할 티켓
    */
@@ -149,8 +162,6 @@ export class TicketRepository {
    */
   async createTicket(createTicketDto: CreateTicketDto): Promise<Ticket> {
     const { user, order, date } = createTicketDto;
-
-    //order = orderRepository.findOne(order)
 
     const ticket = this.ticketRepository.create({
       date: date,

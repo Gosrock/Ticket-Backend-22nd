@@ -35,4 +35,10 @@ export class SocketService {
       throw new GatewayTimeoutException('소켓 서버에 연결할 수 없습니다');
     }
   }
+
+  //양쪽
+  async emitToAll(ticketEntryResponseDto: TicketEntryResponseDto) {
+    await this.emitToUser(ticketEntryResponseDto);
+    await this.emitToAdmin(ticketEntryResponseDto);
+  }
 }
