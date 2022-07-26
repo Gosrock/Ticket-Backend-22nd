@@ -14,13 +14,15 @@ import { getConnectedRepository } from 'src/common/funcs/getConnectedRepository'
 import { TicketRepository } from 'src/database/repositories/ticket.repository';
 import { Ticket } from 'src/database/entities/ticket.entity';
 import e from 'express';
+import { QueueService } from 'src/queue/queue.service';
 
 @Injectable()
 export class OrdersService {
   constructor(
     private orderRepository: OrderRepository,
     private ticketService: TicketsService,
-    private dataSource: DataSource
+    private dataSource: DataSource,
+    private queueService: QueueService
   ) {}
 
   // 가격 책정 함수 : 단지 가독성을 위해 함수로 뺌
@@ -101,10 +103,13 @@ export class OrdersService {
           ticketList.push(createTicketDto);
         }
       }
-      await Promise.all(
-        ticketList.map(dto => connectedTicket.createTicket(dto))
+      const ticketListForQ = await Promise.all(
+        ticketList.map(dto => {
+          return connectedTicket.createTicket(dto);
+        })
       );
-
+      await this.queueService.createNewOrderJob(order);
+      await this.queueService.sendNaverSmsForOrderJob(order, ticketListForQ);
       await queryRunner.commitTransaction();
       return order;
     } catch (e) {

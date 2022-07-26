@@ -31,7 +31,8 @@ export class TicketRepository {
     const ticket = await this.ticketRepository.findOne({
       where: {
         id: ticketId
-      }
+      },
+      relations: ['user']
     });
 
     if (!ticket) {

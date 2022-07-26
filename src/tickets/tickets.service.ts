@@ -16,6 +16,8 @@ import { Ticket } from 'src/database/entities/ticket.entity';
 import { User } from 'src/database/entities/user.entity';
 import { TicketRepository } from 'src/database/repositories/ticket.repository';
 import { SocketService } from 'src/socket/socket.service';
+import { UserRepository } from 'src/database/repositories/user.repository';
+import { QueueService } from 'src/queue/queue.service';
 import { DataSource } from 'typeorm';
 import { CreateTicketDto } from './dtos/create-ticket.dto';
 import { TicketEntryResponseDto } from './dtos/ticket-entry-response.dto';
@@ -28,7 +30,8 @@ export class TicketsService {
   constructor(
     private ticketRepository: TicketRepository,
     private socketService: SocketService,
-    private dataSource: DataSource
+    private dataSource: DataSource,
+    private queueService: QueueService
   ) {}
 
   async findById(ticketId: number): Promise<Ticket | null> {
@@ -192,12 +195,11 @@ export class TicketsService {
       ticket.admin = admin;
 
       await connectedRepository.saveTicket(ticket);
-
+      await this.queueService.updateTicketStatusJob(ticket, admin);
       await queryRunner.commitTransaction();
       return ticket;
     } catch (e) {
       await queryRunner.rollbackTransaction();
-
       //티켓 찾을때 Not Found Error 캐치
       if (e) {
         throw e;
@@ -213,7 +215,8 @@ export class TicketsService {
    * @param createTicketDto 티켓 생성 dto
    */
   async createTicket(createTicketDto: CreateTicketDto): Promise<Ticket | null> {
-    return await this.ticketRepository.createTicket(createTicketDto);
+    const result = await this.ticketRepository.createTicket(createTicketDto);
+    return result;
   }
 
   async deleteTicketByUuid(ticketUuid: string): Promise<Ticket | null> {
