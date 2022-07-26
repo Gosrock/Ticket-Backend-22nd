@@ -27,8 +27,7 @@ import { SlackFakeService } from './slackFake.service';
   providers: [
     {
       provide: SlackService,
-      useClass:
-        process.env.NODE_ENV === 'dev' ? SlackService : SlackService
+      useClass: process.env.NODE_ENV === 'dev' ? SlackService : SlackService
     },
     {
       provide: ADMIN_CHANNELID,
@@ -55,8 +54,7 @@ import { SlackFakeService } from './slackFake.service';
   exports: [
     {
       provide: SlackService,
-      useClass:
-        process.env.NODE_ENV === 'dev' ? SlackService : SlackService
+      useClass: process.env.NODE_ENV === 'dev' ? SlackService : SlackService
     }
   ]
 })

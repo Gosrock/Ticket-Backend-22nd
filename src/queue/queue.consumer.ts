@@ -1,23 +1,27 @@
-import { OnQueueActive, OnQueueFailed, Process, Processor } from "@nestjs/bull";
-import Bull, { Job } from "bull";
-import e from "express";
-import { Err } from "joi";
-import { SlackTicketStateChangeDto } from "src/slack/dtos";
-import { SlackService } from "src/slack/slack.service";
+import { OnQueueFailed, Process, Processor } from '@nestjs/bull';
+import { Job } from 'bull';
+import { Err } from 'joi';
+import { SlackService } from 'src/slack/slack.service';
 
 @Processor('slackAlarmQ')
 export class QueueConsumer {
-    constructor(private slackService: SlackService) {}
+  constructor(private slackService: SlackService) {}
 
-    @OnQueueFailed()
-    errHandler(job: Job, err: Err) {
-        console.log("error: " + err);
-        throw err;
-    }
+  @OnQueueFailed()
+  errHandler(job: Job, err: Err) {
+    console.log('error: ' + err);
+    throw err;
+  }
 
-    @Process('updateTicketStatus')
-    async handleUpdateTicketStatus(job: Job) {
-        const ticketStatusChangeDto = job.data;
-        await this.slackService.ticketQREnterEvent(ticketStatusChangeDto);
-    }
+  @Process('updateTicketStatus')
+  async handleUpdateTicketStatus(job: Job) {
+    const ticketStatusChangeDto = job.data;
+    await this.slackService.ticketQREnterEvent(ticketStatusChangeDto);
+  }
+
+  @Process('createNewOrder')
+  async handleCreateNewOrder(job: Job) {
+    const newOrderDto = job.data;
+    await this.slackService.newOrderAlarm(newOrderDto);
+  }
 }

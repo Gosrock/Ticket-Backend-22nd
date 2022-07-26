@@ -26,7 +26,6 @@ export class SmsService {
     const signature = this.makeSignature(serviceId, 'POST', date);
 
     Logger.log('실제 문자메시지 전송' + JSON.stringify(messages), 'SmsService');
-
     try {
       const data = await lastValueFrom(
         this.httpService

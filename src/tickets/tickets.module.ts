@@ -14,7 +14,8 @@ import { TicketsService } from './tickets.service';
   imports: [
     TypeOrmModule.forFeature([Ticket]),
     SocketModule,
-    UsersModule //삭제예정
+    UsersModule, //삭제예정,
+    QueueModule
   ],
   providers: [
     TicketsService,

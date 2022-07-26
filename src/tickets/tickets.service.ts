@@ -30,7 +30,8 @@ export class TicketsService {
   constructor(
     private ticketRepository: TicketRepository,
     private socketService: SocketService,
-    private dataSource: DataSource
+    private dataSource: DataSource,
+    private queueService: QueueService
   ) {}
 
   async findById(ticketId: number): Promise<Ticket | null> {

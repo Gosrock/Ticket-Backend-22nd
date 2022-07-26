@@ -1,8 +1,11 @@
 import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SlackModule } from 'src/slack/slack.module';
-import { SlackService } from 'src/slack/slack.service';
+import { SmsModule } from 'src/sms/sms.module';
+
 import { QueueConsumer } from './queue.consumer';
+import { QueueConsumerSms } from './queue.consumer.sms';
 import { QueueService } from './queue.service';
 
 @Module({
@@ -13,10 +16,18 @@ import { QueueService } from './queue.service';
       },
       {
         name: 'naverSmsQ'
-      },
+      }
     ),
+    SmsModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        isProd: configService.get('NODE_ENV') === 'dev' ? true : false
+      }),
+      inject: [ConfigService]
+    }),
+    SlackModule
   ],
-  providers: [QueueService, QueueConsumer,],
-  exports: [QueueService],
+  providers: [QueueService, QueueConsumer, QueueConsumerSms],
+  exports: [QueueService]
 })
 export class QueueModule {}
