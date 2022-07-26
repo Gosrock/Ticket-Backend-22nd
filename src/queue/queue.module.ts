@@ -21,7 +21,7 @@ import { QueueService } from './queue.service';
     SmsModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        isProd: configService.get('NODE_ENV') === 'dev' ? true : false
+        isProd: configService.get('NODE_ENV') === 'prod' ? true : false
       }),
       inject: [ConfigService]
     }),

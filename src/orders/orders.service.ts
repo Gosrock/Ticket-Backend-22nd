@@ -93,8 +93,8 @@ export class OrdersService {
 				}
 			}
 			const ticketListForQ = await Promise.all(ticketList.map((dto) => {return connectedTicket.createTicket(dto);}));
-			this.queueService.createNewOrderJob(order);
-			this.queueService.sendNaverSmsForOrderJob(order, ticketListForQ);
+			await this.queueService.createNewOrderJob(order);
+			await this.queueService.sendNaverSmsForOrderJob(order, ticketListForQ);
 			await queryRunner.commitTransaction();
 			return order;
 

@@ -54,6 +54,6 @@ export class QueueService {
           };
       }
     });
-    this.naverSmsQ.add('sendNaverSmsForOrder', messageDtoList);
+    await this.naverSmsQ.add('sendNaverSmsForOrder', messageDtoList);
   }
 }

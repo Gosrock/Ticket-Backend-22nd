@@ -221,7 +221,6 @@ export class SlackService {
   ) {
     const { ticketId, userName, ticketStatus, adminName } =
       slackTicketStateChangeDto;
-    console.log(ticketId, userName, ticketStatus, adminName);
     try {
       const value = await lastValueFrom(
         this.httpService
