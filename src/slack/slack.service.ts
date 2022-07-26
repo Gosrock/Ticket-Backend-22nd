@@ -161,6 +161,8 @@ export class SlackService {
   async newOrderAlarm(slackNewOrderDto: SlackNewOrderDto) {
     const { orderId, userName, orderTicketCount, orderPrice } =
       slackNewOrderDto;
+    console.log('통과:' + orderId);
+    console.log('')
     try {
       const value = await lastValueFrom(
         this.httpService

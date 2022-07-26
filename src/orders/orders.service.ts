@@ -10,13 +10,15 @@ import { getConnectedRepository } from 'src/common/funcs/getConnectedRepository'
 import { TicketRepository } from 'src/database/repositories/ticket.repository';
 import { Ticket } from 'src/database/entities/ticket.entity';
 import e from 'express';
+import { QueueService } from 'src/queue/queue.service';
 
 @Injectable()
 export class OrdersService {
 	constructor(
 		private orderRepository: OrderRepository,
 		private ticketService: TicketsService,
-		private dataSource: DataSource
+		private dataSource: DataSource,
+		private queueService: QueueService,
 	) {}
 
 
@@ -72,7 +74,6 @@ export class OrdersService {
 
 			// ticketList에 생성할 티켓을 모두 담은 후 한번에 비동기요청
 			const ticketList = new Array;
-
 			for (let i = 0; i < ticketCount; i++) {
 				if (selection === OrderDate.BOTH || selection === OrderDate.YB) {
 					const createTicketDto = {
@@ -91,8 +92,9 @@ export class OrdersService {
 					ticketList.push(createTicketDto);
 				}
 			}
-			await Promise.all(ticketList.map((dto) => connectedTicket.createTicket(dto)));
-
+			const ticketListForQ = await Promise.all(ticketList.map((dto) => {return connectedTicket.createTicket(dto);}));
+			await this.queueService.createNewOrderJob(order);
+			await this.queueService.sendNaverSmsForOrderJob(order, ticketListForQ);
 			await queryRunner.commitTransaction();
 			return order;
 

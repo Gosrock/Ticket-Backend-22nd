@@ -84,7 +84,7 @@ export class Ticket {
   })
   @Type(() => UserProfileDto)
   @Expose()
-  @ManyToOne(type => User, user => user.ticket, { eager: false })
+  @ManyToOne(type => User, user => user.ticket, { eager: false})
   public user: User;
 
   @ApiProperty({
