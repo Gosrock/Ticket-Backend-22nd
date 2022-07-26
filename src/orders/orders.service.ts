@@ -105,4 +105,8 @@ export class OrdersService {
 			await queryRunner.release();
 		}	
 	}
+
+	async findAllByUserId(userId: number): Promise <Order[]> {
+		return await this.orderRepository.findAllByUserId(userId);
+	}
 }
