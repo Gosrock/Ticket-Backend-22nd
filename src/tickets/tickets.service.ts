@@ -125,7 +125,7 @@ export class TicketsService {
       }
 
       // 티켓 상태 오류('입장대기'가 아님)
-      if (ticket.status !== TicketStatus.WAIT) {
+      if (ticket.status !== TicketStatus.ENTERWAIT) {
         const failureResponse = new TicketEntryResponseDto(
           ticket,
           admin.name,

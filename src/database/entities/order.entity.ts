@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Transform, Type } from 'class-transformer';
 import { MaxLength } from 'class-validator';
-import { OrderStatus, OrderDate } from 'src/common/consts/enum';
-import { UserProfileDto } from 'src/common/dtos/user-profile.dto';
+import { OrderStatus, OrderDate } from '../../common/consts/enum';
+import { UserProfileDto } from '../../common/dtos/user-profile.dto';
 import {
   Column,
   CreateDateColumn,

@@ -38,7 +38,7 @@ export class DatabaseModule {
             password: configService.get('POSTGRES_PASSWORD'),
             // database: configService.get('POSTGRES_DB'),
             entities: [__dirname + '/../**/*.entity.{js,ts}'],
-            synchronize: configService.get('NODE_ENV') === 'dev' ? true : false,
+            synchronize: configService.get('NODE_ENV') === false,
             logging: configService.get('NODE_ENV') === 'dev' ? true : false
           })
         })
