@@ -32,6 +32,18 @@ export class OrderRepository {
 	return order;
   }
 
+  /**
+   * 
+   * @param userId 해당 유저의 주문 목록을 가져온다
+   * @returns Order배열
+   */
+  async findAllByUserId(userId: number): Promise <Order[]> {
+	  return await this.orderRepository
+	  .createQueryBuilder('order')
+	  .where({ user: userId })
+	  .getMany();
+	  
+  }
 
 
 }

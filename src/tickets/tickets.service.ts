@@ -71,6 +71,10 @@ export class TicketsService {
     return await this.ticketRepository.findAllByUserId(userId);
   }
 
+  async findAllByOrderId(orderId: number): Promise<Ticket[]> {
+    return await this.ticketRepository.findAllByOrderId(orderId);
+  }
+
   async findAllWith(
     ticketFindDto: TicketFindDto,
     pageOptionsDto: PageOptionsDto
