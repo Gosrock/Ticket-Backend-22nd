@@ -32,6 +32,7 @@ import { ResponseAdminLoginDto } from './dtos/AdminLogin.response.dto';
 import { SmsService } from 'src/sms/sms.service';
 import { MessageDto } from 'src/sms/dtos/message.dto';
 import { SlackValidationNumberDMDto } from 'src/slack/dtos/SlackValidationNumberDM.dto';
+import { returnValueToDto } from 'src/common/decorators/returnValueToDto.decorator';
 
 @Injectable()
 export class AuthService {
@@ -45,6 +46,7 @@ export class AuthService {
     private smsService: SmsService
   ) {}
 
+  @returnValueToDto(ResponseRequestValidationDto)
   async requestPhoneValidationNumber(
     requestPhoneNumberDto: RequestPhoneNumberDto
   ): Promise<ResponseRequestValidationDto> {
@@ -82,6 +84,7 @@ export class AuthService {
     };
   }
 
+  @returnValueToDto(ResponseValidateNumberDto)
   async validationPhoneNumber(
     requestValidateNumberDto: RequestValidateNumberDto
   ): Promise<ResponseValidateNumberDto> {
@@ -127,6 +130,7 @@ export class AuthService {
     }
   }
 
+  @returnValueToDto(ResponseRegisterUserDto)
   async registerUser(
     registerUser: RegisterJwtPayload,
     requestRegisterUserDto: RequestRegisterUserDto
@@ -182,6 +186,7 @@ export class AuthService {
     }
   }
 
+  @returnValueToDto(ResponseAdminSendValidationNumberDto)
   async slackSendValidationNumber(
     requestAdminSendValidationNumberDto: RequestAdminSendValidationNumberDto
   ): Promise<ResponseAdminSendValidationNumberDto> {
@@ -200,6 +205,7 @@ export class AuthService {
     const slaceUserId = await this.slackService.findSlackUserIdByEmail(
       requestAdminSendValidationNumberDto.slackEmail
     );
+    console.log(slaceUserId);
     if (!slaceUserId) {
       throw new BadRequestException(
         '가입한 슬랙 이메일을 올바르게 입력해 주세요'
@@ -219,6 +225,7 @@ export class AuthService {
     return { validationNumber: randomCode };
   }
 
+  @returnValueToDto(ResponseAdminLoginDto)
   async slackLoginUser(
     requestAdminLoginDto: RequestAdminLoginDto
   ): Promise<ResponseAdminLoginDto> {

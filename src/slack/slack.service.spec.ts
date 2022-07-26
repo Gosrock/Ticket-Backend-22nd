@@ -36,17 +36,18 @@ describe('SlackService', () => {
       ],
       providers: [
         SlackService,
+        //C03R59C216Y test channel
         {
           provide: ADMIN_CHANNELID,
-          useValue: 'C03MKF0DRRV'
+          useValue: 'C03R59C216Y'
         },
         {
           provide: ORDER_CHANNELID,
-          useValue: 'C03MKF2JJ4X'
+          useValue: 'C03R59C216Y'
         },
         {
           provide: BACKEND_CHANNELID,
-          useValue: 'C03Q3D1C43C'
+          useValue: 'C03R59C216Y'
         }
       ]
     }).compile();

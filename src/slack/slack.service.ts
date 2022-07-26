@@ -39,7 +39,7 @@ export class SlackService {
           })
           .pipe(map(response => response.data))
       );
-      // Logger.log(data);
+      Logger.log(data);
 
       if (data.ok !== true) {
         return null;
@@ -162,7 +162,7 @@ export class SlackService {
     const { orderId, userName, orderTicketCount, orderPrice } =
       slackNewOrderDto;
     console.log('통과:' + orderId);
-    console.log('')
+    console.log('');
     try {
       const value = await lastValueFrom(
         this.httpService
