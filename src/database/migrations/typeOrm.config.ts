@@ -7,6 +7,7 @@ import { Order } from '../entities/order.entity';
 import { User } from '../entities/user.entity';
 import { Comment } from '../entities/comment.entity';
 import { TicketStatusAddEnum1658837628780 } from './1658837628780-TicketStatusAddEnum';
+import { TicketUuidToVARCHAR1658841312873 } from './1658841312873-TicketUuidToVARCHAR';
 
 config();
 
@@ -19,5 +20,8 @@ export default new DataSource({
   username: configService.get('POSTGRES_USER'),
   password: configService.get('POSTGRES_PASSWORD'),
   entities: [Ticket, Order, User, Comment],
-  migrations: [TicketStatusAddEnum1658837628780]
+  migrations: [
+    TicketStatusAddEnum1658837628780,
+    TicketUuidToVARCHAR1658841312873
+  ]
 });
