@@ -1,7 +1,7 @@
 import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
 import { Queue } from 'bull';
-import { OrderDate, PerformanceDate } from 'src/common/consts/enum';
+import { OrderDate, PerformanceDate, EnterDate } from 'src/common/consts/enum';
 import { Order } from 'src/database/entities/order.entity';
 import { Ticket } from 'src/database/entities/ticket.entity';
 import { User } from 'src/database/entities/user.entity';
@@ -45,12 +45,12 @@ export class QueueService {
         case PerformanceDate.OB:
           return {
             to: order.user.phoneNumber,
-            content: `[${ticket.date}] 고티켓 (${obIdx++}/${totalTicketCnt}) \n\n ${url}${ticket.uuid}`
+            content: `[${EnterDate.OB}] 고티켓 (${obIdx++}/${totalTicketCnt}) \n\n ${url}${ticket.uuid}`
           };
         case PerformanceDate.YB:
           return {
             to: order.user.phoneNumber,
-            content: `[${ticket.date}] 고티켓 (${ybIdx++}/${totalTicketCnt}) \n\n ${url}${ticket.uuid}`
+            content: `[${EnterDate.YB}] 고티켓 (${ybIdx++}/${totalTicketCnt}) \n\n ${url}${ticket.uuid}`
           };
       }
     });
