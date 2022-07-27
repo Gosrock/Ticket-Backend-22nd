@@ -14,13 +14,13 @@ export class ResponseOrderListDto extends PickType((Order), [
 	  //생성자
 	  constructor(order: Order) {
 		  super();
-		  this.id = order.id,
-		  this.selection = order.selection,
-		  this.ticketCount = order.ticketCount,
-		  this.status = order.status,
-		  this.price = order.price,
-		  this.isFree = order.isFree,
-		  this.createdAt = order.createdAt,
-		  this.updatedAt = order.updatedAt
+		  this.id = order.id;
+		  this.selection = order.selection;
+		  this.ticketCount = order.ticketCount;
+		  this.status = order.status;
+		  this.price = order.price;
+		  this.isFree = order.isFree;
+		  this.createdAt = order.createdAt;
+		  this.updatedAt = order.updatedAt;
 	  }
   }
