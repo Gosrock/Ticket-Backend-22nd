@@ -38,6 +38,5 @@ export class QueueConsumerSms {
 }
 
 function sleep(ms) {
-  console.log('통과');
   return new Promise(r => setTimeout(r, ms));
 }

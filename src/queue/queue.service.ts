@@ -69,7 +69,7 @@ export class QueueService {
       .map((ticket, idx) => {
         return {
           to: order.user.phoneNumber,
-          content: `[${EnterDate.YB}] 고티켓 (${++idx}/${totalTicketCnt}) \n\n ${url}${ticket.uuid}`
+          content: `♬고티켓♬ (${++idx}/${totalTicketCnt})\n\n▶주문자명: ${order.user.name}\n▶관람일: ${EnterDate.YB}(${PerformanceDate.YB})\n\n${url}${ticket.uuid}`
         };
       });
     if (messageDtoYBList.length) {
@@ -80,7 +80,7 @@ export class QueueService {
       .map((ticket, idx) => {
         return {
           to: order.user.phoneNumber,
-          content: `[${EnterDate.OB}] 고티켓 (${++idx}/${totalTicketCnt}) \n\n ${url}${ticket.uuid}`
+          content: `♬고티켓♬ (${++idx}/${totalTicketCnt})\n\n▶주문자명: ${order.user.name}\n▶관람일: ${EnterDate.OB}(${PerformanceDate.OB})\n\n${url}${ticket.uuid}`
         };
       });
     if (messageDtoOBList.length) {
