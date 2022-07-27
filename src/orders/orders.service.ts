@@ -15,6 +15,10 @@ import { TicketRepository } from 'src/database/repositories/ticket.repository';
 import { Ticket } from 'src/database/entities/ticket.entity';
 import e from 'express';
 import { QueueService } from 'src/queue/queue.service';
+import { ResponseOrderDto } from './dtos/response-order.dto';
+import { returnValueToDto } from 'src/common/decorators/returnValueToDto.decorator';
+import { ResponseOrderListDto } from './dtos/response-orderlist.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class OrdersService {
@@ -45,12 +49,12 @@ export class OrdersService {
    * 해당 주문에 포함되는 모든 티켓을 각각 생성한다.
    * @param requestOrderDto {selection, ticketCount}
    * @param user Request User
-   * @returns Order
+   * @returns ResponseOrderDto
    */
   async createOrder(
     requestOrderDto: RequestOrderDto,
     user: User
-  ): Promise<Order> {
+  ): Promise<ResponseOrderDto> {
     const { selection, ticketCount } = requestOrderDto;
     const totalPrice = this.getTotalPrice(requestOrderDto); // 가격 책정
 
@@ -111,7 +115,10 @@ export class OrdersService {
       await this.queueService.createNewOrderJob(order);
       await this.queueService.sendNaverSmsForOrderJob(order, ticketListForQ);
       await queryRunner.commitTransaction();
-      return order;
+      
+      //인스턴스 생성해서 넘겨주기
+      return new ResponseOrderDto(order);
+      
     } catch (e) {
       // 주문 생성 실패시 Error
       await queryRunner.rollbackTransaction();
@@ -121,7 +128,8 @@ export class OrdersService {
     }
   }
 
-  async findAllByUserId(userId: number): Promise<Order[]> {
-    return await this.orderRepository.findAllByUserId(userId);
+  async findAllByUserId(userId: number): Promise<ResponseOrderListDto[]> {
+    const orderList = await this.orderRepository.findAllByUserId(userId);
+    return plainToInstance(ResponseOrderListDto, orderList);
   }
 }

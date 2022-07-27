@@ -35,29 +35,6 @@ export class QueueService {
     return job;
   }
 
-  // async sendNaverSmsForOrderJob(order: Order, ticketList: Ticket[]) {
-  //   const url = 'https://gosrock.band/tickets/';
-  //   let obIdx = 1;
-  //   let ybIdx = 1;
-  //   ticketList.filter(ticket => ticket.date == PerformanceDate.OB);
-  //   const totalTicketCnt = order.selection == OrderDate.BOTH ? order.ticketCount/2 : order.ticketCount
-  //   const messageDtoList = ticketList.map(ticket => {
-  //       switch (ticket.date) {
-  //         case PerformanceDate.OB:
-  //           return {
-  //             to: order.user.phoneNumber,
-  //             content: `[${EnterDate.OB}] 고티켓 (${obIdx++}/${totalTicketCnt}) \n\n ${url}${ticket.uuid}`
-  //           };
-  //       case PerformanceDate.YB:
-  //         return {
-  //           to: order.user.phoneNumber,
-  //           content: `[${EnterDate.YB}] 고티켓 (${ybIdx++}/${totalTicketCnt}) \n\n ${url}${ticket.uuid}`
-  //         };
-  //     }
-  //   });
-  //   await this.naverSmsQ.add('sendNaverSmsForOrder', messageDtoList);
-  // }
-
   async sendNaverSmsForOrderJob(order: Order, ticketList: Ticket[]) {
     const url = 'https://gosrock.band/tickets/';
     const totalTicketCnt =
