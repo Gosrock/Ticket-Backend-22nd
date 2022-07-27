@@ -129,10 +129,8 @@ export class OrdersService {
 
   async findAllByUserId(userId: number): Promise<ResponseOrderListDto[]> {
     const orderList = await this.orderRepository.findAllByUserId(userId);
-    const returnList: any[] = [];
-    orderList.map(order => {
-      returnList.push(new ResponseOrderListDto(order));
+    return orderList.map(order => {
+      return new ResponseOrderListDto(order);
     });
-    return returnList;
   }
 }

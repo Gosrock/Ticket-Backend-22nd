@@ -63,7 +63,7 @@ export class OrdersController {
   @ApiResponse({
     status: 200,
     description: '요청 성공시',
-    type: ResponseOrderListDto,
+    type: [ResponseOrderListDto],
     isArray: true
   })
   @ApiUnauthorizedResponse({
