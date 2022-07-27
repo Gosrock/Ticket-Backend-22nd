@@ -2,11 +2,16 @@ import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiExtraModels,
   ApiOperation,
+  ApiPropertyOptions,
   ApiResponse,
-  ApiTags
+  ApiTags,
+  getSchemaPath,
+  refs
 } from '@nestjs/swagger';
 import { RegisterUser } from 'src/common/decorators/registerUser.decorator';
+import { makeInstanceByApiProperty } from 'src/common/utils/makeInstanceByApiProperty';
 import { User } from 'src/database/entities/user.entity';
 import { RegisterJwtPayload } from './auth.interface';
 import { AuthService } from './auth.service';
@@ -19,9 +24,10 @@ import { RequestRegisterUserDto } from './dtos/RegisterUser.request.dto';
 import { ResponseRegisterUserDto } from './dtos/RegisterUser.response.dto';
 import { ResponseRequestValidationDto } from './dtos/RequestValidation.response.dto';
 import { RequestValidateNumberDto } from './dtos/ValidateNumber.request.dto';
-import { ResponseValidateNumberDto } from './dtos/ValidateNumber.response.dto';
 import { RegisterTokenGuard } from './guards/RegisterToken.guard';
 import { ThrottlerBehindProxyGuard } from './guards/TrottlerBehindProxy.guard';
+import { FirstReigsterDto } from './dtos/FirstRegister.response.dto copy';
+import { LoginResponseDto } from './dtos/Login.response.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -52,16 +58,40 @@ export class AuthController {
 
   @ApiOperation({ summary: '휴대전화번호 인증번호를 검증한다.' })
   @ApiBody({ type: RequestValidateNumberDto })
+  @ApiExtraModels(LoginResponseDto)
+  @ApiExtraModels(FirstReigsterDto)
   @ApiResponse({
-    status: 200,
-    description: '요청 성공시',
-    type: ResponseValidateNumberDto
+    description:
+      '최초회원가입 한 유저면 registerToken을 , 이후 로그인 한 사람이면 accessToken을 발급합니다.',
+    content: {
+      'application/json': {
+        schema: {
+          oneOf: [
+            { $ref: getSchemaPath(FirstReigsterDto) },
+            { $ref: getSchemaPath(LoginResponseDto) }
+          ]
+        },
+        examples: {
+          '최초 (회원가입 안한 유저일때 )': {
+            value: makeInstanceByApiProperty(FirstReigsterDto),
+            description:
+              '리턴된 registerToken을 Bearer <registerToken> 형식으로 집어넣으시면됩니다.'
+          },
+          '이미 회원가입한 유저일때': {
+            value: makeInstanceByApiProperty(LoginResponseDto)
+          }
+        }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 400,
+    description: '잘못된 요청'
   })
   @Post('message/validate')
   async validationPhoneNumber(
     @Body() requestValidateNumberDto: RequestValidateNumberDto
   ) {
-    // findOneByUserId
     return await this.authService.validationPhoneNumber(
       requestValidateNumberDto
     );

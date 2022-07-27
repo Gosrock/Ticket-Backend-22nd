@@ -17,7 +17,7 @@ import { generateRandomCode } from 'src/common/funcs/random-code.func';
 import { UsersService } from 'src/users/users.service';
 import { ResponseRequestValidationDto } from './dtos/RequestValidation.response.dto';
 import { RequestValidateNumberDto } from './dtos/ValidateNumber.request.dto';
-import { ResponseValidateNumberDto } from './dtos/ValidateNumber.response.dto';
+import { BaseResponseValidateNumberDto } from './dtos/BaseValidateNumber.response.dto';
 import { AccessJwtPayload, RegisterJwtPayload } from './auth.interface';
 import { JWTType, Role } from 'src/common/consts/enum';
 import { RequestRegisterUserDto } from './dtos/RegisterUser.request.dto';
@@ -84,10 +84,10 @@ export class AuthService {
     };
   }
 
-  @returnValueToDto(ResponseValidateNumberDto)
+  @returnValueToDto(BaseResponseValidateNumberDto)
   async validationPhoneNumber(
     requestValidateNumberDto: RequestValidateNumberDto
-  ): Promise<ResponseValidateNumberDto> {
+  ): Promise<BaseResponseValidateNumberDto> {
     //TODO : 전화번호 인증번호 발송 로직 추가 , 이찬진 2022.07.14
     const userPhoneNumber = requestValidateNumberDto.phoneNumber;
     //유저가 이미 회원가입했는지확인한다.
