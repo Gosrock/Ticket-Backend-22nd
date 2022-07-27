@@ -1,4 +1,4 @@
-import { PartialType, PickType } from "@nestjs/swagger";
+import { PickType } from "@nestjs/swagger";
 import { Order } from "src/database/entities/order.entity";
 
 export class ResponseOrderDto extends PickType((Order), [

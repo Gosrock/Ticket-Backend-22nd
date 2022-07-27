@@ -18,6 +18,7 @@ import { QueueService } from 'src/queue/queue.service';
 import { ResponseOrderDto } from './dtos/response-order.dto';
 import { returnValueToDto } from 'src/common/decorators/returnValueToDto.decorator';
 import { ResponseOrderListDto } from './dtos/response-orderlist.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class OrdersService {
@@ -129,8 +130,6 @@ export class OrdersService {
 
   async findAllByUserId(userId: number): Promise<ResponseOrderListDto[]> {
     const orderList = await this.orderRepository.findAllByUserId(userId);
-    return orderList.map(order => {
-      return new ResponseOrderListDto(order);
-    });
+    return plainToInstance(ResponseOrderListDto, orderList);
   }
 }
