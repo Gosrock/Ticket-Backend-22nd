@@ -17,7 +17,7 @@ import { generateRandomCode } from 'src/common/funcs/random-code.func';
 import { UsersService } from 'src/users/users.service';
 import { ResponseRequestValidationDto } from './dtos/RequestValidation.response.dto';
 import { RequestValidateNumberDto } from './dtos/ValidateNumber.request.dto';
-import { ResponseValidateNumberDto } from './dtos/ValidateNumber.response.dto';
+import { BaseResponseValidateNumberDto } from './dtos/BaseValidateNumber.response.dto';
 import { AccessJwtPayload, RegisterJwtPayload } from './auth.interface';
 import { JWTType, Role } from 'src/common/consts/enum';
 import { RequestRegisterUserDto } from './dtos/RegisterUser.request.dto';
@@ -32,6 +32,7 @@ import { ResponseAdminLoginDto } from './dtos/AdminLogin.response.dto';
 import { SmsService } from 'src/sms/sms.service';
 import { MessageDto } from 'src/sms/dtos/message.dto';
 import { SlackValidationNumberDMDto } from 'src/slack/dtos/SlackValidationNumberDM.dto';
+import { returnValueToDto } from 'src/common/decorators/returnValueToDto.decorator';
 
 @Injectable()
 export class AuthService {
@@ -45,6 +46,7 @@ export class AuthService {
     private smsService: SmsService
   ) {}
 
+  @returnValueToDto(ResponseRequestValidationDto)
   async requestPhoneValidationNumber(
     requestPhoneNumberDto: RequestPhoneNumberDto
   ): Promise<ResponseRequestValidationDto> {
@@ -57,13 +59,6 @@ export class AuthService {
     // generate randomNumber
 
     const generatedRandomNumber = generateRandomCode(4);
-    // insert to redis
-    await this.redisSerivce.setWithTTLValidationNumber(
-      userPhoneNumber,
-      generatedRandomNumber,
-      180
-    );
-
     const message = new MessageDto(
       userPhoneNumber,
       `고스락 티켓예매\n인증번호 [${generatedRandomNumber}]`
@@ -72,8 +67,15 @@ export class AuthService {
     try {
       await this.smsService.sendMessages([message]);
     } catch (error) {
-      console.log(error);
+      throw new InternalServerErrorException('문자발송 실패');
     }
+
+    // insert to redis
+    await this.redisSerivce.setWithTTLValidationNumber(
+      userPhoneNumber,
+      generatedRandomNumber,
+      180
+    );
 
     return {
       alreadySingUp: checkSingUpState,
@@ -82,9 +84,10 @@ export class AuthService {
     };
   }
 
+  @returnValueToDto(BaseResponseValidateNumberDto)
   async validationPhoneNumber(
     requestValidateNumberDto: RequestValidateNumberDto
-  ): Promise<ResponseValidateNumberDto> {
+  ): Promise<BaseResponseValidateNumberDto> {
     //TODO : 전화번호 인증번호 발송 로직 추가 , 이찬진 2022.07.14
     const userPhoneNumber = requestValidateNumberDto.phoneNumber;
     //유저가 이미 회원가입했는지확인한다.
@@ -96,10 +99,10 @@ export class AuthService {
 
     // 인증이 유효하지 않다면
     if (!savedValidationNumber) {
-      throw new BadRequestException('인증번호 기한만료');
+      throw new BadRequestException('인증번호가 기한만료 되었습니다.');
     }
     if (savedValidationNumber !== requestValidateNumberDto.validationNumber) {
-      throw new BadRequestException('잘못된 인증번호');
+      throw new BadRequestException('인증번호가 일치하지 않습니다.');
     }
     // 회원가입을 한 유저가아니라면 회원가입용 토큰 발급
     if (!checkSingUpState) {
@@ -127,6 +130,7 @@ export class AuthService {
     }
   }
 
+  @returnValueToDto(ResponseRegisterUserDto)
   async registerUser(
     registerUser: RegisterJwtPayload,
     requestRegisterUserDto: RequestRegisterUserDto
@@ -182,6 +186,7 @@ export class AuthService {
     }
   }
 
+  @returnValueToDto(ResponseAdminSendValidationNumberDto)
   async slackSendValidationNumber(
     requestAdminSendValidationNumberDto: RequestAdminSendValidationNumberDto
   ): Promise<ResponseAdminSendValidationNumberDto> {
@@ -200,6 +205,7 @@ export class AuthService {
     const slaceUserId = await this.slackService.findSlackUserIdByEmail(
       requestAdminSendValidationNumberDto.slackEmail
     );
+    console.log(slaceUserId);
     if (!slaceUserId) {
       throw new BadRequestException(
         '가입한 슬랙 이메일을 올바르게 입력해 주세요'
@@ -219,6 +225,7 @@ export class AuthService {
     return { validationNumber: randomCode };
   }
 
+  @returnValueToDto(ResponseAdminLoginDto)
   async slackLoginUser(
     requestAdminLoginDto: RequestAdminLoginDto
   ): Promise<ResponseAdminLoginDto> {
@@ -306,7 +313,9 @@ export class AuthService {
         phoneNumber
       };
     } catch (e) {
-      throw new UnauthorizedException();
+      if (e.name === 'TokenExpiredError')
+        throw new UnauthorizedException('기한만료');
+      throw new UnauthorizedException('잘못된 토큰');
     }
   }
 
@@ -328,7 +337,9 @@ export class AuthService {
         name
       };
     } catch (e) {
-      throw new UnauthorizedException();
+      if (e.name === 'TokenExpiredError')
+        throw new UnauthorizedException('기한만료');
+      throw new UnauthorizedException('잘못된 토큰');
     }
   }
 

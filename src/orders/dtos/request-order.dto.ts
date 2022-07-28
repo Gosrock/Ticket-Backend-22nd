@@ -1,7 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Expose } from "class-transformer";
-import { IsEnum, IsIn, IsNotEmpty, isNotEmpty, IsNumber } from "class-validator";
-import { Order } from "src/database/entities/order.entity";
+import { IsEnum, IsIn, IsNumber } from "class-validator";
 import { OrderDate } from "../../common/consts/enum";
 
 export class RequestOrderDto {

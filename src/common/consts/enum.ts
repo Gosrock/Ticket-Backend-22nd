@@ -25,6 +25,11 @@ enum OrderStatus {
   EXPIRE = '기한만료'
 }
 
+enum EnterDate {
+  YB = '09.01',
+  OB = '09.02'
+}
+
 enum TicketStatus {
   DONE = '입장완료',
   // 원래 WAIT = "입장대기" 였음 ENTERWAIT이라고 생각하면될듯
@@ -45,5 +50,6 @@ export {
   TicketStatus,
   PageOrder,
   OrderStatus,
+  EnterDate,
   JWTType
 };
