@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from 'src/common/consts/enum';
 import { Repository } from 'typeorm';
@@ -11,6 +11,10 @@ export class UserRepository {
     @InjectRepository(User)
     private userRepository: Repository<User>
   ) {}
+
+  async getMyInfo(user: User) {
+    return await this.userRepository.findOne({ where : {id: user.id}});
+  }
 
   async findByPhoneNumber(phoneNumber: string): Promise<User | null> {
     console.log('phoneNumber', phoneNumber);
@@ -61,4 +65,11 @@ export class UserRepository {
     return user;
   }
   //유저 롤 변경하는 테스트용 함수입니다
+
+
+  // 유저 정보 조회(관리자용) 전체 정보 조회
+  async getAllUserInfo() {
+    return await this.userRepository.find();    
+  }
+
 }

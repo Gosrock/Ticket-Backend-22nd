@@ -48,6 +48,7 @@ export class AuthService {
     requestPhoneNumberDto: RequestPhoneNumberDto
   ): Promise<ResponseRequestValidationDto> {
     let test;
+    console.log(this.dataSource);
     //console.log(test.adf.asdf);
     //TODO : 전화번호 인증번호 발송 로직 추가 , 이찬진 2022.07.14
     const userPhoneNumber = requestPhoneNumberDto.phoneNumber;

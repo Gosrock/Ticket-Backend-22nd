@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Post, Query, UseGuards, Patch, Req, Delete, Body } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -28,7 +28,7 @@ export class UsersController {
   @Get('')
   async getMyUserInfo(@ReqUser() user: User) {
     // findOneByUserId
-    return await this.userService.testGetUser(user);
+    return await this.userService.getMyInfo(user);
   }
 
   @ApiOperation({ summary: '내 유저정보를 얻어온다' })
@@ -41,7 +41,7 @@ export class UsersController {
   @Get('/role')
   async getRole(@ReqUser() user: User) {
     // findOneByUserId
-    return await this.userService.testGetUser(user);
+    return await this.userService.getMyInfo(user);
   }
 
   //유저 롤 변경하는 테스트용 함수입니다
@@ -50,4 +50,17 @@ export class UsersController {
     return await this.userService.changeRole(userId, role);
   }
   //유저 롤 변경하는 테스트용 함수입니다
+
+  // 유저 정보 조회(관리자용) 전체 정보 조회
+  @ApiOperation({ summary: '모든 유저 정보를 가져온다(관리자 권한)' })
+  @ApiResponse({
+    status: 200,
+    description: '요청 성공시',
+    type: User
+  })
+  @Roles(Role.Admin)
+  @Get('/all')
+  async getAllUserInfo() {
+    return await this.userService.getAllUserInfo();
+  }
 }

@@ -5,13 +5,17 @@ import { UserRepository } from 'src/database/repositories/user.repository';
 
 @Injectable()
 export class UsersService {
-  constructor(private userRepository: UserRepository) {}
+  constructor(
+    private userRepository: UserRepository,
+  ) {}
   async findUserByPhoneNumber(phoneNumber: string): Promise<User | null> {
     return await this.userRepository.findByPhoneNumber(phoneNumber);
   }
 
-  async testGetUser(user: User) {
+  // 본인 유저 정보 조회
+  async getMyInfo(user: User) {
     Logger.log(user);
+    return await this.userRepository.getMyInfo(user);
   }
 
   async findUserById(id: number): Promise<User | null> {
@@ -23,4 +27,11 @@ export class UsersService {
     return await this.userRepository.changeRole(userId, role);
   }
   //유저 롤 변경하는 테스트용 함수입니다
+
+  
+  // 유저 정보 조회(관리자용) 전체 정보 조회
+  async getAllUserInfo() {
+    return await this.userRepository.getAllUserInfo();
+  }
+
 }

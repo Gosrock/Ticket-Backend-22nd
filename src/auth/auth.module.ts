@@ -2,6 +2,7 @@ import { Inject, Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/database/entities/user.entity';
+import { Comment } from 'src/database/entities/comment.entity';
 import { UserRepository } from 'src/database/repositories/user.repository';
 import { RedisModule } from 'src/redis/redis.module';
 import { SlackModule } from 'src/slack/slack.module';
@@ -23,7 +24,7 @@ import { RegisterTokenGuard } from './guards/RegisterToken.guard';
       inject: [ConfigService]
     }),
     UsersModule,
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Comment]),
     RedisModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({

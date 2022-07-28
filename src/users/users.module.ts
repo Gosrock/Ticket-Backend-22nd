@@ -7,9 +7,13 @@ import { UsersController } from './users.controller';
 import { AuthModule } from 'src/auth/auth.module';
 import { AuthService } from 'src/auth/auth.service';
 import { RedisModule } from 'src/redis/redis.module';
+import { Comment } from 'src/database/entities/comment.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), forwardRef(() => AuthModule)],
+  imports: [
+    TypeOrmModule.forFeature([User, Comment]),
+    forwardRef(() => AuthModule)
+  ],
   providers: [UsersService, UserRepository],
   exports: [UsersService],
   controllers: [UsersController]
