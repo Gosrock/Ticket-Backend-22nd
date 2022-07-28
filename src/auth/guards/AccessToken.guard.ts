@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import {
   CanActivate,
   ExecutionContext,
+  ForbiddenException,
   Injectable,
   UnauthorizedException
 } from '@nestjs/common';
@@ -42,6 +43,7 @@ export class AccessTokenGuard implements CanActivate {
     console.log(roles);
 
     const payload = this.authService.verifyAccessJWT(jwtString);
+
     const user = await this.authService.findUserById(payload.id);
     if (!user) {
       throw new UnauthorizedException('없는 유저입니다.');
@@ -62,7 +64,7 @@ export class AccessTokenGuard implements CanActivate {
       } else if (user.role === Role.Admin) {
         return true;
       } else {
-        throw new UnauthorizedException('권한이 없습니다.');
+        throw new ForbiddenException('권한이 없습니다.');
       }
     }
   }

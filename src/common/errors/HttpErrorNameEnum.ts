@@ -18,5 +18,6 @@ export enum HttpErrorNameEnum {
   BadGatewayException = 'BadGatewayException',
   ServiceUnavailableException = 'ServiceUnavailableException',
   GatewayTimeoutException = 'GatewayTimeoutException',
-  PreconditionFailedException = 'PreconditionFailedException'
+  PreconditionFailedException = 'PreconditionFailedException',
+  ThrottlerException = 'ThrottlerException'
 }

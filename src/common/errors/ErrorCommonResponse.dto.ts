@@ -21,7 +21,11 @@ export class ErrorCommonResponse<T> {
   @Expose()
   readonly method: string;
 
-  @ApiProperty({ type: 'generic', description: '에러 발생 메소드' })
+  @ApiProperty({
+    type: 'generic',
+    description:
+      'HttpExceptionErrorResponseDto,ValidationErrorResponseDto 두가지가 올수있습니다.'
+  })
   @Expose()
   error: T;
 

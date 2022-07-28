@@ -286,7 +286,7 @@ export class AuthService {
     const secret = this.configService.get(JWTType.ACCESS);
     try {
       return jwt.sign(payload, secret, {
-        expiresIn: 60 * 60 * 24 * 3
+        expiresIn: 20
       });
     } catch (error) {
       Logger.log(error);
@@ -313,7 +313,9 @@ export class AuthService {
         phoneNumber
       };
     } catch (e) {
-      throw new UnauthorizedException();
+      if (e.name === 'TokenExpiredError')
+        throw new UnauthorizedException('기한만료');
+      throw new UnauthorizedException('잘못된 토큰');
     }
   }
 
@@ -335,7 +337,9 @@ export class AuthService {
         name
       };
     } catch (e) {
-      throw new UnauthorizedException();
+      if (e.name === 'TokenExpiredError')
+        throw new UnauthorizedException('기한만료');
+      throw new UnauthorizedException('잘못된 토큰');
     }
   }
 
