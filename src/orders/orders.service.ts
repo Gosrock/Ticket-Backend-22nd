@@ -19,6 +19,10 @@ import { ResponseOrderDto } from './dtos/response-order.dto';
 import { returnValueToDto } from 'src/common/decorators/returnValueToDto.decorator';
 import { ResponseOrderListDto } from './dtos/response-orderlist.dto';
 import { plainToInstance } from 'class-transformer';
+import { RequestOrderFindDto } from './dtos/request-order-find.dto';
+import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
+import { PageDto } from 'src/common/dtos/page/page.dto';
+import { ResponseOrderFindDto } from './dtos/response-order-find.dto';
 
 @Injectable()
 export class OrdersService {
@@ -131,5 +135,15 @@ export class OrdersService {
   async findAllByUserId(userId: number): Promise<ResponseOrderListDto[]> {
     const orderList = await this.orderRepository.findAllByUserId(userId);
     return plainToInstance(ResponseOrderListDto, orderList);
+  }
+
+  async findAllWith(
+    orderFindDto: RequestOrderFindDto,
+    pageOptionsDto: PageOptionsDto
+  ): Promise<PageDto<Order>> {
+    return await this.orderRepository.findAllWith(
+      orderFindDto,
+      pageOptionsDto
+    );
   }
 }
