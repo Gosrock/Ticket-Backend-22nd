@@ -32,8 +32,8 @@ import { mergeObjects } from '../utils/mergeTwoObj';
 
 interface SuccessResponseOption {
   /**
-   * HttpException을 extend한 에러 타입을 인자로 받습니다.
-   * 예시 : BadRequestException
+   * 응답 디티오를 인자로받습니다
+   * 예시 : ResponseRequestValidationDto
    */
   model: Type<any>;
   /**
@@ -41,7 +41,9 @@ interface SuccessResponseOption {
    */
   exampleTitle: string;
   /**
-   * 서비스 레이어에서 적었던 오류 메시지를 기술합니다.
+   *  깊은 복사로 변경하고 싶은 응답값을 적습니다. 오버라이트 됩니다.
+   *  nested 된 obj 인 경우엔 해당 obj 가 바뀌는것이아닌 안에 있는 property만 바뀝니다.
+   *  즉 주어진 객체로 리프 프로퍼티에 대해 오버라이트됩니다.
    */
   overwriteValue?: Record<string, any>;
   /**
@@ -51,10 +53,10 @@ interface SuccessResponseOption {
 }
 
 /**
- * 에러를 손쉽게 적기위한 데코레이터입니다.
+ * 여러 응답값을 손쉽게 적기위한 데토레이터 입니다
  * 기본적으로 status 코드가 같으면 하나밖에 못적기때문에 example을 추가하기위해서 커스텀 하였습니다.
- * @param StatusCode 응답 코드입니다. HttpStatus enum 값을 사용하시면됩니다. 보통사용하시는 BadRequestException은 400번입니다.
- * @param errorResponseOptions ErrorResponseOption[] 같은 코드에 여러 example을 추가하기위한 옵션입니다.
+ * @param StatusCode 응답 코드입니다. HttpStatus enum 값을 사용하시면됩니다.
+ * @param errorResponseOptions SuccessResponseOption[] 같은 코드에 여러 example을 추가하기위한 옵션입니다.
  * @returns
  */
 export const SuccessResponse = (
