@@ -13,7 +13,7 @@ import { OrdersService } from './orders.service';
   imports: [
     TypeOrmModule.forFeature([Order, Ticket, User]),
     TicketsModule,
-    QueueModule,
+    QueueModule
   ],
   controllers: [OrdersController],
   providers: [OrdersService, OrderRepository]

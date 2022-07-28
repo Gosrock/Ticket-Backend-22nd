@@ -32,7 +32,7 @@ import { ApiPaginatedDto } from 'src/common/decorators/ApiPaginatedDto.decorator
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from 'src/common/consts/enum';
 import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
-import { RequestOrderFindDto } from './dtos/request-order-find.dto';
+import { OrderFindDto } from './dtos/order-find.dto';
 
 @ApiTags('orders')
 @ApiBearerAuth('accessToken')
@@ -83,6 +83,24 @@ export class OrdersController {
   }
 
   @ApiOperation({
+    summary: '[어드민] 해당 조건의 주문을 모두 불러온다'
+  })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: '요청 성공시',
+  //   type: PageDto
+  // })
+  @ApiPaginatedDto({ model: Order, description: '페이지네이션' })
+  @Get('/find')
+  @Roles(Role.Admin)
+  getOrdersWith(
+    @Query() orderFindDto: OrderFindDto,
+    @Query() pageOptionsDto: PageOptionsDto
+  ): Promise<PageDto<Order>> {   
+    return this.orderService.findAllWith(orderFindDto, pageOptionsDto);
+  }
+
+  @ApiOperation({
     summary: '해당 주문에 속한 티켓 목록을 불러온다'
   })
   @ApiResponse({
@@ -100,24 +118,5 @@ export class OrdersController {
     @Param('orderId', OrderIdValidationPipe) orderId: number
   ): Promise<Ticket[]> {
     return this.ticketService.findAllByOrderId(orderId);
-  }
-
-  @ApiOperation({
-    summary: '[어드민] 해당 조건의 주문을 모두 불러온다'
-  })
-  @ApiResponse({
-    status: 200,
-    description: '요청 성공시'
-    // type: PageDto
-  })
-  @ApiPaginatedDto({ model: Order, description: '페이지네이션' })
-  @Get('/find')
-  @Roles(Role.Admin)
-  getOrdersWith(
-    @Query() requestOrderFindDto: RequestOrderFindDto,
-    @Query() pageOptionsDto: PageOptionsDto
-  ): Promise<PageDto<Order>> {
-    console.log(pageOptionsDto);
-    return this.orderService.findAllWith(requestOrderFindDto, pageOptionsDto);
   }
 }

@@ -4,9 +4,8 @@ import { plainToInstance } from 'class-transformer';
 import { PageMetaDto } from 'src/common/dtos/page/page-meta.dto';
 import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
 import { PageDto } from 'src/common/dtos/page/page.dto';
-import { RequestOrderFindDto } from 'src/orders/dtos/request-order-find.dto';
+import { OrderFindDto } from 'src/orders/dtos/order-find.dto';
 import { RequestOrderDto } from 'src/orders/dtos/request-order.dto';
-import { ResponseOrderFindDto } from 'src/orders/dtos/response-order-find.dto';
 import { ResponseOrderListDto } from 'src/orders/dtos/response-orderlist.dto';
 import { Repository } from 'typeorm';
 import { Order } from '../entities/order.entity';
@@ -55,28 +54,38 @@ export class OrderRepository {
       .getMany();
   }
 
+  /**
+   * 
+   * @param orderFindDto 조회 옵션
+   * @param pageOptionsDto  페이지 조회 옵션
+   * @returns 주문 목록 조회 결과와 페이지 정보
+   */
   async findAllWith(
-    RequestOrderFindDto: RequestOrderFindDto,
+    orderFindDto: OrderFindDto,
     pageOptionsDto: PageOptionsDto
   ): Promise<PageDto<Order>> {
-    const { status, selection, isFree } = RequestOrderFindDto;
+    const { status, selection, isFree } = orderFindDto;
     const queryBuilder = this.orderRepository.createQueryBuilder('order');
 
     if (status) {
       queryBuilder.andWhere({ status });
     }
     if (selection) {
-      queryBuilder.andWhere( { selection });
+      queryBuilder.andWhere({ selection });
     }
     if (isFree) {
-      queryBuilder.andWhere( { isFree });
+      queryBuilder.andWhere({ isFree });
     }
 
     queryBuilder
       .orderBy('order.createdAt', pageOptionsDto.order)
+      .leftJoin('order.user', 'user')
+      .addSelect(['user.name', 'user.phoneNumber'])
+      .leftJoin('order.admin', 'admin')
+      .addSelect(['admin.name'])
       .skip(pageOptionsDto.skip)
-      .take(pageOptionsDto.take)
-      
+      .take(pageOptionsDto.take);
+
     const itemCount = await queryBuilder.getCount();
     const { entities } = await queryBuilder.getRawAndEntities();
     const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });

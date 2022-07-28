@@ -3,14 +3,14 @@ import { Expose } from 'class-transformer';
 import { IsBoolean, IsEnum, IsOptional } from 'class-validator';
 import { OrderDate, OrderStatus } from 'src/common/consts/enum';
 
-export class RequestOrderFindDto {
+export class OrderFindDto {
   @ApiProperty({
     description: '주문 상태',
     enum: OrderStatus,
     required: false
   })
-  @IsOptional()
   @IsEnum(OrderStatus)
+  @IsOptional()
   @Expose()
   readonly status: OrderStatus;
 
@@ -19,8 +19,8 @@ export class RequestOrderFindDto {
     enum: OrderDate,
     required: false
   })
-  @IsOptional()
   @IsEnum(OrderDate)
+  @IsOptional()
   @Expose()
   readonly selection: OrderDate;
 
@@ -29,8 +29,8 @@ export class RequestOrderFindDto {
     type: Boolean,
     required: false
   })
-  @IsOptional()
   @IsBoolean()
+  @IsOptional()
   @Expose()
   readonly isFree: boolean;
 }

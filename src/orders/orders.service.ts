@@ -19,10 +19,9 @@ import { ResponseOrderDto } from './dtos/response-order.dto';
 import { returnValueToDto } from 'src/common/decorators/returnValueToDto.decorator';
 import { ResponseOrderListDto } from './dtos/response-orderlist.dto';
 import { plainToInstance } from 'class-transformer';
-import { RequestOrderFindDto } from './dtos/request-order-find.dto';
+import { OrderFindDto } from './dtos/order-find.dto';
 import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
 import { PageDto } from 'src/common/dtos/page/page.dto';
-import { ResponseOrderFindDto } from './dtos/response-order-find.dto';
 
 @Injectable()
 export class OrdersService {
@@ -119,10 +118,9 @@ export class OrdersService {
       await this.queueService.createNewOrderJob(order);
       await this.queueService.sendNaverSmsForOrderJob(order, ticketListForQ);
       await queryRunner.commitTransaction();
-      
+
       //인스턴스 생성해서 넘겨주기
       return new ResponseOrderDto(order);
-      
     } catch (e) {
       // 주문 생성 실패시 Error
       await queryRunner.rollbackTransaction();
@@ -138,7 +136,7 @@ export class OrdersService {
   }
 
   async findAllWith(
-    orderFindDto: RequestOrderFindDto,
+    orderFindDto: OrderFindDto,
     pageOptionsDto: PageOptionsDto
   ): Promise<PageDto<Order>> {
     return await this.orderRepository.findAllWith(

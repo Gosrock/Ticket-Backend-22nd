@@ -1,4 +1,5 @@
 import { PipeTransform } from '@nestjs/common';
+import { IsNumber } from 'class-validator';
 
 export class OrderIdValidationPipe implements PipeTransform {
 
