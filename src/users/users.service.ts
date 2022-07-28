@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Role } from 'src/common/consts/enum';
 import { User } from 'src/database/entities/user.entity';
 import { UserRepository } from 'src/database/repositories/user.repository';
+import { RequestUserNameDto } from './dtos/UserName.request.dto';
 
 @Injectable()
 export class UsersService {
@@ -32,6 +33,11 @@ export class UsersService {
   // 유저 정보 조회(관리자용) 전체 정보 조회
   async getAllUserInfo() {
     return await this.userRepository.getAllUserInfo();
+  }
+
+  // 입금자명 수정
+  async changeName(user: User, requestUserNameDto: RequestUserNameDto) {
+    return await this.userRepository.changeName(user.id, requestUserNameDto);
   }
 
 }

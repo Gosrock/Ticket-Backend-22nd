@@ -10,6 +10,7 @@ import { Role } from 'src/common/consts/enum';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { ReqUser } from 'src/common/decorators/user.decorator';
 import { User } from 'src/database/entities/user.entity';
+import { RequestUserNameDto } from './dtos/UserName.request.dto';
 import { UsersService } from './users.service';
 
 @ApiTags('users')
@@ -62,5 +63,17 @@ export class UsersController {
   @Get('/all')
   async getAllUserInfo() {
     return await this.userService.getAllUserInfo();
+  }
+
+  // 입금자명 수정
+  @ApiOperation({ summary: '입금자명 수정' })
+  @ApiResponse({
+    status: 200,
+    description: '요청 성공시',
+    type: User
+  })
+  @Post('/update')
+  async changeName(@ReqUser() user: User, @Body() requestUserNameDto: RequestUserNameDto) {
+    return await this.userService.changeName(user, requestUserNameDto);
   }
 }

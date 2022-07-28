@@ -4,6 +4,7 @@ import { Role } from 'src/common/consts/enum';
 import { Repository } from 'typeorm';
 import { Ticket } from '../entities/ticket.entity';
 import { User } from '../entities/user.entity';
+import { RequestUserNameDto } from 'src/users/dtos/UserName.request.dto';
 
 @Injectable()
 export class UserRepository {
@@ -70,6 +71,21 @@ export class UserRepository {
   // 유저 정보 조회(관리자용) 전체 정보 조회
   async getAllUserInfo() {
     return await this.userRepository.find();    
+  }
+
+  // 입금자명 수정
+  async changeName(id: number, requestUserNameDto: RequestUserNameDto) {
+    const found = await this.userRepository.findOne({ where: {id: id}});
+
+    if (!found) {
+      throw new NotFoundException('해당 유저가 존재하지 않습니다.');
+    }
+    const { name } = requestUserNameDto;
+
+    found.name = name;
+
+    await this.userRepository.save(found);
+    return found;
   }
 
 }
