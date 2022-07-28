@@ -12,6 +12,7 @@ import { ReqUser } from 'src/common/decorators/user.decorator';
 import { User } from 'src/database/entities/user.entity';
 import { RequestUserNameDto } from './dtos/UserName.request.dto';
 import { UsersService } from './users.service';
+import { RequestCommentDto } from './dtos/Comment.request.dto';
 
 @ApiTags('users')
 @ApiBearerAuth('accessToken')
@@ -75,5 +76,17 @@ export class UsersController {
   @Post('/update')
   async changeName(@ReqUser() user: User, @Body() requestUserNameDto: RequestUserNameDto) {
     return await this.userService.changeName(user, requestUserNameDto);
+  }
+
+  // 응원 댓글 생성
+  @ApiOperation({ summary: '응원 댓글 생성' })
+  @ApiResponse({
+    status: 200,
+    description: '요청 성공시',
+    type: User
+  })
+  @Post('/comment')
+  async makeComment(@ReqUser() user: User, @Body() requestCommentDto: RequestCommentDto) {
+    return await this.userService.makeComment(user, requestCommentDto);
   }
 }

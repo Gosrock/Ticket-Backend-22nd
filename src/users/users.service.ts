@@ -3,11 +3,14 @@ import { Role } from 'src/common/consts/enum';
 import { User } from 'src/database/entities/user.entity';
 import { UserRepository } from 'src/database/repositories/user.repository';
 import { RequestUserNameDto } from './dtos/UserName.request.dto';
+import { CommentRepository } from 'src/database/repositories/comment.repository';
+import { RequestCommentDto } from './dtos/Comment.request.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
     private userRepository: UserRepository,
+    private commentRepository: CommentRepository
   ) {}
   async findUserByPhoneNumber(phoneNumber: string): Promise<User | null> {
     return await this.userRepository.findByPhoneNumber(phoneNumber);
@@ -38,6 +41,11 @@ export class UsersService {
   // 입금자명 수정
   async changeName(user: User, requestUserNameDto: RequestUserNameDto) {
     return await this.userRepository.changeName(user.id, requestUserNameDto);
+  }
+
+  // 응원 댓글 생성
+  async makeComment(user: User, requestCommentDto: RequestCommentDto) {
+    return await this.commentRepository.makeComment(user, requestCommentDto);
   }
 
 }
