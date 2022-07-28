@@ -26,6 +26,12 @@ export class HttpExceptionErrorResponseDto {
   @Expose()
   statusCode: number;
 
+  constructor(statusCode: number, error: string, message: string) {
+    this.error = error;
+    this.statusCode = statusCode;
+    this.message = message;
+  }
+
   //   @ApiProperty({ type: () => PageMetaDto })
   //   @Type(() => PageMetaDto)
   //   @Expose()

@@ -1,6 +1,5 @@
 import { ApiPropertyOptions } from '@nestjs/swagger';
 import { plainToClass, plainToInstance } from 'class-transformer';
-import { MetadataArgsStorage } from 'typeorm/metadata-args/MetadataArgsStorage';
 
 const DECORATORS_PREFIX = 'swagger';
 const API_MODEL_PROPERTIES = `${DECORATORS_PREFIX}/apiModelProperties`;
@@ -10,7 +9,6 @@ export interface Type<T = any> extends Function {
   new (...args: any[]): T;
 }
 
-const meta = new MetadataArgsStorage();
 function isPrimitiveType(
   type:
     | string
@@ -36,8 +34,9 @@ type ApiPropertyOptionsWithFieldName = ApiPropertyOptions & {
   fieldName: string;
 };
 export function makeInstanceByApiProperty(dtoClass: Type, generic?: Type) {
+  console.log('name', dtoClass);
+
   const dto = new dtoClass(generic);
-  console.log('name', dto);
 
   const propertiesArray: string[] =
     Reflect.getMetadata(API_MODEL_PROPERTIES_ARRAY, dtoClass.prototype) || [];
@@ -66,11 +65,12 @@ export function makeInstanceByApiProperty(dtoClass: Type, generic?: Type) {
       // console.log(reflectedType.options);
       // makeInstanceByApiProperty(reflectedType);
       // meta.find
-
-      console.log(dto[propertie.fieldName + 'Type']);
-      dto[propertie.fieldName] = makeInstanceByApiProperty(
-        dto[propertie.fieldName + 'Type']
-      );
+      if (generic) {
+        console.log(dto[propertie.fieldName + 'Type']);
+        dto[propertie.fieldName] = makeInstanceByApiProperty(
+          dto[propertie.fieldName + 'Type']
+        );
+      }
 
       // new SuperCollection<User>(User)
       // dto[propertie.fieldName] = plainToInstance();

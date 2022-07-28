@@ -22,18 +22,8 @@ export class ErrorCommonResponse<T> {
   readonly method: string;
 
   @ApiProperty({ type: 'generic', description: '에러 발생 메소드' })
-  // @transformerType(options => {
-  //   return (options!.newObject as ErrorCommonResponse<T>).errorType!;
-  // })
   @Expose()
   error: T;
-
-  @Exclude()
-  private errorType?: Type;
-
-  constructor(errorType: Type) {
-    this.errorType = errorType;
-  }
 
   //   @ApiProperty({ type: () => PageMetaDto })
   //   @Type(() => PageMetaDto)

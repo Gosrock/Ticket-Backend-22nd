@@ -11,7 +11,7 @@ export class ValidationErrorResponseDto {
     example: 'ValidationError'
   })
   @Expose()
-  error: string;
+  error = 'ValidationError';
 
   @ApiProperty({
     type: String,
@@ -19,7 +19,7 @@ export class ValidationErrorResponseDto {
     example: '검증오류'
   })
   @Expose()
-  message: string;
+  message = '검증오류';
 
   @ApiProperty({
     type: Number,
@@ -27,7 +27,7 @@ export class ValidationErrorResponseDto {
     example: 400
   })
   @Expose()
-  statusCode: number;
+  statusCode = 400;
 
   @ApiProperty({
     // type: { fieldName: ['errorinfoOfString'] },
@@ -42,8 +42,7 @@ export class ValidationErrorResponseDto {
   //   @Expose()
   //   readonly meta: PageMetaDto;
 
-  //   constructor(data: T[], meta: PageMetaDto) {
-  //     this.data = data;
-  //     this.meta = meta;
-  //   }
+  constructor(validationErrorInfo: Record<string, Array<string>>) {
+    this.validationErrorInfo = validationErrorInfo;
+  }
 }
