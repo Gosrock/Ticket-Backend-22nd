@@ -13,7 +13,7 @@ export class UserRepository {
   ) {}
 
   async findByPhoneNumber(phoneNumber: string): Promise<User | null> {
-    console.log('phoneNumber', phoneNumber);
+    //console.log('phoneNumber', phoneNumber);
     let users;
     try {
       users = await this.userRepository.findOne({
@@ -22,7 +22,7 @@ export class UserRepository {
         }
       });
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     }
 
     return users;

@@ -22,7 +22,7 @@ export class RegisterTokenGuard implements CanActivate {
   private validateRequest(request: Request) {
     const checkHeader = request.headers.registertoken;
 
-    console.log(request.headers);
+    //console.log(request.headers);
     if (!checkHeader) {
       throw new UnauthorizedException('잘못된 헤더 요청');
     }

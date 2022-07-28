@@ -39,6 +39,7 @@ import { FirstReigsterDto } from './dtos/FirstRegister.response.dto copy';
 import { LoginResponseDto } from './dtos/Login.response.dto';
 import { ErrorResponse } from 'src/common/decorators/ErrorResponse.decorator';
 import { ThrottlerException } from '@nestjs/throttler';
+import { SuccessResponse } from 'src/common/decorators/SuccessResponse.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -135,11 +136,19 @@ export class AuthController {
   @ApiBearerAuth('registerToken')
   @ApiOperation({ summary: '회원가입한다.' })
   @ApiBody({ type: RequestRegisterUserDto })
-  @ApiResponse({
-    status: 200,
-    description: '요청 성공시',
-    type: ResponseRegisterUserDto
-  })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: '요청 성공시',
+  //   type: ResponseRegisterUserDto
+  // })
+  @SuccessResponse(HttpStatus.OK, [
+    {
+      model: ResponseRegisterUserDto,
+      exampleDataOfDTO: { test: 'etst' },
+      exampleDescription: '설명',
+      exampleTitle: '성공'
+    }
+  ])
   @UseGuards(RegisterTokenGuard)
   @ErrorResponse(HttpStatus.BAD_REQUEST, [
     {

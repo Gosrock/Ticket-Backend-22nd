@@ -11,7 +11,7 @@ import { TicketStatusAddEnum1658837628780 } from './1658837628780-TicketStatusAd
 config();
 
 const configService = new ConfigService();
-console.log(configService.get('POSTGRES_HOST'));
+//console.log(configService.get('POSTGRES_HOST'));
 export default new DataSource({
   type: 'postgres',
   host: configService.get('POSTGRES_HOST'),
