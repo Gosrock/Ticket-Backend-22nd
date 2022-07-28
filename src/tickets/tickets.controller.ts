@@ -110,7 +110,7 @@ export class TicketsController {
     type: Ticket
   })
   @Post('/create')
-  async testCreateTicket(user: User) {
+  async testCreateTicket(@ReqUser() user: User) {
     const createTicketDto = {
       date: PerformanceDate.YB,
       order: new Order(),
