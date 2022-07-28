@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, ValidationError } from '@nestjs/common';
 
 export class CustomValidationError extends HttpException {
+  name = 'ValidationError';
   constructor(valdationErrorArray: ValidationError[]) {
     const objectsOfError = valdationErrorArray
       .map((error: ValidationError) => {

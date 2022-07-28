@@ -1,4 +1,6 @@
 import { ApiPropertyOptions } from '@nestjs/swagger';
+import { plainToClass, plainToInstance } from 'class-transformer';
+import { MetadataArgsStorage } from 'typeorm/metadata-args/MetadataArgsStorage';
 
 const DECORATORS_PREFIX = 'swagger';
 const API_MODEL_PROPERTIES = `${DECORATORS_PREFIX}/apiModelProperties`;
@@ -8,6 +10,7 @@ export interface Type<T = any> extends Function {
   new (...args: any[]): T;
 }
 
+const meta = new MetadataArgsStorage();
 function isPrimitiveType(
   type:
     | string
@@ -32,9 +35,9 @@ function checkType(object: any): object is Type {
 type ApiPropertyOptionsWithFieldName = ApiPropertyOptions & {
   fieldName: string;
 };
-export function makeInstanceByApiProperty(dtoClass: Type) {
-  const dto = new dtoClass();
-  console.log('name', dtoClass.name);
+export function makeInstanceByApiProperty(dtoClass: Type, generic?: Type) {
+  const dto = new dtoClass(generic);
+  console.log('name', dto);
 
   const propertiesArray: string[] =
     Reflect.getMetadata(API_MODEL_PROPERTIES_ARRAY, dtoClass.prototype) || [];
@@ -50,11 +53,28 @@ export function makeInstanceByApiProperty(dtoClass: Type) {
       return obj;
     }
   );
-  //   console.log('asdfasdfadsfasdfasdfasdfasdfasdfasdfasdf', properties);
+  console.log('asdfasdfadsfasdfasdfasdfasdfasdfasdfasdf', properties);
 
   //   dto.
   for (const propertie of properties) {
-    if (typeof propertie.type === 'string') {
+    if (propertie.type === 'generic') {
+      // const reflectedType = (Reflect as any).getMetadata(
+      //   'design:type',
+      //   dtoClass.prototype,
+      //   propertie.fieldName
+      // );
+      // console.log(reflectedType.options);
+      // makeInstanceByApiProperty(reflectedType);
+      // meta.find
+
+      console.log(dto[propertie.fieldName + 'Type']);
+      dto[propertie.fieldName] = makeInstanceByApiProperty(
+        dto[propertie.fieldName + 'Type']
+      );
+
+      // new SuperCollection<User>(User)
+      // dto[propertie.fieldName] = plainToInstance();
+    } else if (typeof propertie.type === 'string' || 'number') {
       if (typeof propertie.example !== 'undefined') {
         dto[propertie.fieldName] = propertie.example;
       } else {
