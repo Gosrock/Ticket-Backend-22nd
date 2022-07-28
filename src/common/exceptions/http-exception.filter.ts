@@ -9,6 +9,8 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { SlackService } from 'src/slack/slack.service';
+import { ErrorCommonResponse } from '../errors/ErrorCommonResponse.dto';
+import { HttpExceptionErrorResponseDto } from '../errors/HttpExceptionError.response.dto';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -19,14 +21,23 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     let statusCode: number;
-    let error: any;
+    let error: HttpExceptionErrorResponseDto;
 
-    if (exception instanceof UnauthorizedException) {
+    if (exception instanceof HttpException) {
       statusCode = exception.getStatus();
-      error = exception.getResponse();
-    } else if (exception instanceof HttpException) {
-      statusCode = exception.getStatus();
-      error = exception.getResponse();
+      const getError = exception.getResponse();
+      if (typeof getError === 'string') {
+        error = {
+          error: exception.name,
+          message: getError,
+          statusCode: statusCode
+        };
+      } else {
+        error = {
+          ...(getError as HttpExceptionErrorResponseDto),
+          error: exception.name
+        };
+      }
     } else {
       statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
       // error = 'Internal server error';
@@ -55,12 +66,14 @@ export class AllExceptionsFilter implements ExceptionFilter {
       return response.status(statusCode).json(errorResponse);
     }
 
-    const errorResponse = {
+    // console.log(error);
+
+    const errorResponse: ErrorCommonResponse<HttpExceptionErrorResponseDto> = {
       statusCode,
       timestamp: new Date(),
       path: request.url,
       method: request.method,
-      error: error || null
+      error: error
     };
 
     Logger.warn('errorResponse', JSON.stringify(errorResponse));

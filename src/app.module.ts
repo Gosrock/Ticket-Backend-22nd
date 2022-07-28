@@ -16,6 +16,7 @@ import { UsersModule } from './users/users.module';
 import { SmsModule } from './sms/sms.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { CustomConfigModule } from './config/customConfig.module';
+import { CommonController } from './app.controller';
 
 @Module({
   imports: [
@@ -70,7 +71,8 @@ import { CustomConfigModule } from './config/customConfig.module';
     {
       provide: APP_FILTER,
       useClass: AllExceptionsFilter
-    },
-  ]
+    }
+  ],
+  controllers: [CommonController]
 })
 export class AppModule {}
