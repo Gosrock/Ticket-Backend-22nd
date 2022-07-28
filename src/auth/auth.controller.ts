@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  InternalServerErrorException,
+  Post,
+  UseGuards
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -28,6 +37,8 @@ import { RegisterTokenGuard } from './guards/RegisterToken.guard';
 import { ThrottlerBehindProxyGuard } from './guards/TrottlerBehindProxy.guard';
 import { FirstReigsterDto } from './dtos/FirstRegister.response.dto copy';
 import { LoginResponseDto } from './dtos/Login.response.dto';
+import { ErrorResponse } from 'src/common/decorators/ErrorResponse.decorator';
+import { ThrottlerException } from '@nestjs/throttler';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -42,10 +53,24 @@ export class AuthController {
     description: '요청 성공시',
     type: ResponseRequestValidationDto
   })
-  @ApiResponse({
-    status: 429,
-    description: '과도한 요청을 보낼시에'
-  })
+  @ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, [
+    {
+      model: InternalServerErrorException,
+      exampleDescription: '문자메시지 발송이 실패하면 발생합니다.',
+      exampleTitle: '문자메시지 발송실패 오류',
+      exampleMessageInfo:
+        '문자메시지 발송 실패. 고스락 카카오톡 채널을 활용해서 관리자한테 연락 부탁드립니다.'
+    }
+  ])
+  @ErrorResponse(HttpStatus.TOO_MANY_REQUESTS, [
+    {
+      model: ThrottlerException,
+      exampleDescription:
+        '과도한 요청을 보낼시에 ( 인증문자 요청 , 관리자 슬랙 인증 요청',
+      exampleTitle: '과도한 요청',
+      exampleMessageInfo: 'ThrottlerException: Too Many Requests'
+    }
+  ])
   @Post('message/send')
   async requestPhoneValidationNumber(
     @Body() requestPhoneNumberDto: RequestPhoneNumberDto
@@ -84,10 +109,20 @@ export class AuthController {
       }
     }
   })
-  @ApiResponse({
-    status: 400,
-    description: '잘못된 요청'
-  })
+  @ErrorResponse(HttpStatus.BAD_REQUEST, [
+    {
+      model: BadRequestException,
+      exampleDescription: '3분짜리 인증번호 기한만료시에 발생하는 오류',
+      exampleTitle: '인증번호-기한만료',
+      exampleMessageInfo: '인증번호가 기한만료 되었습니다.'
+    },
+    {
+      model: BadRequestException,
+      exampleDescription: '인증번호가 일치하지 않으면 발생하는 오류',
+      exampleTitle: '인증번호-불일치',
+      exampleMessageInfo: '인증번호가 일치하지 않습니다.'
+    }
+  ])
   @Post('message/validate')
   async validationPhoneNumber(
     @Body() requestValidateNumberDto: RequestValidateNumberDto
@@ -106,6 +141,14 @@ export class AuthController {
     type: ResponseRegisterUserDto
   })
   @UseGuards(RegisterTokenGuard)
+  @ErrorResponse(HttpStatus.BAD_REQUEST, [
+    {
+      model: BadRequestException,
+      exampleDescription: '중복해서 회원가입을 시도하면 막습니다.',
+      exampleTitle: '중복회원가입요청',
+      exampleMessageInfo: '이미 회원가입한 유저입니다.'
+    }
+  ])
   @Post('register')
   async registerUser(
     @RegisterUser() registerUser: RegisterJwtPayload,
@@ -125,14 +168,29 @@ export class AuthController {
     description: '요청 성공시',
     type: ResponseAdminSendValidationNumberDto
   })
-  @ApiResponse({
-    status: 400,
-    description: '슬랙에 들어와있는 유저가 아닐때 , 어드민 유저가 아닐 때'
-  })
-  @ApiResponse({
-    status: 429,
-    description: '과도한 요청을 보낼시에'
-  })
+  @ErrorResponse(HttpStatus.BAD_REQUEST, [
+    {
+      model: BadRequestException,
+      exampleDescription: '슬랙에 등록되지않은 유저일때 발생하는 오류',
+      exampleTitle: '정보오류-유저정보,슬랙정보없음',
+      exampleMessageInfo: '가입한 유저나 어드민 유저가 아닙니다.'
+    },
+    {
+      model: BadRequestException,
+      exampleDescription: '받은 슬랙이메일이 올바르지않을경우',
+      exampleTitle: '정보오류-슬랙정보없음',
+      exampleMessageInfo: '가입한 슬랙 이메일을 올바르게 입력해 주세요'
+    }
+  ])
+  @ErrorResponse(HttpStatus.TOO_MANY_REQUESTS, [
+    {
+      model: ThrottlerException,
+      exampleDescription:
+        '과도한 요청을 보낼시에 ( 인증문자 요청 , 관리자 슬랙 인증 요청',
+      exampleTitle: '과도한 요청',
+      exampleMessageInfo: 'ThrottlerException: Too Many Requests'
+    }
+  ])
   @ApiBody({ type: RequestAdminSendValidationNumberDto })
   @Post('/slack/send')
   async slackSendValidationNumber(
@@ -151,11 +209,27 @@ export class AuthController {
     description: '요청 성공시 로그인 처리',
     type: ResponseAdminLoginDto
   })
-  @ApiResponse({
-    status: 400,
-    description: 'send 요청을 보낸 사용자가 아닐때 또는 인증번호가 잘못되었을때'
-  })
   @ApiBody({ type: RequestAdminLoginDto })
+  @ErrorResponse(HttpStatus.BAD_REQUEST, [
+    {
+      model: BadRequestException,
+      exampleDescription: '3분짜리 인증기한이 지났을때',
+      exampleTitle: '인증번호-기한만료',
+      exampleMessageInfo: '인증 기한이 지났습니다.'
+    },
+    {
+      model: BadRequestException,
+      exampleDescription: '인증번호가 맞지 않을때',
+      exampleTitle: '인증번호-검증오류',
+      exampleMessageInfo: '인증 번호가 맞지 않습니다.'
+    },
+    {
+      model: BadRequestException,
+      exampleDescription: '가입한 유저나 어드민 유저가 아닐때',
+      exampleTitle: '인증번호-검증이후',
+      exampleMessageInfo: '가입한 유저나 어드민 유저가 아닙니다.'
+    }
+  ])
   @Post('/slack/validation')
   async slackLoginUser(
     @Body()

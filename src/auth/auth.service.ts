@@ -59,13 +59,6 @@ export class AuthService {
     // generate randomNumber
 
     const generatedRandomNumber = generateRandomCode(4);
-    // insert to redis
-    await this.redisSerivce.setWithTTLValidationNumber(
-      userPhoneNumber,
-      generatedRandomNumber,
-      180
-    );
-
     const message = new MessageDto(
       userPhoneNumber,
       `고스락 티켓예매\n인증번호 [${generatedRandomNumber}]`
@@ -74,8 +67,15 @@ export class AuthService {
     try {
       await this.smsService.sendMessages([message]);
     } catch (error) {
-      console.log(error);
+      throw new InternalServerErrorException('문자발송 실패');
     }
+
+    // insert to redis
+    await this.redisSerivce.setWithTTLValidationNumber(
+      userPhoneNumber,
+      generatedRandomNumber,
+      180
+    );
 
     return {
       alreadySingUp: checkSingUpState,
@@ -99,10 +99,10 @@ export class AuthService {
 
     // 인증이 유효하지 않다면
     if (!savedValidationNumber) {
-      throw new BadRequestException('인증번호 기한만료');
+      throw new BadRequestException('인증번호가 기한만료 되었습니다.');
     }
     if (savedValidationNumber !== requestValidateNumberDto.validationNumber) {
-      throw new BadRequestException('잘못된 인증번호');
+      throw new BadRequestException('인증번호가 일치하지 않습니다.');
     }
     // 회원가입을 한 유저가아니라면 회원가입용 토큰 발급
     if (!checkSingUpState) {
@@ -286,7 +286,7 @@ export class AuthService {
     const secret = this.configService.get(JWTType.ACCESS);
     try {
       return jwt.sign(payload, secret, {
-        expiresIn: 20
+        expiresIn: 60 * 60 * 24 * 3
       });
     } catch (error) {
       Logger.log(error);
