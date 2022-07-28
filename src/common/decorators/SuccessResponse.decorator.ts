@@ -28,6 +28,7 @@ import { ApiExtraModels, ApiResponse, getSchemaPath } from '@nestjs/swagger';
 import { plainToClassFromExist } from 'class-transformer';
 import { SuccessCommonResponseDto } from '../dtos/SuccessCommonResponse.dto';
 import { makeInstanceByApiProperty } from '../utils/makeInstanceByApiProperty';
+import { mergeObjects } from '../utils/mergeTwoObj';
 
 interface SuccessResponseOption {
   /**
@@ -42,7 +43,7 @@ interface SuccessResponseOption {
   /**
    * 서비스 레이어에서 적었던 오류 메시지를 기술합니다.
    */
-  exampleDataOfDTO: Record<string, any>;
+  overwriteValue?: Record<string, any>;
   /**
    * 어떠한 상황일 때 예시형태의 응답값을 주는지 기술 합니다.
    */
@@ -68,12 +69,12 @@ export const SuccessResponse = (
       );
       const dtoData = makeInstanceByApiProperty(response.model);
       //   console.log(dtoData);
-      commonResponseInstance.data = plainToClassFromExist(
+      commonResponseInstance.data = mergeObjects(
+        {},
         dtoData,
-        response.exampleDataOfDTO,
-
-        { excludeExtraneousValues: true }
+        response.overwriteValue
       );
+
       console.log(commonResponseInstance);
       return {
         [response.exampleTitle]: {
@@ -87,14 +88,16 @@ export const SuccessResponse = (
       return result;
     }, {}); // null 값 있을경우 필터링
   //   console.log(examples);
+  const pathsOfDto = succesResponseOptions.map(e => {
+    return { $ref: getSchemaPath(e.model) };
+  });
+  const extraModel = succesResponseOptions.map(e => {
+    return e.model;
+    // eslint-disable-next-line @typescript-eslint/ban-types
+  }) as unknown as Function[];
+  console.log(pathsOfDto);
   return applyDecorators(
-    ApiExtraModels(
-      SuccessCommonResponseDto,
-      succesResponseOptions.map(e => {
-        return e.model;
-        // eslint-disable-next-line @typescript-eslint/ban-types
-      }) as unknown as Function
-    ),
+    ApiExtraModels(...extraModel, SuccessCommonResponseDto),
     ApiResponse({
       status: StatusCode,
       content: {
@@ -103,9 +106,7 @@ export const SuccessResponse = (
             additionalProperties: {
               $ref: getSchemaPath(SuccessCommonResponseDto)
             },
-            oneOf: succesResponseOptions.map(e => {
-              return { $ref: getSchemaPath(e.model) };
-            })
+            oneOf: pathsOfDto
           },
           examples: examples
         }
