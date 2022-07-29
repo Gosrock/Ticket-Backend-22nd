@@ -4,11 +4,13 @@ import {
   UnauthorizedException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Role } from 'src/common/consts/enum';
+import { Role, TicketStatus } from 'src/common/consts/enum';
 import { PageMetaDto } from 'src/common/dtos/page/page-meta.dto';
 import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
 import { PageDto } from 'src/common/dtos/page/page.dto';
 import { PagingDto } from 'src/common/dtos/paging.dto';
+import { EnterReportDto } from 'src/orders/dtos/enter-report.dto';
+import { TicketReportDto } from 'src/orders/dtos/ticket-report.dto';
 import { CreateTicketDto } from 'src/tickets/dtos/create-ticket.dto';
 import { TicketFindDto } from 'src/tickets/dtos/ticket-find.dto';
 
@@ -235,5 +237,43 @@ export class TicketRepository {
         this.deleteTicketById(ticket.id);
       });
     });
+  }
+
+  /**
+   * 링크 발급된 총 티켓 수, 입금 확인된 티켓 수
+   * @returns 티켓 관련 현황
+   */
+  async getTicketReport(): Promise<TicketReportDto> {
+    const queryBuilder = this.ticketRepository.createQueryBuilder('ticket');
+
+    queryBuilder.select('ticket.id');
+
+    const ticketReportDto = {
+      totalTicket: await queryBuilder.getCount(),
+      depositedTicket: await queryBuilder
+        .where({ status: TicketStatus.ENTERWAIT || TicketStatus.DONE })
+        .getCount()
+    };
+    return ticketReportDto;
+  }
+
+  /**
+   * 입금 확인된 티켓(입장 가능) 기준으로 count
+   * @returns 입장 관련 현황
+   */
+  async getEnterReport(): Promise<EnterReportDto> {
+    const queryBuilder = this.ticketRepository.createQueryBuilder('ticket');
+
+    queryBuilder.select('ticket.id');
+
+    const enterReportDto = {
+      enteredTicket: await queryBuilder
+        .where({ status: TicketStatus.DONE })
+        .getCount(),
+      nonEnteredTicket: await queryBuilder
+        .where({ status: TicketStatus.ENTERWAIT })
+        .getCount()
+    };
+    return enterReportDto;
   }
 }

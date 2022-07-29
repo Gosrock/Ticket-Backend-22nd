@@ -35,6 +35,7 @@ import { Role } from 'src/common/consts/enum';
 import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
 import { OrderFindDto } from './dtos/order-find.dto';
 import { UpdateOrderStatusDto } from './dtos/update-order-status.dto';
+import { ReportDto } from './dtos/report.dto';
 
 @ApiTags('orders')
 @ApiBearerAuth('accessToken')
@@ -103,26 +104,6 @@ export class OrdersController {
   }
 
   @ApiOperation({
-    summary: '해당 주문에 속한 티켓 목록을 불러온다'
-  })
-  @ApiResponse({
-    status: 200,
-    description: '요청 성공시',
-    type: Ticket,
-    isArray: true
-  })
-  @ApiUnauthorizedResponse({
-    status: 401,
-    description: 'AccessToken이 없을 경우'
-  })
-  @Get('/:orderId')
-  getTicketListByOrderId(
-    @Param('orderId', OrderIdValidationPipe) orderId: number
-  ): Promise<Ticket[]> {
-    return this.ticketService.findAllByOrderId(orderId);
-  }
-
-  @ApiOperation({
     summary: '[어드민] 해당 주문의 status를 변경한다'
   })
   @ApiResponse({
@@ -162,5 +143,43 @@ export class OrdersController {
     @Param('orderId', OrderIdValidationPipe) orderId: number
   ): Promise<Order> {
     return this.orderService.makeOrderFree(orderId);
+  }
+
+  @ApiOperation({
+    summary: '[어드민] 전체 현황 조회'
+  })
+  @ApiResponse({
+    status: 200,
+    description: '요청 성공시',
+    type: ReportDto
+  })
+  @ApiUnauthorizedResponse({
+    status: 401,
+    description: '어드민이 아닐 경우'
+  })
+  @Roles(Role.Admin)
+  @Get('/report')
+  getReport(): Promise<ReportDto> {
+    return this.orderService.getReport();
+  }
+
+  @ApiOperation({
+    summary: '해당 주문에 속한 티켓 목록을 불러온다'
+  })
+  @ApiResponse({
+    status: 200,
+    description: '요청 성공시',
+    type: Ticket,
+    isArray: true
+  })
+  @ApiUnauthorizedResponse({
+    status: 401,
+    description: 'AccessToken이 없을 경우'
+  })
+  @Get('/:orderId')
+  getTicketListByOrderId(
+    @Param('orderId', OrderIdValidationPipe) orderId: number
+  ): Promise<Ticket[]> {
+    return this.ticketService.findAllByOrderId(orderId);
   }
 }
