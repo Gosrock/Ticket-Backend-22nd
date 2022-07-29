@@ -96,7 +96,7 @@ export class Order {
 
   @ApiProperty({
     description: '한개의 주문에 속한 티켓목록',
-    type: () => Ticket
+    type: () => [Ticket]
   })
   @Expose()
   @OneToMany(type => Ticket, ticket => ticket.user, { eager: true })

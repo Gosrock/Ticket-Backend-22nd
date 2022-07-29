@@ -3,7 +3,9 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
+  Query,
   UseGuards,
   UsePipes,
   ValidationPipe
@@ -26,6 +28,13 @@ import { TicketsService } from 'src/tickets/tickets.service';
 import { OrderIdValidationPipe } from 'src/common/pipes/orderId-validation.pipe';
 import { ResponseOrderDto } from './dtos/response-order.dto';
 import { ResponseOrderListDto } from './dtos/response-orderlist.dto';
+import { PageDto } from 'src/common/dtos/page/page.dto';
+import { ApiPaginatedDto } from 'src/common/decorators/ApiPaginatedDto.decorator';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { Role } from 'src/common/consts/enum';
+import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
+import { OrderFindDto } from './dtos/order-find.dto';
+import { UpdateOrderStatusDto } from './dtos/update-order-status.dto';
 
 @ApiTags('orders')
 @ApiBearerAuth('accessToken')
@@ -76,6 +85,24 @@ export class OrdersController {
   }
 
   @ApiOperation({
+    summary: '[어드민] 해당 조건의 주문을 모두 불러온다'
+  })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: '요청 성공시',
+  //   type: PageDto
+  // })
+  @ApiPaginatedDto({ model: Order, description: '페이지네이션' })
+  @Get('/find')
+  @Roles(Role.Admin)
+  getOrdersWith(
+    @Query() orderFindDto: OrderFindDto,
+    @Query() pageOptionsDto: PageOptionsDto
+  ): Promise<PageDto<Order>> {
+    return this.orderService.findAllWith(orderFindDto, pageOptionsDto);
+  }
+
+  @ApiOperation({
     summary: '해당 주문에 속한 티켓 목록을 불러온다'
   })
   @ApiResponse({
@@ -93,5 +120,27 @@ export class OrdersController {
     @Param('orderId', OrderIdValidationPipe) orderId: number
   ): Promise<Ticket[]> {
     return this.ticketService.findAllByOrderId(orderId);
+  }
+
+  @ApiOperation({
+    summary: '[어드민] 해당 주문의 status를 변경한다'
+  })
+  @ApiResponse({
+    status: 200,
+    description: '요청 성공시',
+    type: Order
+  })
+  @ApiUnauthorizedResponse({
+    status: 401,
+    description: '어드민이 아닐 경우'
+  })
+  @Roles(Role.Admin)
+  @Patch('/status')
+  updateOrderStatus(
+    @Body(OrderIdValidationPipe) updateOrderStatusDto: UpdateOrderStatusDto,
+    @ReqUser() admin: User
+  ) {
+    console.log(typeof updateOrderStatusDto);
+    return this.orderService.updateOrderStatus(updateOrderStatusDto, admin);
   }
 }
