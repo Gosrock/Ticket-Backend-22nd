@@ -215,4 +215,12 @@ export class OrdersService {
       await queryRunner.release();
     }
   }
+
+  async makeOrderFree(orderId: number): Promise<Order> {
+    // orderId로 주문 찾기
+    const order = await this.orderRepository.findById(orderId);
+    order.isFree = true;
+    await this.orderRepository.saveOrder(order);
+    return order;
+  }
 }

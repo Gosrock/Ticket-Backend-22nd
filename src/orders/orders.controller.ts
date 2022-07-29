@@ -143,4 +143,24 @@ export class OrdersController {
     console.log(typeof updateOrderStatusDto);
     return this.orderService.updateOrderStatus(updateOrderStatusDto, admin);
   }
+
+  @ApiOperation({
+    summary: '[어드민] 해당 주문을 공짜로 변경한다'
+  })
+  @ApiResponse({
+    status: 200,
+    description: '요청 성공시',
+    type: Order
+  })
+  @ApiUnauthorizedResponse({
+    status: 401,
+    description: '어드민이 아닐 경우'
+  })
+  @Roles(Role.Admin)
+  @Patch('/free/:orderId')
+  makeOrderFree(
+    @Param('orderId', OrderIdValidationPipe) orderId: number
+  ): Promise<Order> {
+    return this.orderService.makeOrderFree(orderId);
+  }
 }
