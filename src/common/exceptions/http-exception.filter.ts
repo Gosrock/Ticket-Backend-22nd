@@ -33,9 +33,11 @@ export class AllExceptionsFilter implements ExceptionFilter {
           statusCode: statusCode
         };
       } else {
+        // 에러 코드화를 진행할 부분
         error = {
           ...(getError as HttpExceptionErrorResponseDto),
-          error: exception.name
+          error: exception.name,
+          statusCode: statusCode
         };
       }
     } else {

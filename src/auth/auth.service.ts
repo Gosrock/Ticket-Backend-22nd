@@ -202,27 +202,29 @@ export class AuthService {
       throw new BadRequestException('가입한 유저나 어드민 유저가 아닙니다.');
     }
     // 레디스에서 전화번호가지고 정보를 빼내온다.
-    const slaceUserId = await this.slackService.findSlackUserIdByEmail(
-      requestAdminSendValidationNumberDto.slackEmail
-    );
-    //console.log(slaceUserId);
-    if (!slaceUserId) {
-      throw new BadRequestException(
-        '가입한 슬랙 이메일을 올바르게 입력해 주세요'
-      );
-    }
+    throw new BadRequestException({ message: 'asdfasdfasdf', code: 'asdf' });
 
-    const randomCode = generateRandomCode(4);
-    await this.redisSerivce.setWithTTLValidationNumber(
-      requestAdminSendValidationNumberDto.slackEmail,
-      randomCode,
-      180
-    );
-    await this.slackService.sendDMwithValidationNumber(
-      new SlackValidationNumberDMDto(slaceUserId, randomCode)
-    );
+    // const slaceUserId = await this.slackService.findSlackUserIdByEmail(
+    //   requestAdminSendValidationNumberDto.slackEmail
+    // );
+    // //console.log(slaceUserId);
+    // if (!slaceUserId) {
+    //   throw new BadRequestException(
+    //     '가입한 슬랙 이메일을 올바르게 입력해 주세요'
+    //   );
+    // }
 
-    return { validationNumber: randomCode };
+    // const randomCode = generateRandomCode(4);
+    // await this.redisSerivce.setWithTTLValidationNumber(
+    //   requestAdminSendValidationNumberDto.slackEmail,
+    //   randomCode,
+    //   180
+    // );
+    // await this.slackService.sendDMwithValidationNumber(
+    //   new SlackValidationNumberDMDto(slaceUserId, randomCode)
+    // );
+
+    // return { validationNumber: randomCode };
   }
 
   @returnValueToDto(ResponseAdminLoginDto)
