@@ -118,7 +118,7 @@ export class TicketRepository {
 
     const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
 
-    console.log(1);
+    //console.log(1);
     return new PageDto(entities, pageMetaDto);
   }
 

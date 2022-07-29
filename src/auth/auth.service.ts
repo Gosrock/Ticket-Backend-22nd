@@ -50,8 +50,8 @@ export class AuthService {
   async requestPhoneValidationNumber(
     requestPhoneNumberDto: RequestPhoneNumberDto
   ): Promise<ResponseRequestValidationDto> {
-    console.log(this.dataSource);
-    //console.log(test.adf.asdf);
+    //console.log(this.dataSource);
+    ////console.log(test.adf.asdf);
     //TODO : 전화번호 인증번호 발송 로직 추가 , 이찬진 2022.07.14
     const userPhoneNumber = requestPhoneNumberDto.phoneNumber;
     //유저가 이미 회원가입했는지확인한다.
@@ -112,7 +112,7 @@ export class AuthService {
       };
     } else {
       const user = await this.userRepository.findByPhoneNumber(userPhoneNumber);
-      console.log(user);
+      //console.log(user);
       if (!user) {
         throw new BadRequestException('잘못된 접근');
       }
@@ -121,7 +121,7 @@ export class AuthService {
         phoneNumber: user.phoneNumber,
         name: user.name
       });
-      console.log(accessToken);
+      //console.log(accessToken);
 
       return {
         accessToken,
@@ -205,7 +205,7 @@ export class AuthService {
     const slaceUserId = await this.slackService.findSlackUserIdByEmail(
       requestAdminSendValidationNumberDto.slackEmail
     );
-    console.log(slaceUserId);
+    //console.log(slaceUserId);
     if (!slaceUserId) {
       throw new BadRequestException(
         '가입한 슬랙 이메일을 올바르게 입력해 주세요'
@@ -267,7 +267,7 @@ export class AuthService {
    */
   async checkUserAlreadySignUp(phoneNumber: string): Promise<boolean> {
     const searchUser = await this.userRepository.findByPhoneNumber(phoneNumber);
-    console.log('asdcfasdfasdfdsaf');
+    //console.log('asdcfasdfasdfdsaf');
 
     let checkSingUpState = false;
     if (searchUser) checkSingUpState = true;
@@ -276,7 +276,7 @@ export class AuthService {
 
   private registerJwtSign(payload: RegisterJwtPayload) {
     const secret = this.configService.get(JWTType.REGISTER);
-    console.log(secret, JWTType.REGISTER);
+    //console.log(secret, JWTType.REGISTER);
     return jwt.sign(payload, secret, {
       expiresIn: 60 * 10
     });

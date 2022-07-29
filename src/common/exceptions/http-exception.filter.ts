@@ -66,7 +66,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       return response.status(statusCode).json(errorResponse);
     }
 
-    // console.log(error);
+    // //console.log(error);
 
     const errorResponse: ErrorCommonResponse<HttpExceptionErrorResponseDto> = {
       statusCode,

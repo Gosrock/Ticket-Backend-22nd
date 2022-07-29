@@ -40,7 +40,7 @@ export class AccessTokenGuard implements CanActivate {
       context.getHandler(),
       context.getClass()
     ]);
-    console.log(roles);
+    //console.log(roles);
 
     const payload = this.authService.verifyAccessJWT(jwtString);
 
@@ -58,7 +58,7 @@ export class AccessTokenGuard implements CanActivate {
     if (!roles.length) {
       return true;
     } else {
-      console.log(roles);
+      //console.log(roles);
       if (roles.includes(user.role) === true) {
         return true;
       } else if (user.role === Role.Admin) {
