@@ -14,8 +14,8 @@ export class QueueService {
   ) {}
 
   async updateTicketStatusJob(ticket: Ticket, admin: User) {
-    console.log('admin: ' + admin.name);
-    console.log(ticket);
+    //console.log('admin: ' + admin.name);
+    //console.log(ticket);
     const job = await this.slackAlarmQ.add('updateTicketStatus', {
       adminName: admin.name,
       ticketId: ticket.id,
@@ -25,7 +25,7 @@ export class QueueService {
   }
 
   async createNewOrderJob(order: Order) {
-    console.log('order: ' + order.id);
+    //console.log('order: ' + order.id);
     const job = await this.slackAlarmQ.add('createNewOrder', {
       orderId: order.id,
       userName: order.user.name,
@@ -46,7 +46,11 @@ export class QueueService {
       .map((ticket, idx) => {
         return {
           to: order.user.phoneNumber,
-          content: `♬고티켓♬ (${++idx}/${totalTicketCnt})\n\n▶주문자명: ${order.user.name}\n▶관람일: ${EnterDate.YB}(${PerformanceDate.YB})\n\n${url}${ticket.uuid}`
+          content: `♬고티켓♬ (${++idx}/${totalTicketCnt})\n\n▶주문자명: ${
+            order.user.name
+          }\n▶관람일: ${EnterDate.YB}(${PerformanceDate.YB})\n\n${url}${
+            ticket.uuid
+          }`
         };
       });
     if (messageDtoYBList.length) {
@@ -57,7 +61,11 @@ export class QueueService {
       .map((ticket, idx) => {
         return {
           to: order.user.phoneNumber,
-          content: `♬고티켓♬ (${++idx}/${totalTicketCnt})\n\n▶주문자명: ${order.user.name}\n▶관람일: ${EnterDate.OB}(${PerformanceDate.OB})\n\n${url}${ticket.uuid}`
+          content: `♬고티켓♬ (${++idx}/${totalTicketCnt})\n\n▶주문자명: ${
+            order.user.name
+          }\n▶관람일: ${EnterDate.OB}(${PerformanceDate.OB})\n\n${url}${
+            ticket.uuid
+          }`
         };
       });
     if (messageDtoOBList.length) {

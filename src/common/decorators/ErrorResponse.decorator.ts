@@ -87,7 +87,7 @@ export const ErrorResponse = (
       Object.assign(result, item);
       return result;
     }, {}); // null 값 있을경우 필터링
-  console.log(examples);
+  //console.log(examples);
   return applyDecorators(
     ApiExtraModels(
       ErrorCommonResponse,

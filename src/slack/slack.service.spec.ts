@@ -63,7 +63,7 @@ describe('SlackService', () => {
     const value = await service.newOrderAlarm(
       new SlackNewOrderDto(1, '테스트', 1, 5000)
     );
-    console.log(value);
+    //console.log(value);
     expect(value).toBeDefined();
   });
 
@@ -71,7 +71,7 @@ describe('SlackService', () => {
     const value = await service.orderStateChangedByAdminEvent(
       new SlackOrderStateChangeDto(1, 2, OrderStatus.DONE, '테스트')
     );
-    console.log(value);
+    //console.log(value);
     expect(value).toBeDefined();
   });
 
@@ -84,7 +84,7 @@ describe('SlackService', () => {
         '테스트2'
       )
     );
-    console.log(value);
+    //console.log(value);
     expect(value).toBeDefined();
   });
 
@@ -92,7 +92,7 @@ describe('SlackService', () => {
     const value = await service.ticketQREnterEvent(
       new SlackTicketQREnterEventDto(1, 'test', '테스트')
     );
-    console.log(value);
+    //console.log(value);
     expect(value).toBeDefined();
   });
 });

@@ -11,7 +11,7 @@ export class QueueConsumerSms {
 
   @OnQueueFailed()
   errHandler(job: Job, err: Err) {
-    console.log(`error: ` + err);
+    //console.log(`error: ` + err);
     throw err;
   }
 

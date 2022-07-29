@@ -139,7 +139,7 @@ export class TicketsController {
     uuid: string,
     @ReqUser() user: User
   ) {
-    console.log(user);
+    //console.log(user);
     return this.ticketService.findByUuid(uuid, user);
   }
 

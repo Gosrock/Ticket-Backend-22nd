@@ -39,6 +39,7 @@ import { FirstReigsterDto } from './dtos/FirstRegister.response.dto copy';
 import { LoginResponseDto } from './dtos/Login.response.dto';
 import { ErrorResponse } from 'src/common/decorators/ErrorResponse.decorator';
 import { ThrottlerException } from '@nestjs/throttler';
+import { SuccessResponse } from 'src/common/decorators/SuccessResponse.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -83,32 +84,19 @@ export class AuthController {
 
   @ApiOperation({ summary: '휴대전화번호 인증번호를 검증한다.' })
   @ApiBody({ type: RequestValidateNumberDto })
-  @ApiExtraModels(LoginResponseDto)
-  @ApiExtraModels(FirstReigsterDto)
-  @ApiResponse({
-    description:
-      '최초회원가입 한 유저면 registerToken을 , 이후 로그인 한 사람이면 accessToken을 발급합니다.',
-    content: {
-      'application/json': {
-        schema: {
-          oneOf: [
-            { $ref: getSchemaPath(FirstReigsterDto) },
-            { $ref: getSchemaPath(LoginResponseDto) }
-          ]
-        },
-        examples: {
-          '최초 (회원가입 안한 유저일때 )': {
-            value: makeInstanceByApiProperty(FirstReigsterDto),
-            description:
-              '리턴된 registerToken을 Bearer <registerToken> 형식으로 집어넣으시면됩니다.'
-          },
-          '이미 회원가입한 유저일때': {
-            value: makeInstanceByApiProperty(LoginResponseDto)
-          }
-        }
-      }
+  @SuccessResponse(HttpStatus.OK, [
+    {
+      model: FirstReigsterDto,
+      exampleDescription:
+        '리턴된 registerToken을 Bearer <registerToken> 형식으로 집어넣으시면됩니다.',
+      exampleTitle: '최초 (회원가입 안한 유저일때 )'
+    },
+    {
+      model: LoginResponseDto,
+      exampleDescription: '이미 회원가입한 유저면 accessToken을 발급합니다.',
+      exampleTitle: '이미 회원가입한 유저일때'
     }
-  })
+  ])
   @ErrorResponse(HttpStatus.BAD_REQUEST, [
     {
       model: BadRequestException,
@@ -135,11 +123,17 @@ export class AuthController {
   @ApiBearerAuth('registerToken')
   @ApiOperation({ summary: '회원가입한다.' })
   @ApiBody({ type: RequestRegisterUserDto })
-  @ApiResponse({
-    status: 200,
-    description: '요청 성공시',
-    type: ResponseRegisterUserDto
-  })
+  @SuccessResponse(HttpStatus.OK, [
+    {
+      model: ResponseRegisterUserDto,
+      overwriteValue: {
+        accessToken: '어 세 스 토 큰 임니다',
+        user: { id: '고유 아이디입니당 ' }
+      },
+      exampleDescription: '설명',
+      exampleTitle: '회원가입-성공'
+    }
+  ])
   @UseGuards(RegisterTokenGuard)
   @ErrorResponse(HttpStatus.BAD_REQUEST, [
     {
