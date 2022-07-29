@@ -7,7 +7,7 @@ import { PageDto } from 'src/common/dtos/page/page.dto';
 import { OrderFindDto } from 'src/orders/dtos/order-find.dto';
 import { RequestOrderDto } from 'src/orders/dtos/request-order.dto';
 import { ResponseOrderListDto } from 'src/orders/dtos/response-orderlist.dto';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Order } from '../entities/order.entity';
 import { User } from '../entities/user.entity';
 
@@ -55,7 +55,7 @@ export class OrderRepository {
   }
 
   /**
-   * 
+   *
    * @param orderFindDto 조회 옵션
    * @param pageOptionsDto  페이지 조회 옵션
    * @returns 주문 목록 조회 결과와 페이지 정보
@@ -64,8 +64,9 @@ export class OrderRepository {
     orderFindDto: OrderFindDto,
     pageOptionsDto: PageOptionsDto
   ): Promise<PageDto<Order>> {
-    const { status, selection, isFree } = orderFindDto;
+    const { status, selection, isFree, searchName } = orderFindDto;
     const queryBuilder = this.orderRepository.createQueryBuilder('order');
+    const name = searchName;
 
     if (status) {
       queryBuilder.andWhere({ status });
@@ -75,6 +76,9 @@ export class OrderRepository {
     }
     if (isFree) {
       queryBuilder.andWhere({ isFree });
+    }
+    if (name) {
+      queryBuilder.andWhere('user.name like :name', { name: `%${searchName}%`});
     }
 
     queryBuilder
