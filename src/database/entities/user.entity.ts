@@ -73,7 +73,7 @@ export class User {
 
   @ApiProperty({
     description: '유저 생성 일자',
-    type: Date
+    type: String
   })
   @Expose()
   @CreateDateColumn()

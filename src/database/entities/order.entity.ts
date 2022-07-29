@@ -104,7 +104,7 @@ export class Order {
 
   @ApiProperty({
     description: '주문 생성 일자',
-    type: Date
+    type: String
   })
   @Expose()
   @CreateDateColumn()

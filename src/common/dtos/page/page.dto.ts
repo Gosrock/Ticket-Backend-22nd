@@ -5,7 +5,7 @@ import { PageMetaDto } from './page-meta.dto';
 
 export class PageDto<T> {
   @IsArray()
-  @ApiProperty({ isArray: true })
+  @ApiProperty({ type: 'generic', isArray: true })
   @Expose()
   readonly data: T[];
 

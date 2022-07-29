@@ -74,7 +74,9 @@ export const ErrorResponse = (
         );
       }
       const commonErrorInstance =
-        makeInstanceByApiProperty(ErrorCommonResponse);
+        makeInstanceByApiProperty<ErrorCommonResponse<any>>(
+          ErrorCommonResponse
+        );
       commonErrorInstance.error = innerErrorDto;
       return {
         [error.exampleTitle]: {
