@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 // @ApiResponse({
 //     description:
 //       '최초회원가입 한 유저면 registerToken을 , 이후 로그인 한 사람이면 accessToken을 발급합니다.',
@@ -50,6 +51,11 @@ interface SuccessResponseOption {
    * 어떠한 상황일 때 예시형태의 응답값을 주는지 기술 합니다.
    */
   exampleDescription: string;
+  /**
+   * 제네릭 형태가 필요할 때 기술합니다.
+   * pageDto<generic> 인경우?
+   */
+  generic?: Type;
 }
 
 /**
@@ -63,19 +69,28 @@ export const SuccessResponse = (
   StatusCode: HttpStatus,
   succesResponseOptions: SuccessResponseOption[]
 ) => {
-  const flagValidationErrorExist = false;
   const examples = succesResponseOptions
     .map((response: SuccessResponseOption) => {
-      const commonResponseInstance = makeInstanceByApiProperty(
-        SuccessCommonResponseDto
+      const commonResponseInstance = makeInstanceByApiProperty<
+        SuccessCommonResponseDto<any>
+      >(SuccessCommonResponseDto);
+      const DtoModel = response.model;
+      //   console.log('ㅁㄴㅇㄹㅁㄴㅇㄹㅁㄴㅇㄹㅁㄴㅇㄹㅁㄴㅇㄹㅁㄴㅇㄹ', DtoModel);
+
+      const dtoData = makeInstanceByApiProperty<typeof DtoModel>(
+        DtoModel,
+        response.generic
       );
-      const dtoData = makeInstanceByApiProperty(response.model);
       //   console.log(dtoData);
-      commonResponseInstance.data = mergeObjects(
-        {},
-        dtoData,
-        response.overwriteValue
-      );
+      if (response.overwriteValue) {
+        commonResponseInstance.data = mergeObjects(
+          {},
+          dtoData,
+          response.overwriteValue
+        );
+      } else {
+        commonResponseInstance.data = dtoData;
+      }
 
       console.log(commonResponseInstance);
       return {
@@ -95,11 +110,19 @@ export const SuccessResponse = (
   });
   const extraModel = succesResponseOptions.map(e => {
     return e.model;
-    // eslint-disable-next-line @typescript-eslint/ban-types
   }) as unknown as Function[];
+
+  const extraGeneric = succesResponseOptions
+    .map(e => {
+      return e.generic;
+    })
+    .filter(e => e) as unknown as Function[];
+  const pathsOfGeneric = extraGeneric.map(e => {
+    return { $ref: getSchemaPath(e) };
+  });
   console.log(pathsOfDto);
   return applyDecorators(
-    ApiExtraModels(...extraModel, SuccessCommonResponseDto),
+    ApiExtraModels(...extraModel, ...extraGeneric, SuccessCommonResponseDto),
     ApiResponse({
       status: StatusCode,
       content: {
@@ -108,7 +131,7 @@ export const SuccessResponse = (
             additionalProperties: {
               $ref: getSchemaPath(SuccessCommonResponseDto)
             },
-            oneOf: pathsOfDto
+            oneOf: [...pathsOfDto, ...pathsOfGeneric]
           },
           examples: examples
         }

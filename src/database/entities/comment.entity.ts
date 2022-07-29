@@ -48,7 +48,7 @@ export class Comment {
 
   @ApiProperty({
     description: '응원 코멘트 생성 일자',
-    type: Date
+    type: String
   })
   @Expose()
   @CreateDateColumn()

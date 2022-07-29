@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -31,6 +32,8 @@ import { UsersService } from 'src/users/users.service';
 import { TicketsService } from './tickets.service';
 import { TicketFindDto } from './dtos/ticket-find.dto';
 import { UpdateTicketStatusDto } from './dtos/update-ticket-status.dto';
+import { SuccessResponse } from 'src/common/decorators/SuccessResponse.decorator';
+import { PageDto } from 'src/common/dtos/page/page.dto';
 
 @ApiTags('tickets')
 @ApiBearerAuth('accessToken')
@@ -93,7 +96,24 @@ export class TicketsController {
   //   description: '요청 성공시',
   //   type: PageDto<Ticket>
   // })
-  @ApiPaginatedDto({ model: Ticket, description: '페이지네이션' })
+  // @ApiPaginatedDto({ model: Ticket, description: '페이지네이션' })
+  @SuccessResponse(HttpStatus.OK, [
+    {
+      model: PageDto<Ticket>,
+      exampleDescription: '페이지가 끝일때',
+      exampleTitle: '페이지가 끝일때',
+      generic: Ticket,
+      overwriteValue: {
+        meta: { hasNextPage: false }
+      }
+    },
+    {
+      model: PageDto<Ticket>,
+      exampleDescription: '예시',
+      exampleTitle: '예시',
+      generic: Ticket
+    }
+  ])
   @Get('/find')
   @Roles(Role.Admin)
   getTicketsWith(

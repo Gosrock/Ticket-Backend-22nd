@@ -89,7 +89,7 @@ export class Ticket {
 
   @ApiProperty({
     description: '티켓 생성 일자',
-    type: Date
+    type: String
   })
   @Expose()
   @CreateDateColumn()
