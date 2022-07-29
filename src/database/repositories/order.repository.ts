@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
 import { PageMetaDto } from 'src/common/dtos/page/page-meta.dto';
@@ -54,9 +54,21 @@ export class OrderRepository {
       .getMany();
   }
 
+  async findById(orderId: number): Promise<Order> {
+    const order = await this.orderRepository
+      .createQueryBuilder('order')
+      .where({ id: orderId })
+      .getOne();
+
+    if (!order) {
+      throw new NotFoundException(`id ${orderId}의 주문을 찾을 수 없습니다`);
+    }
+    return order;
+  }
+
   /**
    *
-   * @param orderFindDto 조회 옵션
+   * @param orderFindDto 조회 옵션 (주문상태, 주문공연날짜, 공짜여부, 이름검색)
    * @param pageOptionsDto  페이지 조회 옵션
    * @returns 주문 목록 조회 결과와 페이지 정보
    */
@@ -78,7 +90,9 @@ export class OrderRepository {
       queryBuilder.andWhere({ isFree });
     }
     if (name) {
-      queryBuilder.andWhere('user.name like :name', { name: `%${searchName}%`});
+      queryBuilder.andWhere('user.name like :name', {
+        name: `%${searchName}%`
+      });
     }
 
     queryBuilder
@@ -95,5 +109,9 @@ export class OrderRepository {
     const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
 
     return new PageDto(entities, pageMetaDto);
+  }
+
+  async saveOrder(order: Order): Promise<Order> {
+    return await this.orderRepository.save(order);
   }
 }
