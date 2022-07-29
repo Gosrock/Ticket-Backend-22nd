@@ -49,11 +49,26 @@ export class AuthController {
   @UseGuards(ThrottlerBehindProxyGuard)
   @ApiOperation({ summary: '휴대전화번호 인증번호를 요청한다.' })
   @ApiBody({ type: RequestPhoneNumberDto })
-  @ApiResponse({
-    status: 200,
-    description: '요청 성공시',
-    type: ResponseRequestValidationDto
-  })
+  @SuccessResponse(HttpStatus.OK, [
+    {
+      model: ResponseRequestValidationDto,
+      overwriteValue: {
+        alreadySingUp: true
+      },
+      exampleDescription:
+        '이미 가입한 사람이 요청번호를 보내면 alreadySingUp 이 true 입니다.',
+      exampleTitle: '인증번호-이미가입한사람'
+    },
+    {
+      model: ResponseRequestValidationDto,
+      overwriteValue: {
+        alreadySingUp: false
+      },
+      exampleDescription:
+        '처음 회원가입한 사람이 요청번호를 보내면 alreadySingUp 이 false 입니다.',
+      exampleTitle: '인증번호-처음회원가입'
+    }
+  ])
   @ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, [
     {
       model: InternalServerErrorException,

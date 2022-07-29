@@ -1,32 +1,5 @@
-/* eslint-disable @typescript-eslint/ban-types */
-// @ApiResponse({
-//     description:
-//       '최초회원가입 한 유저면 registerToken을 , 이후 로그인 한 사람이면 accessToken을 발급합니다.',
-//     content: {
-//       'application/json': {
-//         schema: {
-//           oneOf: [
-//             { $ref: getSchemaPath(FirstReigsterDto) },
-//             { $ref: getSchemaPath(LoginResponseDto) }
-//           ]
-//         },
-//         examples: {
-//           '최초 (회원가입 안한 유저일때 )': {
-//             value: makeInstanceByApiProperty(FirstReigsterDto),
-//             description:
-//               '리턴된 registerToken을 Bearer <registerToken> 형식으로 집어넣으시면됩니다.'
-//           },
-//           '이미 회원가입한 유저일때': {
-//             value: makeInstanceByApiProperty(LoginResponseDto)
-//           }
-//         }
-//       }
-//     }
-//   })
-
 import { applyDecorators, HttpStatus, Type } from '@nestjs/common';
 import { ApiExtraModels, ApiResponse, getSchemaPath } from '@nestjs/swagger';
-import { plainToClassFromExist } from 'class-transformer';
 import { SuccessCommonResponseDto } from '../dtos/SuccessCommonResponse.dto';
 import { makeInstanceByApiProperty } from '../utils/makeInstanceByApiProperty';
 import { mergeObjects } from '../utils/mergeTwoObj';
@@ -55,10 +28,10 @@ interface SuccessResponseOption {
    * 제네릭 형태가 필요할 때 기술합니다.
    * pageDto<generic> 인경우?
    */
-  generic?: Type;
+  generic?: Type<any>;
 }
-
 /**
+ * 2022 07 29 이찬진  @ImNM
  * 여러 응답값을 손쉽게 적기위한 데토레이터 입니다
  * 기본적으로 status 코드가 같으면 하나밖에 못적기때문에 example을 추가하기위해서 커스텀 하였습니다.
  * @param StatusCode 응답 코드입니다. HttpStatus enum 값을 사용하시면됩니다.
@@ -71,17 +44,20 @@ export const SuccessResponse = (
 ) => {
   const examples = succesResponseOptions
     .map((response: SuccessResponseOption) => {
+      // base CommonResponse 를 만듭니다.
       const commonResponseInstance = makeInstanceByApiProperty<
         SuccessCommonResponseDto<any>
       >(SuccessCommonResponseDto);
-      const DtoModel = response.model;
-      //   console.log('ㅁㄴㅇㄹㅁㄴㅇㄹㅁㄴㅇㄹㅁㄴㅇㄹㅁㄴㅇㄹㅁㄴㅇㄹ', DtoModel);
 
+      const DtoModel = response.model;
+
+      // dto 객체를 만든다. 제네릭은 옵셔널 한 값이라 없으면 없는대로 만든다.
       const dtoData = makeInstanceByApiProperty<typeof DtoModel>(
         DtoModel,
         response.generic
       );
-      //   console.log(dtoData);
+      // overWriteValue가 있으면 오버라이트
+      // 정보를 좀더 커스텀 할 수있다.
       if (response.overwriteValue) {
         commonResponseInstance.data = mergeObjects(
           {},
@@ -92,7 +68,7 @@ export const SuccessResponse = (
         commonResponseInstance.data = dtoData;
       }
 
-      console.log(commonResponseInstance);
+      // 예시 정보를 만든다 ( 스웨거의 examplse)
       return {
         [response.exampleTitle]: {
           value: commonResponseInstance,
@@ -104,14 +80,18 @@ export const SuccessResponse = (
       Object.assign(result, item);
       return result;
     }, {}); // null 값 있을경우 필터링
-  //   console.log(examples);
-  const pathsOfDto = succesResponseOptions.map(e => {
-    return { $ref: getSchemaPath(e.model) };
-  });
+
+  // 스키마를 정의 내리기 위한 함수들
   const extraModel = succesResponseOptions.map(e => {
     return e.model;
   }) as unknown as Function[];
-
+  // 중복값 제거
+  const setOfExtraModel = new Set(extraModel);
+  // $ref 추가
+  const pathsOfDto = [...setOfExtraModel].map(e => {
+    return { $ref: getSchemaPath(e) };
+  });
+  // 제네릭 관련
   const extraGeneric = succesResponseOptions
     .map(e => {
       return e.generic;
@@ -120,19 +100,24 @@ export const SuccessResponse = (
   const pathsOfGeneric = extraGeneric.map(e => {
     return { $ref: getSchemaPath(e) };
   });
-  console.log(pathsOfDto);
+
+  // 데코레이터를 만든다.
   return applyDecorators(
+    // $ref를 사용하기 위해선 extraModel 로 등록 시켜야한다.
     ApiExtraModels(...extraModel, ...extraGeneric, SuccessCommonResponseDto),
     ApiResponse({
       status: StatusCode,
       content: {
         'application/json': {
           schema: {
+            // 베이스 스키마
             additionalProperties: {
               $ref: getSchemaPath(SuccessCommonResponseDto)
             },
+            // dto 스키마들
             oneOf: [...pathsOfDto, ...pathsOfGeneric]
           },
+          // 예시값
           examples: examples
         }
       }
