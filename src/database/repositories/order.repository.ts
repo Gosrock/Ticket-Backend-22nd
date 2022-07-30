@@ -156,7 +156,7 @@ export class OrderRepository {
       .where({ status: OrderStatus.DONE })
       .andWhere({ isFree: false });
 
-    const income = queryBuilder.getRawOne();
-    return income;
+    const income = await queryBuilder.getRawOne();
+    return income.sum;
   }
 }
