@@ -3,7 +3,8 @@ import {
   ApiBearerAuth,
   ApiOperation,
   ApiResponse,
-  ApiTags
+  ApiTags,
+  ApiBody
 } from '@nestjs/swagger';
 import { AccessTokenGuard } from 'src/auth/guards/AccessToken.guard';
 import { Role } from 'src/common/consts/enum';
@@ -13,6 +14,7 @@ import { User } from 'src/database/entities/user.entity';
 import { RequestUserNameDto } from './dtos/UserName.request.dto';
 import { UsersService } from './users.service';
 import { RequestCommentDto } from './dtos/Comment.request.dto';
+import { ResponseCommentDto } from './dtos/Comment.response.dto';
 
 @ApiTags('users')
 @ApiBearerAuth('accessToken')
@@ -80,6 +82,7 @@ export class UsersController {
 
   // 응원 댓글 생성
   @ApiOperation({ summary: '응원 댓글 생성' })
+  @ApiBody({ type: RequestCommentDto })
   @ApiResponse({
     status: 200,
     description: '요청 성공시',
@@ -89,4 +92,24 @@ export class UsersController {
   async makeComment(@ReqUser() user: User, @Body() requestCommentDto: RequestCommentDto) {
     return await this.userService.makeComment(user, requestCommentDto);
   }
+
+  // 응원 댓글 조회(자기 댓글만 오른쪽에 뜨도록)
+  @ApiOperation({ summary: '응원 댓글 조회' })
+  @ApiResponse({
+    status: 200,
+    description: '요청 성공시',
+    type: ResponseCommentDto
+  })
+  @Get('/comment')
+  async getAllComment(@ReqUser() user: User) {
+    return await this.userService.getAllComment(user.id);
+  }
+
+  // 응원 댓글 삭제(관리자용)
+  @Roles(Role.Admin)
+  @Delete('/:id/comment')
+  async deleteComment(@Param('id') id: number) {
+    return await this.userService.deleteComment(id);
+  }
+
 }

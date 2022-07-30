@@ -48,4 +48,38 @@ export class UsersService {
     return await this.commentRepository.makeComment(user, requestCommentDto);
   }
 
+  // 모든 댓글 조회
+  async getAllComment(userId: number) {
+    const comments = await this.commentRepository.getAllComment(userId);
+    const ret_comments = comments.map(function(comment) {
+      if (comment.user.id === userId) {
+        const responseCommentDto = {
+          id: comment.id,
+          content: comment.content,
+          nickName: comment.nickName,
+          user: comment.user,
+          createAt: comment.createdAt,
+          iComment: 'true'
+        }
+        return responseCommentDto;
+      } else{
+        const responseCommentDto = {
+          id: comment.id,
+          content: comment.content,
+          nickName: comment.nickName,
+          user: comment.user,
+          createAt: comment.createdAt,
+          iComment: 'false'
+        }
+        return responseCommentDto;
+      }
+    })
+    return ret_comments;
+  }
+
+  // 댓글 삭제
+  async deleteComment(id: number) {
+    return await this.commentRepository.deleteComment(id);
+  }
+
 }
