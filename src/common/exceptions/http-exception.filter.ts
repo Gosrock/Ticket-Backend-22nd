@@ -7,10 +7,13 @@ import {
   UnauthorizedException,
   Logger
 } from '@nestjs/common';
+import { ThrottlerException } from '@nestjs/throttler';
 import { Request, Response } from 'express';
+import { AuthErrorDefine } from 'src/auth/Errors/AuthErrorDefine';
 import { SlackService } from 'src/slack/slack.service';
 import { ErrorCommonResponse } from '../errors/ErrorCommonResponse.dto';
 import { HttpExceptionErrorResponseDto } from '../errors/HttpExceptionError.response.dto';
+import { CustomValidationError } from '../errors/ValidtionError';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -23,7 +26,22 @@ export class AllExceptionsFilter implements ExceptionFilter {
     let statusCode: number;
     let error: HttpExceptionErrorResponseDto;
 
-    if (exception instanceof HttpException) {
+    if (exception instanceof ThrottlerException) {
+      statusCode = 429;
+      error = {
+        code: AuthErrorDefine['Auth-9000'].code,
+        message: AuthErrorDefine['Auth-9000'].message as string,
+        error: ThrottlerException.name,
+        statusCode: 429
+      };
+    } else if (exception instanceof CustomValidationError) {
+      statusCode = exception.getStatus();
+      const getError = exception.getResponse();
+      const objError = getError as HttpExceptionErrorResponseDto;
+      error = {
+        ...objError
+      };
+    } else if (exception instanceof HttpException) {
       statusCode = exception.getStatus();
       const getError = exception.getResponse();
       if (typeof getError === 'string') {
@@ -33,9 +51,13 @@ export class AllExceptionsFilter implements ExceptionFilter {
           statusCode: statusCode
         };
       } else {
+        // 에러 코드화를 진행할 부분
+        const objError = getError as HttpExceptionErrorResponseDto;
         error = {
-          ...(getError as HttpExceptionErrorResponseDto),
-          error: exception.name
+          code: objError.code,
+          message: objError.message,
+          error: exception.name,
+          statusCode: statusCode
         };
       }
     } else {
@@ -69,7 +91,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     // //console.log(error);
 
     const errorResponse: ErrorCommonResponse<HttpExceptionErrorResponseDto> = {
-      statusCode,
+      statusCode: statusCode,
       timestamp: new Date(),
       path: request.url,
       method: request.method,

@@ -11,6 +11,7 @@ import { AuthService } from '../auth.service';
 import { UsersService } from 'src/users/users.service';
 import { Reflector } from '@nestjs/core';
 import { Role } from 'src/common/consts/enum';
+import { AuthErrorDefine } from '../Errors/AuthErrorDefine';
 
 @Injectable()
 export class AccessTokenGuard implements CanActivate {
@@ -26,10 +27,16 @@ export class AccessTokenGuard implements CanActivate {
   private async validateRequest(request: Request, context: ExecutionContext) {
     const checkHeader = request.headers.authorization;
     if (!checkHeader) {
-      throw new UnauthorizedException('잘못된 헤더 요청');
+      throw new UnauthorizedException(
+        AuthErrorDefine['Auth-1000'],
+        '잘못된 헤더 형식으로 요청보냈을때 발생하는 에러'
+      );
     }
     if (Array.isArray(checkHeader)) {
-      throw new UnauthorizedException('잘못된 헤더 요청');
+      throw new UnauthorizedException(
+        AuthErrorDefine['Auth-1000'],
+        '잘못된 헤더 형식으로 요청보냈을때 발생하는 에러'
+      );
     }
     const jwtString = checkHeader.split('Bearer ')[1];
 
@@ -46,7 +53,10 @@ export class AccessTokenGuard implements CanActivate {
 
     const user = await this.authService.findUserById(payload.id);
     if (!user) {
-      throw new UnauthorizedException('없는 유저입니다.');
+      throw new UnauthorizedException(
+        AuthErrorDefine['Auth-1003'],
+        '디비에서 유저 조회시에 발생하는 오류'
+      );
     }
     const newObj: any = request;
     newObj.user = user;
@@ -64,7 +74,10 @@ export class AccessTokenGuard implements CanActivate {
       } else if (user.role === Role.Admin) {
         return true;
       } else {
-        throw new ForbiddenException('권한이 없습니다.');
+        throw new ForbiddenException(
+          AuthErrorDefine['Auth-3000'],
+          '어드민 롤에 일반유저가 접근한 경우'
+        );
       }
     }
   }
