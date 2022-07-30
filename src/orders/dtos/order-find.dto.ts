@@ -1,6 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsBoolean, IsEnum, IsOptional, IsString, MaxLength, Min, MinLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsEnum,
+  IsOptional,
+  IsString,
+  MaxLength,
+  Min,
+  MinLength
+} from 'class-validator';
 import { OrderDate, OrderStatus } from 'src/common/consts/enum';
 
 export class OrderFindDto {

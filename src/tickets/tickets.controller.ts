@@ -99,7 +99,7 @@ export class TicketsController {
   // @ApiPaginatedDto({ model: Ticket, description: '페이지네이션' })
   @SuccessResponse(HttpStatus.OK, [
     {
-      model: PageDto<Ticket>,
+      model: PageDto,
       exampleDescription: '페이지가 끝일때',
       exampleTitle: '페이지가 끝일때',
       generic: Ticket,
@@ -108,7 +108,7 @@ export class TicketsController {
       }
     },
     {
-      model: PageDto<Ticket>,
+      model: PageDto,
       exampleDescription: '예시',
       exampleTitle: '예시',
       generic: Ticket

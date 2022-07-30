@@ -28,11 +28,15 @@ import { OrderFindDto } from './dtos/order-find.dto';
 import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
 import { PageDto } from 'src/common/dtos/page/page.dto';
 import { UpdateOrderStatusDto } from './dtos/update-order-status.dto';
+import { OrderReportDto } from './dtos/order-report.dto';
+import { ReportDto } from './dtos/report.dto';
+import { TicketReportDto } from './dtos/ticket-report.dto';
 
 @Injectable()
 export class OrdersService {
   constructor(
     private orderRepository: OrderRepository,
+    private ticketRepository: TicketRepository,
     private ticketService: TicketsService,
     private dataSource: DataSource,
     private queueService: QueueService
@@ -214,5 +218,24 @@ export class OrdersService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  async makeOrderFree(orderId: number): Promise<Order> {
+    // orderId로 주문 찾기
+    const order = await this.orderRepository.findById(orderId);
+    order.isFree = true;
+    await this.orderRepository.saveOrder(order);
+    return order;
+  }
+
+  //전체 현황 조회
+  async getReport(): Promise<ReportDto> {
+    const report = {
+      orderReport: await this.orderRepository.getOrderReport(),
+      ticketReport: await this.ticketRepository.getTicketReport(),
+      enterReport: await this.ticketRepository.getEnterReport(),
+      income: await this.orderRepository.getIncome()
+    };
+    return report;
   }
 }
