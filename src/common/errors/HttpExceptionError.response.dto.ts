@@ -26,10 +26,24 @@ export class HttpExceptionErrorResponseDto {
   @Expose()
   statusCode: number;
 
-  constructor(statusCode: number, error: string, message: string) {
+  @ApiProperty({
+    type: String,
+    description: '에러코드가 넘어옵니다. 널값일 수 있습니다!!!',
+    nullable: true
+  })
+  @Expose()
+  code?: string;
+
+  constructor(
+    statusCode: number,
+    error: string,
+    message: string,
+    code?: string
+  ) {
     this.error = error;
     this.statusCode = statusCode;
     this.message = message;
+    this.code = code;
   }
 
   //   @ApiProperty({ type: () => PageMetaDto })

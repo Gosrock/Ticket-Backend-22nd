@@ -15,6 +15,14 @@ export class ValidationErrorResponseDto {
 
   @ApiProperty({
     type: String,
+    description: '밸리데이션 에러는 코드도 ValidationError입니다.',
+    example: 'ValidationError'
+  })
+  @Expose()
+  code = 'ValidationError';
+
+  @ApiProperty({
+    type: String,
     description: '에러메시지',
     example: '검증오류'
   })

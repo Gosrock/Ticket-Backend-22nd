@@ -18,7 +18,7 @@ import { ValidationErrorResponseDto } from '../errors/ValidationError.response.d
 import { CustomValidationError } from '../errors/ValidtionError';
 import { makeInstanceByApiProperty } from '../utils/makeInstanceByApiProperty';
 
-interface ErrorResponseOption {
+export interface ErrorResponseOption {
   /**
    * HttpException을 extend한 에러 타입을 인자로 받습니다.
    * 예시 : BadRequestException
@@ -31,11 +31,15 @@ interface ErrorResponseOption {
   /**
    * 서비스 레이어에서 적었던 오류 메시지를 기술합니다.
    */
-  exampleMessageInfo: string | Record<string, Array<string>>;
+  message: string | Record<string, Array<string>>;
   /**
    * 어떠한 상황일 때 오류가나는지 기술합니다.
    */
   exampleDescription: string;
+  /**
+   * 에러 코드에 대해 기술합니다.
+   */
+  code?: string;
 }
 
 /**
@@ -55,22 +59,21 @@ export const ErrorResponse = (
       let innerErrorDto;
       if (error.model === CustomValidationError) {
         flagValidationErrorExist = true;
-        if (typeof error.exampleMessageInfo === 'string') {
+        if (typeof error.message === 'string') {
           throw Error(
             '검증오류는 넘겨줄때 Record<string, Array<string>> 타입으로 주셔야합니다.'
           );
         }
-        innerErrorDto = new ValidationErrorResponseDto(
-          error.exampleMessageInfo
-        );
+        innerErrorDto = new ValidationErrorResponseDto(error.message);
       } else {
-        if (typeof error.exampleMessageInfo !== 'string') {
+        if (typeof error.message !== 'string') {
           throw Error('http오류는 넘겨줄때 string 타입으로 주셔야합니다.');
         }
         innerErrorDto = new HttpExceptionErrorResponseDto(
           StatusCode,
           error.model.name,
-          error.exampleMessageInfo
+          error.message,
+          error.code
         );
       }
       const commonErrorInstance =
