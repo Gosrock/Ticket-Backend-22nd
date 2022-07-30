@@ -11,7 +11,7 @@ export class RedisService {
     @Inject(Logger) private logger: LoggerService,
     @Inject(REDIS_CLIENT_PROVIDER) private redisClient: RedisClientType
   ) {
-    console.log(redisClient);
+    //console.log(redisClient);
   }
 
   async setWithTTLValidationNumber(

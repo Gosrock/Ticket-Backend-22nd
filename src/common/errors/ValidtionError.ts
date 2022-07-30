@@ -23,10 +23,11 @@ export class CustomValidationError extends HttpException {
       }, {}); // null 값 있을경우 필터링
     super(
       {
-        error: 'Validation Error',
+        error: 'ValidationError',
         message: '검증 오류',
         validationErrorInfo: objectsOfError,
-        statusCode: HttpStatus.BAD_REQUEST
+        statusCode: HttpStatus.BAD_REQUEST,
+        code: 'ValidationError'
       },
       HttpStatus.BAD_REQUEST
     );

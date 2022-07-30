@@ -33,6 +33,7 @@ import { SmsService } from 'src/sms/sms.service';
 import { MessageDto } from 'src/sms/dtos/message.dto';
 import { SlackValidationNumberDMDto } from 'src/slack/dtos/SlackValidationNumberDM.dto';
 import { returnValueToDto } from 'src/common/decorators/returnValueToDto.decorator';
+import { AuthErrorDefine } from './Errors/AuthErrorDefine';
 
 @Injectable()
 export class AuthService {
@@ -50,8 +51,8 @@ export class AuthService {
   async requestPhoneValidationNumber(
     requestPhoneNumberDto: RequestPhoneNumberDto
   ): Promise<ResponseRequestValidationDto> {
-    console.log(this.dataSource);
-    //console.log(test.adf.asdf);
+    //console.log(this.dataSource);
+    ////console.log(test.adf.asdf);
     //TODO : 전화번호 인증번호 발송 로직 추가 , 이찬진 2022.07.14
     const userPhoneNumber = requestPhoneNumberDto.phoneNumber;
     //유저가 이미 회원가입했는지확인한다.
@@ -67,7 +68,10 @@ export class AuthService {
     try {
       await this.smsService.sendMessages([message]);
     } catch (error) {
-      throw new InternalServerErrorException('문자발송 실패');
+      throw new InternalServerErrorException(
+        AuthErrorDefine['Auth-5000'],
+        '네이버 문자발송이 실패할시 보내는 오류'
+      );
     }
 
     // insert to redis
@@ -99,10 +103,16 @@ export class AuthService {
 
     // 인증이 유효하지 않다면
     if (!savedValidationNumber) {
-      throw new BadRequestException('인증번호가 기한만료 되었습니다.');
+      throw new BadRequestException(
+        AuthErrorDefine['Auth-0000'],
+        '인증번호 기한이 만료되었을때 보내는 오류'
+      );
     }
     if (savedValidationNumber !== requestValidateNumberDto.validationNumber) {
-      throw new BadRequestException('인증번호가 일치하지 않습니다.');
+      throw new BadRequestException(
+        AuthErrorDefine['Auth-0001'],
+        '인증 번호가 일치하지 않았을때 보내는 오류'
+      );
     }
     // 회원가입을 한 유저가아니라면 회원가입용 토큰 발급
     if (!checkSingUpState) {
@@ -112,16 +122,16 @@ export class AuthService {
       };
     } else {
       const user = await this.userRepository.findByPhoneNumber(userPhoneNumber);
-      console.log(user);
+      //console.log(user);
       if (!user) {
-        throw new BadRequestException('잘못된 접근');
+        throw new BadRequestException('잘못된 접근', '비정상 접근입니다.');
       }
       const accessToken = this.accessJwtSign({
         id: user.id,
         phoneNumber: user.phoneNumber,
         name: user.name
       });
-      console.log(accessToken);
+      //console.log(accessToken);
 
       return {
         accessToken,
@@ -139,7 +149,10 @@ export class AuthService {
       registerUser.phoneNumber
     );
     if (checkUserAlreadySignUp) {
-      throw new BadRequestException('이미 회원가입한 유저입니다.');
+      throw new BadRequestException(
+        AuthErrorDefine['Auth-0002'],
+        '중복 회원가입 요청할때 발생하는 오류'
+      );
     }
     // 트랜잭션 예시
     // typeOrm 으로 부터 주입받은 dataSource(커넥션 풀) 로부터 쿼리러너를 받고
@@ -196,19 +209,27 @@ export class AuthService {
     );
 
     if (!searchUser) {
-      throw new BadRequestException('가입한 유저나 어드민 유저가 아닙니다.');
+      throw new BadRequestException(
+        AuthErrorDefine['Auth-0003'],
+        '가입한 유저나 어드민 유저가 아닐때 발생하는 오류'
+      );
     }
     if (searchUser.role !== Role.Admin) {
-      throw new BadRequestException('가입한 유저나 어드민 유저가 아닙니다.');
+      throw new BadRequestException(
+        AuthErrorDefine['Auth-0003'],
+        '가입한 유저나 어드민 유저가 아닐때 발생하는 오류'
+      );
     }
     // 레디스에서 전화번호가지고 정보를 빼내온다.
+
     const slaceUserId = await this.slackService.findSlackUserIdByEmail(
       requestAdminSendValidationNumberDto.slackEmail
     );
-    console.log(slaceUserId);
+    //console.log(slaceUserId);
     if (!slaceUserId) {
       throw new BadRequestException(
-        '가입한 슬랙 이메일을 올바르게 입력해 주세요'
+        AuthErrorDefine['Auth-0004'],
+        '슬랙 이메일이 고스락 채널 정보에 없을때 발생하는 오류'
       );
     }
 
@@ -234,13 +255,19 @@ export class AuthService {
         requestAdminLoginDto.slackEmail
       );
     if (!findValidationNumberFromRedis) {
-      throw new BadRequestException('인증 기한이 지났습니다.');
+      throw new BadRequestException(
+        AuthErrorDefine['Auth-0000'],
+        '3분짜리 인증번호 기한이 지났을 때 발생하는 오류입니당.'
+      );
     }
 
     if (
       findValidationNumberFromRedis !== requestAdminLoginDto.validationNumber
     ) {
-      throw new BadRequestException('인증 번호가 맞지 않습니다.');
+      throw new BadRequestException(
+        AuthErrorDefine['Auth-0001'],
+        '인증번호 검증이 알맞지 않을때 발생하는 오류입니다.'
+      );
     }
 
     const searchUser = await this.userRepository.findByPhoneNumber(
@@ -248,10 +275,16 @@ export class AuthService {
     );
 
     if (!searchUser) {
-      throw new BadRequestException('가입한 유저나 어드민 유저가 아닙니다.');
+      throw new BadRequestException(
+        AuthErrorDefine['Auth-0005'],
+        '가입한 유저나 어드민 유저가 아닙니다.'
+      );
     }
     if (searchUser.role !== Role.Admin) {
-      throw new BadRequestException('가입한 유저나 어드민 유저가 아닙니다.');
+      throw new BadRequestException(
+        AuthErrorDefine['Auth-0005'],
+        '가입한 유저나 어드민 유저가 아닙니다.'
+      );
     }
     const accessToken = this.accessJwtSign({ ...searchUser });
     return {
@@ -267,7 +300,7 @@ export class AuthService {
    */
   async checkUserAlreadySignUp(phoneNumber: string): Promise<boolean> {
     const searchUser = await this.userRepository.findByPhoneNumber(phoneNumber);
-    console.log('asdcfasdfasdfdsaf');
+    //console.log('asdcfasdfasdfdsaf');
 
     let checkSingUpState = false;
     if (searchUser) checkSingUpState = true;
@@ -276,7 +309,7 @@ export class AuthService {
 
   private registerJwtSign(payload: RegisterJwtPayload) {
     const secret = this.configService.get(JWTType.REGISTER);
-    console.log(secret, JWTType.REGISTER);
+    //console.log(secret, JWTType.REGISTER);
     return jwt.sign(payload, secret, {
       expiresIn: 60 * 10
     });
@@ -314,8 +347,14 @@ export class AuthService {
       };
     } catch (e) {
       if (e.name === 'TokenExpiredError')
-        throw new UnauthorizedException('기한만료');
-      throw new UnauthorizedException('잘못된 토큰');
+        throw new UnauthorizedException(
+          AuthErrorDefine['Auth-1002'],
+          '토큰 기한만료시 발생되는 에러'
+        );
+      throw new UnauthorizedException(
+        AuthErrorDefine['Auth-1001'],
+        '잘못된 토큰일시 발생되는 에러'
+      );
     }
   }
 
@@ -338,8 +377,14 @@ export class AuthService {
       };
     } catch (e) {
       if (e.name === 'TokenExpiredError')
-        throw new UnauthorizedException('기한만료');
-      throw new UnauthorizedException('잘못된 토큰');
+        throw new UnauthorizedException(
+          AuthErrorDefine['Auth-1002'],
+          '토큰 기한만료시 발생되는 에러'
+        );
+      throw new UnauthorizedException(
+        AuthErrorDefine['Auth-1001'],
+        '잘못된 토큰일시 발생되는 에러'
+      );
     }
   }
 

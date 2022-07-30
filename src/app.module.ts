@@ -29,7 +29,7 @@ import { CommonController } from './app.controller';
           port: Number(configService.get('REDIS_PORT')),
           retryStrategy: times => {
             // check connection
-            console.log('could not connect to redis!');
+            //console.log('could not connect to redis!');
             process.exit(1);
           }
         }

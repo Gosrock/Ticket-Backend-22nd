@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Order } from 'src/database/entities/order.entity';
+import { Ticket } from 'src/database/entities/ticket.entity';
+import { User } from 'src/database/entities/user.entity';
 import { OrderRepository } from 'src/database/repositories/order.repository';
 import { QueueModule } from 'src/queue/queue.module';
 import { TicketsModule } from 'src/tickets/tickets.module';
@@ -9,9 +11,9 @@ import { OrdersService } from './orders.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Order]),
+    TypeOrmModule.forFeature([Order, Ticket, User]),
     TicketsModule,
-    QueueModule,
+    QueueModule
   ],
   controllers: [OrdersController],
   providers: [OrdersService, OrderRepository]

@@ -88,7 +88,7 @@ export class SlackService {
           })
           .pipe(map(response => response.data))
       );
-      console.log(value);
+      //console.log(value);
       return value;
     } catch (error) {
       Logger.log(error);
@@ -161,8 +161,8 @@ export class SlackService {
   async newOrderAlarm(slackNewOrderDto: SlackNewOrderDto) {
     const { orderId, userName, orderTicketCount, orderPrice } =
       slackNewOrderDto;
-    console.log('통과:' + orderId);
-    console.log('');
+    //console.log('통과:' + orderId);
+    //console.log('');
     try {
       const value = await lastValueFrom(
         this.httpService

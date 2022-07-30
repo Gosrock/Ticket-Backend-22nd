@@ -25,7 +25,7 @@ import { TicketsService } from './tickets.service';
       useValue: new Logger('TicketService')
     }
   ],
-  exports: [TicketsService],
+  exports: [TicketsService, TicketRepository],
   controllers: [TicketsController]
 })
 export class TicketsModule {}

@@ -22,7 +22,7 @@ export class SocketService {
       const { uuid } = ticketEntryResponseDto;
       this.userGateway.io.emit(uuid, ticketEntryResponseDto);
     } catch (error) {
-      console.log(error);
+      //console.log(error);
       throw new GatewayTimeoutException('소켓 서버에 연결할 수 없습니다');
     }
   }
@@ -31,7 +31,7 @@ export class SocketService {
     try {
       this.adminGateway.io.emit('enter', ticketEntryResponseDto);
     } catch (error) {
-      console.log(error);
+      //console.log(error);
       throw new GatewayTimeoutException('소켓 서버에 연결할 수 없습니다');
     }
   }

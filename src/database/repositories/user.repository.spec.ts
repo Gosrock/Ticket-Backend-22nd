@@ -41,20 +41,20 @@ describe('userRepository Test ( Actual db )', () => {
   });
 
   beforeEach(async () => {
-    console.log('beforeEach');
+    //console.log('beforeEach');
     await queryRunner.startTransaction();
-    // console.log('start transaction', queryRunner.connection.driver);
+    // //console.log('start transaction', queryRunner.connection.driver);
   });
 
   afterEach(async () => {
-    console.log('afterEach');
+    //console.log('afterEach');
 
     await queryRunner.rollbackTransaction();
-    // console.log('start transaction', queryRunner.connection.driver);
+    // //console.log('start transaction', queryRunner.connection.driver);
   });
 
   afterAll(async () => {
-    console.log('afterAll');
+    //console.log('afterAll');
 
     await queryRunner.release();
     await dataBaseModule.close();
@@ -72,12 +72,12 @@ describe('userRepository Test ( Actual db )', () => {
     user.name = 'asdfasdfasc222';
     user.phoneNumber = '123123123213123';
     if (queryRunner) {
-      console.log(queryRunner.isTransactionActive);
+      //console.log(queryRunner.isTransactionActive);
     }
 
     await userRepository.saveUser(user);
     const users = await userRepository.findAll();
-    console.log(users);
+    //console.log(users);
     // expect(users).resolves.toHaveLength(1);
     return;
   });
