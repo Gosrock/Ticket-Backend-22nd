@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { EnterReportDto } from './enter-report.dto';
 import { OrderReportDto } from './order-report.dto';
 import { TicketReportDto } from './ticket-report.dto';
@@ -9,6 +9,7 @@ export class ReportDto {
     description: '주문 입금 관련 현황',
     type: OrderReportDto
   })
+  @Type(()=> OrderReportDto)
   @Expose()
   orderReport: OrderReportDto;
 
@@ -16,6 +17,7 @@ export class ReportDto {
     description: '티켓 관련 현황',
     type: TicketReportDto
   })
+  @Type(()=> TicketReportDto)
   @Expose()
   ticketReport: TicketReportDto;
 
@@ -23,6 +25,7 @@ export class ReportDto {
     description: '입장 관련 현황',
     type: EnterReportDto
   })
+  @Type(()=> EnterReportDto)
   @Expose()
   enterReport: EnterReportDto;
 

@@ -31,6 +31,7 @@ import { UpdateOrderStatusDto } from './dtos/update-order-status.dto';
 import { OrderReportDto } from './dtos/order-report.dto';
 import { ReportDto } from './dtos/report.dto';
 import { TicketReportDto } from './dtos/ticket-report.dto';
+import { ORDER_CHANNELID } from 'src/slack/config/slack.const';
 
 @Injectable()
 export class OrdersService {
@@ -203,11 +204,13 @@ export class OrdersService {
       await connectedOrder.saveOrder(order);
 
       // 주문에 속한 모든 티켓의 상태, 어드민 변경
-      ticketList.map(async ticket => {
-        ticket.status = ticketStatus;
-        ticket.admin = admin;
-        await connectedTicket.saveTicket(ticket);
-      });
+      await Promise.all(
+        ticketList.map(async ticket => {
+          ticket.status = ticketStatus;
+          ticket.admin = admin;
+          connectedTicket.saveTicket(ticket);
+        })
+      );
 
       await queryRunner.commitTransaction();
       return order;
@@ -229,13 +232,13 @@ export class OrdersService {
   }
 
   //전체 현황 조회
+  @returnValueToDto(ReportDto)
   async getReport(): Promise<ReportDto> {
-    const report = {
+    return {
       orderReport: await this.orderRepository.getOrderReport(),
       ticketReport: await this.ticketRepository.getTicketReport(),
       enterReport: await this.ticketRepository.getEnterReport(),
       income: await this.orderRepository.getIncome()
     };
-    return report;
   }
 }

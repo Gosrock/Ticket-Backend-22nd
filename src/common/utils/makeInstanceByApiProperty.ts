@@ -100,6 +100,13 @@ export function makeInstanceByApiProperty<T>(
   //  mappingDto 를 만듬
   for (const property of properties) {
     const propertyType = property.type;
+    console.log(
+      'fiste',
+      propertyType,
+      property,
+      mappingDto[property.fieldName]
+    );
+
     // property.type apiproperty에 type 을 기술 않할 수 있으므로 undefiend 체크
     if (propertyType) {
       // 이건 커스텀임 generic을 위한 커스텀
@@ -140,7 +147,8 @@ export function makeInstanceByApiProperty<T>(
         console.log('fiste', propertyType, mappingDto[property.fieldName]);
       } else if (isPrimitiveType(propertyType)) {
         // 원시타입 [String, Boolean, Number]
-        console.log('asdfasdfas', propertyType);
+
+        console.log('asdfasdfas', property, propertyType);
         if (typeof property.example !== 'undefined') {
           mappingDto[property.fieldName] = property.example;
         } else {
@@ -149,8 +157,15 @@ export function makeInstanceByApiProperty<T>(
       } else if (isLazyTypeFunc(propertyType as Function | Type<unknown>)) {
         // type: () => PageMetaDto  형태의 lazy
         // 익명함수를 실행시켜 안에 Dto 타입을 가져옵니다.
+
         const constructorType = (propertyType as Function)();
-        if (property.isArray) {
+        console.log('fiste', propertyType, property, constructorType);
+
+        if (Array.isArray(constructorType)) {
+          mappingDto[property.fieldName] = [
+            makeInstanceByApiProperty(constructorType[0])
+          ];
+        } else if (property.isArray) {
           mappingDto[property.fieldName] = [
             makeInstanceByApiProperty(constructorType)
           ];
