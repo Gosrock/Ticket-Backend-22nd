@@ -6,6 +6,9 @@ import { Comment } from '../entities/comment.entity';
 import { User } from '../entities/user.entity';
 import { RequestCommentDto } from 'src/users/dtos/Comment.request.dto';
 import { ResponseCommentDto } from 'src/users/dtos/Comment.response.dto';
+import { ScrollOptionsDto } from 'src/users/dtos/Scroll/ScrollOptions.dto';
+import { ScrollMetaDto } from 'src/users/dtos/Scroll/ScrollMeta.dto';
+import { ResponseScrollCommentDto } from 'src/users/dtos/Scroll/ScrollComment.response.dto';
 
 @Injectable()
 export class CommentRepository {
@@ -30,13 +33,22 @@ export class CommentRepository {
   }
 
   // 응원 댓글 조회
-  async getAllComment(userId: number) {
-    const comments = await this.commentRepository.createQueryBuilder('comment')
+  async getAllComment(userId: number, scrollOptionsDto: ScrollOptionsDto) {
+    const queryBuilder = await this.commentRepository.createQueryBuilder('comment');
+      
+    queryBuilder
       .leftJoinAndSelect('comment.user', 'user')
-      .orderBy('comment.createdAt', "ASC")
-      .getMany()
+      .orderBy('comment.createdAt', "DESC")
+      .skip(scrollOptionsDto.skip)
+      .take(scrollOptionsDto.take);
     
-    return comments;
+    const itemCount = await queryBuilder.getCount();
+    const { entities } = await queryBuilder.getRawAndEntities();
+    console.log(entities);
+    const lastId = entities[entities.length - 1].id;
+    const scrollMetaDto = new ScrollMetaDto(scrollOptionsDto, itemCount, lastId);
+    
+    return new ResponseScrollCommentDto(entities, scrollMetaDto);
   }
 
   // 댓글 삭제

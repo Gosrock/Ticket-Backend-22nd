@@ -11,6 +11,8 @@ import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
 import { ResponseCommentDto } from './dtos/Comment.response.dto';
 import { ResponseUserTicketNumDto } from './dtos/UserTicketNum.response.dto';
 import { PageDto } from 'src/common/dtos/page/page.dto';
+import {ScrollOptionsDto} from './dtos/Scroll/ScrollOptions.dto';
+import {ResponseScrollCommentsDto} from './dtos/Scroll/ScrollComments.response.dto';
 
 @Injectable()
 export class UsersService {
@@ -71,8 +73,9 @@ export class UsersService {
   }
 
   // 모든 댓글 조회
-  async getAllComment(userId: number) {
-    const comments = await this.commentRepository.getAllComment(userId);
+  async getAllComment(userId: number, scrollOptionsDto: ScrollOptionsDto) {
+    const responseScrollCommentDto = await this.commentRepository.getAllComment(userId, scrollOptionsDto);
+    const comments = responseScrollCommentDto.list;
     const ret_comments = comments.map(function(comment) {
       const responseCommentDto = {
         ...comment,
@@ -81,7 +84,8 @@ export class UsersService {
         return responseCommentDto;
       }
     )
-    return plainToInstance(ResponseCommentDto, ret_comments);
+    const final_comments = plainToInstance(ResponseCommentDto, ret_comments);
+    return new ResponseScrollCommentsDto(final_comments, responseScrollCommentDto.meta);
   }
 
   // 댓글 삭제

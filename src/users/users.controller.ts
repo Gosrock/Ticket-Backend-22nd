@@ -18,6 +18,7 @@ import { ResponseCommentDto } from './dtos/Comment.response.dto';
 import { UserProfileDto } from 'src/common/dtos/user-profile.dto';
 import { PageDto } from 'src/common/dtos/page/page.dto';
 import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
+import { ScrollOptionsDto } from './dtos/Scroll/ScrollOptions.dto';
 
 @ApiTags('users')
 @ApiBearerAuth('accessToken')
@@ -104,8 +105,11 @@ export class UsersController {
     type: ResponseCommentDto
   })
   @Get('/comment')
-  async getAllComment(@ReqUser() user: User) {
-    return await this.userService.getAllComment(user.id);
+  async getAllComment(
+    @ReqUser() user: User, 
+    @Query() scrollOptionsDto: ScrollOptionsDto
+  ) {
+    return await this.userService.getAllComment(user.id, scrollOptionsDto);
   }
 
   // 응원 댓글 삭제(관리자용)
