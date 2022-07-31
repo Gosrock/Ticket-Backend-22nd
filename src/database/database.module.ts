@@ -39,7 +39,8 @@ export class DatabaseModule {
             // database: configService.get('POSTGRES_DB'),
             entities: [__dirname + '/../**/*.entity.{js,ts}'],
             synchronize: configService.get('NODE_ENV') === 'dev' ? true : false,
-            logging: configService.get('NODE_ENV') === 'dev' ? true : false
+            logging: configService.get('NODE_ENV') === 'dev' ? true : false,
+            autoLoadEntities: true
           })
         })
       ]

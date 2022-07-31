@@ -2,6 +2,7 @@ import { Global, Inject, Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/database/entities/user.entity';
+import { Comment } from 'src/database/entities/comment.entity';
 import { UserRepository } from 'src/database/repositories/user.repository';
 import { RedisModule } from 'src/redis/redis.module';
 import { SlackModule } from 'src/slack/slack.module';

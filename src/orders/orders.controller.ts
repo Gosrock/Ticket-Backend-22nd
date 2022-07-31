@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -36,6 +37,7 @@ import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
 import { OrderFindDto } from './dtos/order-find.dto';
 import { UpdateOrderStatusDto } from './dtos/update-order-status.dto';
 import { ReportDto } from './dtos/report.dto';
+import { SuccessResponse } from 'src/common/decorators/SuccessResponse.decorator';
 
 @ApiTags('orders')
 @ApiBearerAuth('accessToken')
@@ -86,13 +88,30 @@ export class OrdersController {
   }
 
   @ApiOperation({
-    summary: '[어드민] 해당 조건의 주문을 모두 불러온다'
+    summary: '[어드민] 해당 조건의 주문을 모두 불러온다, querystring으로 전달'
   })
   // @ApiResponse({
   //   status: 200,
   //   description: '요청 성공시',
   //   type: PageDto
   // })
+  @SuccessResponse(HttpStatus.OK, [
+    {
+      model: PageDto,
+      exampleDescription: '페이지가 끝일때',
+      exampleTitle: '페이지가 끝일때',
+      generic: Order,
+      overwriteValue: {
+        meta: { hasNextPage: false }
+      }
+    },
+    {
+      model: PageDto,
+      exampleDescription: '예시',
+      exampleTitle: '예시',
+      generic: Order
+    }
+  ])
   @ApiPaginatedDto({ model: Order, description: '페이지네이션' })
   @Get('/find')
   @Roles(Role.Admin)
@@ -121,7 +140,6 @@ export class OrdersController {
     @Body(OrderIdValidationPipe) updateOrderStatusDto: UpdateOrderStatusDto,
     @ReqUser() admin: User
   ) {
-    console.log(typeof updateOrderStatusDto);
     return this.orderService.updateOrderStatus(updateOrderStatusDto, admin);
   }
 
@@ -138,7 +156,7 @@ export class OrdersController {
     description: '어드민이 아닐 경우'
   })
   @Roles(Role.Admin)
-  @Patch('/free/:orderId')
+  @Patch('/:orderId/free')
   makeOrderFree(
     @Param('orderId', OrderIdValidationPipe) orderId: number
   ): Promise<Order> {
