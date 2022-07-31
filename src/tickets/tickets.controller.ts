@@ -34,6 +34,8 @@ import { TicketFindDto } from './dtos/ticket-find.dto';
 import { UpdateTicketStatusDto } from './dtos/update-ticket-status.dto';
 import { SuccessResponse } from 'src/common/decorators/SuccessResponse.decorator';
 import { PageDto } from 'src/common/dtos/page/page.dto';
+import { NoAuth } from 'src/auth/guards/NoAuth.guard';
+import { TicketCountDto } from './dtos/ticket-count.dto';
 
 @ApiTags('tickets')
 @ApiBearerAuth('accessToken')
@@ -142,6 +144,21 @@ export class TicketsController {
   }
 
   @ApiOperation({
+    summary: '[랜딩페이지] 티켓 개수를 반환한다'
+  })
+  @ApiResponse({
+    status: 200,
+    description: '요청 성공시',
+    type: TicketCountDto
+  })
+  @NoAuth()
+  @Get('/count')
+  async getTicketCount() {
+    const count = await this.ticketService.countTicket();
+    return { count: count };
+  }
+
+  @ApiOperation({
     summary: '해당 uuid를 포함하는 티켓을 가져온다, req.user 필요'
   })
   @ApiResponse({
@@ -221,7 +238,7 @@ export class TicketsController {
     description: '어드민이 아닐 경우'
   })
   @Roles(Role.Admin)
-  @Delete('/delete/:uuid')
+  @Delete('/:uuid/delete')
   deleteTicketByUuid(@Param('uuid') ticketUuid: string) {
     return this.ticketService.deleteTicketByUuid(ticketUuid);
   }
