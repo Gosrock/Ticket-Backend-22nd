@@ -20,6 +20,11 @@ export class AccessTokenGuard implements CanActivate {
   canActivate(
     context: ExecutionContext
   ): boolean | Promise<boolean> | Observable<boolean> {
+    //@NoAuth 사용시 해당 부분에서 AccessTokenGuard 사용 해제시킴
+    const noAuth = this.reflector.get<boolean>('no-auth', context.getHandler())
+    if (noAuth) {
+      return true;
+    }
     const request = context.switchToHttp().getRequest();
     return this.validateRequest(request, context);
   }
