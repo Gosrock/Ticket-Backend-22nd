@@ -111,7 +111,7 @@ export class TicketsController {
       model: PageDto,
       exampleDescription: '예시',
       exampleTitle: '예시',
-      generic: Ticket
+      generic: Order
     }
   ])
   @Get('/find')
