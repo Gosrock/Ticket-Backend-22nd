@@ -41,19 +41,36 @@ export class CommentRepository {
 
   // 응원 댓글 조회
   async getAllComment(userId: number, scrollOptionsDto: ScrollOptionsDto) {
+    var { lastId } = scrollOptionsDto;
     const queryBuilder = await this.commentRepository.createQueryBuilder('comment');
-      
+    // 한 번에 조회하는 댓글 수
+    const take = 20;
+    
     queryBuilder
       .leftJoinAndSelect('comment.user', 'user')
       .orderBy('comment.createdAt', "DESC")
-      .skip(scrollOptionsDto.skip)
-      .take(scrollOptionsDto.take);
+      .where('comment.id < :lastId', {lastId : lastId})
+      .limit(take);
     
     const itemCount = await queryBuilder.getCount();
     const { entities } = await queryBuilder.getRawAndEntities();
-    console.log(entities);
-    const lastId = entities[entities.length - 1].id;
-    const scrollMetaDto = new ScrollMetaDto(scrollOptionsDto, itemCount, lastId);
+    // ScrollMetaDto의 인자 값 : checkLastId, lastPage
+    var checkLastId = 0;
+    var lastPage = false;
+    // lastId값 초기화
+    if (itemCount < 1) {
+      checkLastId = 0;
+    } else {
+      checkLastId = entities[entities.length - 1].id;
+    }
+    // 마지막 페이지인지 확인
+    if (itemCount < take) {
+      lastPage = true;
+    } else {
+      lastPage = false;
+    }
+
+    const scrollMetaDto = new ScrollMetaDto(scrollOptionsDto, checkLastId, lastPage);
     
     return new ResponseScrollCommentDto(entities, scrollMetaDto);
   }

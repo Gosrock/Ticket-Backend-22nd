@@ -1,33 +1,9 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
 import { IsInt, IsOptional, Max, Min } from 'class-validator';
 
 export class ScrollOptionsDto {
-  @ApiPropertyOptional({
-    minimum: 1,
-    default: 1
-  })
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  @IsOptional()
+  @ApiProperty({ description: '현재 페이지의 마지막 id', nullable: true })
   @Expose()
-  readonly page: number = 1;
-
-  @ApiPropertyOptional({
-    minimum: 1,
-    maximum: 50,
-    default: 20
-  })
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  @Max(50)
-  @IsOptional()
-  @Expose()
-  readonly take: number = 10;
-
-  get skip(): number {
-    return (this.page - 1) * this.take;
-  }
+  readonly lastId: number;
 }
