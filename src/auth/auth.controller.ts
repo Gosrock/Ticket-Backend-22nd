@@ -1,12 +1,26 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  InternalServerErrorException,
+  Post,
+  UseGuards
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiExtraModels,
   ApiOperation,
+  ApiPropertyOptions,
   ApiResponse,
-  ApiTags
+  ApiTags,
+  getSchemaPath,
+  refs
 } from '@nestjs/swagger';
 import { RegisterUser } from 'src/common/decorators/registerUser.decorator';
+import { makeInstanceByApiProperty } from 'src/common/utils/makeInstanceByApiProperty';
 import { User } from 'src/database/entities/user.entity';
 import { RegisterJwtPayload } from './auth.interface';
 import { AuthService } from './auth.service';
@@ -19,9 +33,14 @@ import { RequestRegisterUserDto } from './dtos/RegisterUser.request.dto';
 import { ResponseRegisterUserDto } from './dtos/RegisterUser.response.dto';
 import { ResponseRequestValidationDto } from './dtos/RequestValidation.response.dto';
 import { RequestValidateNumberDto } from './dtos/ValidateNumber.request.dto';
-import { ResponseValidateNumberDto } from './dtos/ValidateNumber.response.dto';
 import { RegisterTokenGuard } from './guards/RegisterToken.guard';
 import { ThrottlerBehindProxyGuard } from './guards/TrottlerBehindProxy.guard';
+import { FirstReigsterDto } from './dtos/FirstRegister.response.dto copy';
+import { LoginResponseDto } from './dtos/Login.response.dto';
+import { ErrorResponse } from 'src/common/decorators/ErrorResponse.decorator';
+import { ThrottlerException } from '@nestjs/throttler';
+import { SuccessResponse } from 'src/common/decorators/SuccessResponse.decorator';
+import { AuthErrorDefine } from './Errors/AuthErrorDefine';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -31,15 +50,30 @@ export class AuthController {
   @UseGuards(ThrottlerBehindProxyGuard)
   @ApiOperation({ summary: '휴대전화번호 인증번호를 요청한다.' })
   @ApiBody({ type: RequestPhoneNumberDto })
-  @ApiResponse({
-    status: 200,
-    description: '요청 성공시',
-    type: ResponseRequestValidationDto
-  })
-  @ApiResponse({
-    status: 429,
-    description: '과도한 요청을 보낼시에'
-  })
+  @SuccessResponse(HttpStatus.OK, [
+    {
+      model: ResponseRequestValidationDto,
+      overwriteValue: {
+        alreadySingUp: true
+      },
+      exampleDescription:
+        '이미 가입한 사람이 요청번호를 보내면 alreadySingUp 이 true 입니다.',
+      exampleTitle: '인증번호-이미가입한사람'
+    },
+    {
+      model: ResponseRequestValidationDto,
+      overwriteValue: {
+        alreadySingUp: false
+      },
+      exampleDescription:
+        '처음 회원가입한 사람이 요청번호를 보내면 alreadySingUp 이 false 입니다.',
+      exampleTitle: '인증번호-처음회원가입'
+    }
+  ])
+  @ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, [
+    AuthErrorDefine['Auth-5000']
+  ])
+  @ErrorResponse(HttpStatus.TOO_MANY_REQUESTS, [AuthErrorDefine['Auth-9000']])
   @Post('message/send')
   async requestPhoneValidationNumber(
     @Body() requestPhoneNumberDto: RequestPhoneNumberDto
@@ -52,16 +86,27 @@ export class AuthController {
 
   @ApiOperation({ summary: '휴대전화번호 인증번호를 검증한다.' })
   @ApiBody({ type: RequestValidateNumberDto })
-  @ApiResponse({
-    status: 200,
-    description: '요청 성공시',
-    type: ResponseValidateNumberDto
-  })
+  @SuccessResponse(HttpStatus.OK, [
+    {
+      model: FirstReigsterDto,
+      exampleDescription:
+        '리턴된 registerToken을 Bearer <registerToken> 형식으로 집어넣으시면됩니다.',
+      exampleTitle: '최초 (회원가입 안한 유저일때 )'
+    },
+    {
+      model: LoginResponseDto,
+      exampleDescription: '이미 회원가입한 유저면 accessToken을 발급합니다.',
+      exampleTitle: '이미 회원가입한 유저일때'
+    }
+  ])
+  @ErrorResponse(HttpStatus.BAD_REQUEST, [
+    AuthErrorDefine['Auth-0000'],
+    AuthErrorDefine['Auth-0001']
+  ])
   @Post('message/validate')
   async validationPhoneNumber(
     @Body() requestValidateNumberDto: RequestValidateNumberDto
   ) {
-    // findOneByUserId
     return await this.authService.validationPhoneNumber(
       requestValidateNumberDto
     );
@@ -70,12 +115,19 @@ export class AuthController {
   @ApiBearerAuth('registerToken')
   @ApiOperation({ summary: '회원가입한다.' })
   @ApiBody({ type: RequestRegisterUserDto })
-  @ApiResponse({
-    status: 200,
-    description: '요청 성공시',
-    type: ResponseRegisterUserDto
-  })
+  @SuccessResponse(HttpStatus.OK, [
+    {
+      model: ResponseRegisterUserDto,
+      overwriteValue: {
+        accessToken: '어 세 스 토 큰 임니다',
+        user: { id: '고유 아이디입니당 ' }
+      },
+      exampleDescription: '설명',
+      exampleTitle: '회원가입-성공'
+    }
+  ])
   @UseGuards(RegisterTokenGuard)
+  @ErrorResponse(HttpStatus.BAD_REQUEST, [AuthErrorDefine['Auth-0002']])
   @Post('register')
   async registerUser(
     @RegisterUser() registerUser: RegisterJwtPayload,
@@ -95,14 +147,11 @@ export class AuthController {
     description: '요청 성공시',
     type: ResponseAdminSendValidationNumberDto
   })
-  @ApiResponse({
-    status: 400,
-    description: '슬랙에 들어와있는 유저가 아닐때 , 어드민 유저가 아닐 때'
-  })
-  @ApiResponse({
-    status: 429,
-    description: '과도한 요청을 보낼시에'
-  })
+  @ErrorResponse(HttpStatus.BAD_REQUEST, [
+    AuthErrorDefine['Auth-0003'],
+    AuthErrorDefine['Auth-0004']
+  ])
+  @ErrorResponse(HttpStatus.TOO_MANY_REQUESTS, [AuthErrorDefine['Auth-9000']])
   @ApiBody({ type: RequestAdminSendValidationNumberDto })
   @Post('/slack/send')
   async slackSendValidationNumber(
@@ -121,11 +170,12 @@ export class AuthController {
     description: '요청 성공시 로그인 처리',
     type: ResponseAdminLoginDto
   })
-  @ApiResponse({
-    status: 400,
-    description: 'send 요청을 보낸 사용자가 아닐때 또는 인증번호가 잘못되었을때'
-  })
   @ApiBody({ type: RequestAdminLoginDto })
+  @ErrorResponse(HttpStatus.BAD_REQUEST, [
+    AuthErrorDefine['Auth-0000'],
+    AuthErrorDefine['Auth-0001'],
+    AuthErrorDefine['Auth-0005']
+  ])
   @Post('/slack/validation')
   async slackLoginUser(
     @Body()

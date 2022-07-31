@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose, Transform } from 'class-transformer';
-import { Role } from 'src/common/consts/enum';
+import { Role } from '../../common/consts/enum';
 
 import {
   Column,
@@ -48,7 +48,7 @@ export class Comment {
 
   @ApiProperty({
     description: '응원 코멘트 생성 일자',
-    type: Date
+    type: String
   })
   @Expose()
   @CreateDateColumn()

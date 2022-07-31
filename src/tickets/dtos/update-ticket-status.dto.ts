@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsEnum, IsNumber, IsString } from 'class-validator';
-import { TicketStatus } from '../consts/enum';
+import { IsEnum, IsNumber } from 'class-validator';
+import { TicketStatus } from 'src/common/consts/enum';
 
 export class UpdateTicketStatusDto {
   @ApiProperty({ description: '티켓 아이디', type: Number })

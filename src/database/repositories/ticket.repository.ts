@@ -4,14 +4,15 @@ import {
   UnauthorizedException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Role } from 'src/common/consts/enum';
-import { CreateTicketDto } from 'src/common/dtos/create-ticket.dto';
+import { Role, TicketStatus } from 'src/common/consts/enum';
 import { PageMetaDto } from 'src/common/dtos/page/page-meta.dto';
 import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
 import { PageDto } from 'src/common/dtos/page/page.dto';
 import { PagingDto } from 'src/common/dtos/paging.dto';
-import { TicketFindDto } from 'src/common/dtos/ticket-find.dto';
-import { UpdateTicketStatusDto } from 'src/common/dtos/update-ticket-status.dto';
+import { EnterReportDto } from 'src/orders/dtos/enter-report.dto';
+import { TicketReportDto } from 'src/orders/dtos/ticket-report.dto';
+import { CreateTicketDto } from 'src/tickets/dtos/create-ticket.dto';
+import { TicketFindDto } from 'src/tickets/dtos/ticket-find.dto';
 
 import { Repository } from 'typeorm';
 import { Ticket } from '../entities/ticket.entity';
@@ -32,7 +33,8 @@ export class TicketRepository {
     const ticket = await this.ticketRepository.findOne({
       where: {
         id: ticketId
-      }
+      },
+      relations: ['user']
     });
 
     if (!ticket) {
@@ -118,7 +120,7 @@ export class TicketRepository {
 
     const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
 
-    console.log(1);
+    //console.log(1);
     return new PageDto(entities, pageMetaDto);
   }
 
@@ -134,36 +136,24 @@ export class TicketRepository {
   }
 
   /**
-   * 해당 ticketId를 참조하여 Ticket 엔티티의 status를 변경하고 DB에 저장한다
-   * @param ticketId Ticket의 id
-   * @param status 변경하고자 하려는 상태
-   * @param admin 변경하려는 어드민 정보
+   *
+   * @param orderId 조회할 주문id
+   * @returns 해당 주문에 속한 Ticket 배열
    */
-  async updateStatus(
-    updateTicketStatus: UpdateTicketStatusDto,
-    admin: User
-  ): Promise<Ticket> {
-    const { ticketId, status } = updateTicketStatus;
-    const ticket = await this.ticketRepository.findOne({
-      where: {
-        id: ticketId
-      }
-    });
+  async findAllByOrderId(orderId: number): Promise<Ticket[]> {
+    return await this.ticketRepository
+      .createQueryBuilder('ticket')
+      .where({ order: orderId })
+      .getMany();
+  }
 
-    if (!ticket) {
-      throw new NotFoundException(`Can't find Tickets with id: ${ticketId}`);
-    }
-
-    try {
-      ticket.status = status;
-      ticket.admin = admin;
-
-      await this.ticketRepository.save(ticket);
-    } catch (error) {
-      console.log(`Error occurs in updateStatus: ${error}`);
-    }
-
-    return ticket;
+  /**
+   * 해당 티켓을 저장한다
+   * @param ticket 저장할 티켓
+   */
+  async saveTicket(ticket: Ticket): Promise<Ticket> {
+    const savedTicket = await this.ticketRepository.save(ticket);
+    return savedTicket;
   }
 
   /**
@@ -174,8 +164,6 @@ export class TicketRepository {
    */
   async createTicket(createTicketDto: CreateTicketDto): Promise<Ticket> {
     const { user, order, date } = createTicketDto;
-
-    //order = orderRepository.findOne(order)
 
     const ticket = this.ticketRepository.create({
       date: date,
@@ -249,5 +237,43 @@ export class TicketRepository {
         this.deleteTicketById(ticket.id);
       });
     });
+  }
+
+  /**
+   * 링크 발급된 총 티켓 수, 입금 확인된 티켓 수
+   * @returns 티켓 관련 현황
+   */
+  async getTicketReport(): Promise<TicketReportDto> {
+    const queryBuilder = this.ticketRepository.createQueryBuilder('ticket');
+
+    queryBuilder.select('ticket.id');
+
+    const ticketReportDto = {
+      totalTicket: await queryBuilder.getCount(),
+      depositedTicket: await queryBuilder
+        .where({ status: TicketStatus.ENTERWAIT || TicketStatus.DONE })
+        .getCount()
+    };
+    return ticketReportDto;
+  }
+
+  /**
+   * 입금 확인된 티켓(입장 가능) 기준으로 count
+   * @returns 입장 관련 현황
+   */
+  async getEnterReport(): Promise<EnterReportDto> {
+    const queryBuilder = this.ticketRepository.createQueryBuilder('ticket');
+
+    queryBuilder.select('ticket.id');
+
+    const enterReportDto = {
+      enteredTicket: await queryBuilder
+        .where({ status: TicketStatus.DONE })
+        .getCount(),
+      nonEnteredTicket: await queryBuilder
+        .where({ status: TicketStatus.ENTERWAIT })
+        .getCount()
+    };
+    return enterReportDto;
   }
 }

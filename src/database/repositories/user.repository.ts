@@ -20,7 +20,7 @@ export class UserRepository {
   }
 
   async findByPhoneNumber(phoneNumber: string): Promise<User | null> {
-    console.log('phoneNumber', phoneNumber);
+    //console.log('phoneNumber', phoneNumber);
     let users;
     try {
       users = await this.userRepository.findOne({
@@ -29,7 +29,7 @@ export class UserRepository {
         }
       });
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     }
 
     return users;
@@ -77,7 +77,7 @@ export class UserRepository {
     queryBuilder
       .orderBy('user.createdAt', pageOptionsDto.order)
       .leftJoin('user.ticket', 'ticket')
-      .addSelect(['Count(ticket) AS ticket'])
+      .addSelect('ticket')
       .skip(pageOptionsDto.skip)
       .take(pageOptionsDto.take);
     

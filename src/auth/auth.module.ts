@@ -1,4 +1,4 @@
-import { Inject, Logger, Module } from '@nestjs/common';
+import { Global, Inject, Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/database/entities/user.entity';
@@ -14,6 +14,7 @@ import { AuthService } from './auth.service';
 import { AccessTokenGuard } from './guards/AccessToken.guard';
 import { RegisterTokenGuard } from './guards/RegisterToken.guard';
 
+@Global()
 @Module({
   imports: [
     SmsModule.forRootAsync({
@@ -24,22 +25,7 @@ import { RegisterTokenGuard } from './guards/RegisterToken.guard';
       inject: [ConfigService]
     }),
     UsersModule,
-    TypeOrmModule.forFeature([User, Comment]),
-    RedisModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        isTest: false,
-        logging: false,
-        redisConnectOption: {
-          url:
-            'redis://' +
-            configService.get('REDIS_HOST') +
-            ':' +
-            configService.get('REDIS_PORT')
-        }
-      }),
-      inject: [ConfigService]
-    })
+    TypeOrmModule.forFeature([User])
   ],
   controllers: [AuthController],
   providers: [

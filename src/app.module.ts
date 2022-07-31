@@ -15,37 +15,11 @@ import { DatabaseModule } from './database/database.module';
 import { UsersModule } from './users/users.module';
 import { SmsModule } from './sms/sms.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { CustomConfigModule } from './config/customConfig.module';
+import { CommonController } from './app.controller';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      validationSchema: Joi.object({
-        NODE_ENV: Joi.string()
-          .valid('dev', 'prod', 'test', 'provision')
-          .default('dev'),
-        PORT: Joi.number().default(8080),
-        ACCESS_SECRET: Joi.string(),
-        REGISTER_SECRET: Joi.string(),
-        SWAGGER_USER: Joi.string(),
-        SWAGGER_PASSWORD: Joi.string(),
-        REDIS_HOST: Joi.string(),
-        REDIS_PORT: Joi.number(),
-        POSTGRES_HOST: Joi.string().default('localhost'),
-        POSTGRES_PORT: Joi.number().default(5432),
-        POSTGRES_USER: Joi.string().default('gosrock'),
-        POSTGRES_PASSWORD: Joi.string().default('gosrock22th'),
-        POSTGRES_DB: Joi.string().default('ticket'),
-        SLACK_ORDER_CHANNELID: Joi.string(),
-        SLACK_ADMIN_CHANNELID: Joi.string(),
-        SLACK_BOT_TOKEN: Joi.string(),
-        SLACK_BACKEND_CHANNELID: Joi.string(),
-        NAVER_SERVICE_ID: Joi.string(),
-        NAVER_ACCESS_KEY: Joi.string(),
-        NAVER_SECRET_KEY: Joi.string(),
-        NAVER_CALLER: Joi.string()
-      })
-    }),
     BullModule.forRootAsync({
       imports: [ConfigModule],
 
@@ -55,7 +29,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
           port: Number(configService.get('REDIS_PORT')),
           retryStrategy: times => {
             // check connection
-            console.log('could not connect to redis!');
+            //console.log('could not connect to redis!');
             process.exit(1);
           }
         }
@@ -74,6 +48,22 @@ import { ThrottlerModule } from '@nestjs/throttler';
     ThrottlerModule.forRoot({
       ttl: process.env.NODE_ENV === 'prod' ? 300 : 60,
       limit: 3
+    }),
+    CustomConfigModule,
+    RedisModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        isTest: false,
+        logging: false,
+        redisConnectOption: {
+          url:
+            'redis://' +
+            configService.get('REDIS_HOST') +
+            ':' +
+            configService.get('REDIS_PORT')
+        }
+      }),
+      inject: [ConfigService]
     })
   ],
 
@@ -82,6 +72,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
       provide: APP_FILTER,
       useClass: AllExceptionsFilter
     }
-  ]
+  ],
+  controllers: [CommonController]
 })
 export class AppModule {}

@@ -18,7 +18,7 @@ export class SmsService {
    * @param messages  MessageDto[]를 인자로 받습니다. 단건 메시지인경우 [MessageDto] 로 보내시면됩니다.
    * @returns 리턴값이 없습니다.
    */
-  async sendMessages(messages: MessageDto[]) {
+  async sendMessages(messages: MessageDto[]): Promise<void> {
     const serviceId = this.configService.get('NAVER_SERVICE_ID');
     const caller = this.configService.get('NAVER_CALLER');
     const sendSmsDto = new SendSMSDto(caller, messages);
@@ -26,7 +26,6 @@ export class SmsService {
     const signature = this.makeSignature(serviceId, 'POST', date);
 
     Logger.log('실제 문자메시지 전송' + JSON.stringify(messages), 'SmsService');
-
     try {
       const data = await lastValueFrom(
         this.httpService
@@ -38,10 +37,6 @@ export class SmsService {
           })
           .pipe(map(response => response.data))
       );
-
-      if (data.ok !== true) {
-        return null;
-      }
     } catch (error) {
       Logger.log(error.response.data);
       throw new NaverError('문자발송실패', error.response.data);

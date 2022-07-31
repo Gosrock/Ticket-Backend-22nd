@@ -1,14 +1,11 @@
 import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { Ticket } from 'src/database/entities/ticket.entity';
-import { UserProfileDto } from './user-profile.dto';
 
 export class CreateTicketDto extends PickType(PartialType(Ticket), [
   'date',
   'order',
-  'user',
-  'createdAt',
-  'updatedAt'
+  'user'
 ] as const) {
   // @ApiProperty({
   //   description: '주문한 유저에 대한 정보입니다.',

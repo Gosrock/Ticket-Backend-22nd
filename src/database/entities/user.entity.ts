@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
-import { Role } from 'src/common/consts/enum';
+import { Role } from '../../common/consts/enum';
 import {
   Column,
   CreateDateColumn,
@@ -73,7 +73,7 @@ export class User {
 
   @ApiProperty({
     description: '유저 생성 일자',
-    type: Date
+    type: String
   })
   @Expose()
   @CreateDateColumn()

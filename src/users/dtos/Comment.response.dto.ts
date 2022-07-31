@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Expose, Exclude } from 'class-transformer';
 import { User } from 'src/database/entities/user.entity';
 
 export class ResponseCommentDto {
@@ -23,7 +23,17 @@ export class ResponseCommentDto {
   @Expose()
   createdAt: Date;
 
-  @ApiProperty({ description: '본인 댓글 확인 정보', type: String})
+  @Exclude({ toPlainOnly: true })
+  @Expose({ toClassOnly: true })
+  iUserId: number;
+
+  @ApiProperty({ description: '본인 댓글 확인 정보', type: Boolean })
   @Expose()
-  iComment: string;
+  get iComment(): boolean {
+    if (this.user.id === this.iUserId){
+      return true;
+    } else {
+      return false;
+    }
+  } ;
 }

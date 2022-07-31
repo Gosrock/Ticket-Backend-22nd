@@ -7,8 +7,13 @@ import {
   UnauthorizedException,
   Logger
 } from '@nestjs/common';
+import { ThrottlerException } from '@nestjs/throttler';
 import { Request, Response } from 'express';
+import { AuthErrorDefine } from 'src/auth/Errors/AuthErrorDefine';
 import { SlackService } from 'src/slack/slack.service';
+import { ErrorCommonResponse } from '../errors/ErrorCommonResponse.dto';
+import { HttpExceptionErrorResponseDto } from '../errors/HttpExceptionError.response.dto';
+import { CustomValidationError } from '../errors/ValidtionError';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -19,14 +24,42 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     let statusCode: number;
-    let error: any;
+    let error: HttpExceptionErrorResponseDto;
 
-    if (exception instanceof UnauthorizedException) {
+    if (exception instanceof ThrottlerException) {
+      statusCode = 429;
+      error = {
+        code: AuthErrorDefine['Auth-9000'].code,
+        message: AuthErrorDefine['Auth-9000'].message as string,
+        error: ThrottlerException.name,
+        statusCode: 429
+      };
+    } else if (exception instanceof CustomValidationError) {
       statusCode = exception.getStatus();
-      error = exception.getResponse();
+      const getError = exception.getResponse();
+      const objError = getError as HttpExceptionErrorResponseDto;
+      error = {
+        ...objError
+      };
     } else if (exception instanceof HttpException) {
       statusCode = exception.getStatus();
-      error = exception.getResponse();
+      const getError = exception.getResponse();
+      if (typeof getError === 'string') {
+        error = {
+          error: exception.name,
+          message: getError,
+          statusCode: statusCode
+        };
+      } else {
+        // 에러 코드화를 진행할 부분
+        const objError = getError as HttpExceptionErrorResponseDto;
+        error = {
+          code: objError.code,
+          message: objError.message,
+          error: exception.name,
+          statusCode: statusCode
+        };
+      }
     } else {
       statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
       // error = 'Internal server error';
@@ -55,12 +88,14 @@ export class AllExceptionsFilter implements ExceptionFilter {
       return response.status(statusCode).json(errorResponse);
     }
 
-    const errorResponse = {
-      statusCode,
+    // //console.log(error);
+
+    const errorResponse: ErrorCommonResponse<HttpExceptionErrorResponseDto> = {
+      statusCode: statusCode,
       timestamp: new Date(),
       path: request.url,
       method: request.method,
-      error: error || null
+      error: error
     };
 
     Logger.warn('errorResponse', JSON.stringify(errorResponse));

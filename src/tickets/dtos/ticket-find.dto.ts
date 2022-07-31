@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { IsEnum, IsOptional } from 'class-validator';
-import { PerformanceDate, TicketStatus } from '../consts/enum';
+import { TicketStatus, PerformanceDate } from 'src/common/consts/enum';
 
 export class TicketFindDto {
   @ApiProperty({
