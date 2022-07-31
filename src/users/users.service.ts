@@ -5,6 +5,9 @@ import { UserRepository } from 'src/database/repositories/user.repository';
 import { RequestUserNameDto } from './dtos/UserName.request.dto';
 import { CommentRepository } from 'src/database/repositories/comment.repository';
 import { RequestCommentDto } from './dtos/Comment.request.dto';
+import { plainToInstance } from 'class-transformer';
+import { UserProfileDto } from 'src/common/dtos/user-profile.dto';
+import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
 
 @Injectable()
 export class UsersService {
@@ -19,7 +22,8 @@ export class UsersService {
   // 본인 유저 정보 조회
   async getMyInfo(user: User) {
     Logger.log(user);
-    return await this.userRepository.getMyInfo(user);
+    const myInfo = await this.userRepository.getMyInfo(user);
+    return plainToInstance(UserProfileDto, myInfo);
   }
 
   async findUserById(id: number): Promise<User | null> {
@@ -34,8 +38,8 @@ export class UsersService {
 
   
   // 유저 정보 조회(관리자용) 전체 정보 조회
-  async getAllUserInfo() {
-    return await this.userRepository.getAllUserInfo();
+  async getAllUserInfo(pageOptionsDto: PageOptionsDto) {
+    return await this.userRepository.getAllUserInfo(pageOptionsDto);
   }
 
   // 입금자명 수정

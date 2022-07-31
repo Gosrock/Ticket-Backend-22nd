@@ -2,9 +2,11 @@ import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/commo
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from 'src/common/consts/enum';
 import { Repository } from 'typeorm';
-import { Ticket } from '../entities/ticket.entity';
 import { User } from '../entities/user.entity';
 import { RequestUserNameDto } from 'src/users/dtos/UserName.request.dto';
+import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
+import { PageMetaDto } from 'src/common/dtos/page/page-meta.dto';
+import { PageDto } from 'src/common/dtos/page/page.dto';
 
 @Injectable()
 export class UserRepository {
@@ -69,8 +71,22 @@ export class UserRepository {
 
 
   // 유저 정보 조회(관리자용) 전체 정보 조회
-  async getAllUserInfo() {
-    return await this.userRepository.find();    
+  async getAllUserInfo(pageOptionsDto: PageOptionsDto) {
+    const queryBuilder = this.userRepository.createQueryBuilder('user');
+
+    queryBuilder
+      .orderBy('user.createdAt', pageOptionsDto.order)
+      .leftJoin('user.ticket', 'ticket')
+      .addSelect(['Count(ticket) AS ticket'])
+      .skip(pageOptionsDto.skip)
+      .take(pageOptionsDto.take);
+    
+    const itemCount = await queryBuilder.getCount();
+    const { entities } = await queryBuilder.getRawAndEntities();
+
+    const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto })
+    
+    return new PageDto(entities, pageMetaDto);    
   }
 
   // 입금자명 수정

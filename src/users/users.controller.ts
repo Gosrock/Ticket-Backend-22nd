@@ -15,6 +15,9 @@ import { RequestUserNameDto } from './dtos/UserName.request.dto';
 import { UsersService } from './users.service';
 import { RequestCommentDto } from './dtos/Comment.request.dto';
 import { ResponseCommentDto } from './dtos/Comment.response.dto';
+import { UserProfileDto } from 'src/common/dtos/user-profile.dto';
+import { PageDto } from 'src/common/dtos/page/page.dto';
+import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
 
 @ApiTags('users')
 @ApiBearerAuth('accessToken')
@@ -27,7 +30,7 @@ export class UsersController {
   @ApiResponse({
     status: 200,
     description: '요청 성공시',
-    type: User
+    type: UserProfileDto
   })
   @Get('')
   async getMyUserInfo(@ReqUser() user: User) {
@@ -60,12 +63,12 @@ export class UsersController {
   @ApiResponse({
     status: 200,
     description: '요청 성공시',
-    type: User
+    type: PageDto
   })
   @Roles(Role.Admin)
   @Get('/all')
-  async getAllUserInfo() {
-    return await this.userService.getAllUserInfo();
+  async getAllUserInfo(@Query() pageOptionsDto: PageOptionsDto) {
+    return await this.userService.getAllUserInfo(pageOptionsDto);
   }
 
   // 입금자명 수정
