@@ -90,11 +90,28 @@ export class OrdersController {
   @ApiOperation({
     summary: '[어드민] 해당 조건의 주문을 모두 불러온다, querystring으로 전달'
   })
-  @ApiResponse({
-    status: 200,
-    description: '요청 성공시',
-    type: PageDto
-  })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: '요청 성공시',
+  //   type: PageDto
+  // })
+  @SuccessResponse(HttpStatus.OK, [
+    {
+      model: PageDto,
+      exampleDescription: '페이지가 끝일때',
+      exampleTitle: '페이지가 끝일때',
+      generic: Order,
+      overwriteValue: {
+        meta: { hasNextPage: false }
+      }
+    },
+    {
+      model: PageDto,
+      exampleDescription: '예시',
+      exampleTitle: '예시',
+      generic: Order
+    }
+  ])
   @ApiPaginatedDto({ model: Order, description: '페이지네이션' })
   @Get('/find')
   @Roles(Role.Admin)
