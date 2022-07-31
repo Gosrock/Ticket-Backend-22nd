@@ -33,7 +33,7 @@ export class Order {
   })
   @Expose()
   @Column({
-    type: 'enum',
+    // type: 'enum',
     enum: OrderDate
   })
   public selection: OrderDate;
@@ -53,7 +53,7 @@ export class Order {
   @MaxLength(10)
   @Expose()
   @Column({
-    type: 'enum',
+    // type: 'enum',
     enum: OrderStatus,
     default: OrderStatus.WAIT
   })
