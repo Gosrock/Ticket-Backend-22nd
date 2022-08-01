@@ -24,4 +24,12 @@ export class QueueConsumer {
     const newOrderDto = job.data;
     await this.slackService.newOrderAlarm(newOrderDto);
   }
+
+  @Process('updateOrderStatus')
+  async handleUpdateOrderStatus(job: Job) {
+    const slackOrderStateChangeDto = job.data;
+    await this.slackService.orderStateChangedByAdminEvent(
+      slackOrderStateChangeDto
+    );
+  }
 }

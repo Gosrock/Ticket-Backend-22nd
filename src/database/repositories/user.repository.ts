@@ -1,9 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Role } from 'src/common/consts/enum';
 import { Repository } from 'typeorm';
-import { Ticket } from '../entities/ticket.entity';
 import { User } from '../entities/user.entity';
+import { RequestUserNameDto } from 'src/users/dtos/UserName.request.dto';
+import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
+import { PageMetaDto } from 'src/common/dtos/page/page-meta.dto';
+import { PageDto } from 'src/common/dtos/page/page.dto';
+import { plainToInstance } from 'class-transformer';
+import { UserProfileDto } from 'src/common/dtos/user-profile.dto';
 
 @Injectable()
 export class UserRepository {
@@ -11,6 +15,10 @@ export class UserRepository {
     @InjectRepository(User)
     private userRepository: Repository<User>
   ) {}
+
+  async getMyInfo(user: User) {
+    return await this.userRepository.findOne({ where : {id: user.id}});
+  }
 
   async findByPhoneNumber(phoneNumber: string): Promise<User | null> {
     //console.log('phoneNumber', phoneNumber);
@@ -46,19 +54,38 @@ export class UserRepository {
     });
   }
 
-  //유저 롤 변경하는 테스트용 함수입니다
-  async changeRole(userId: number, role: Role): Promise<User | null> {
-    const user = await this.userRepository.findOne({
-      where: {
-        id: userId
-      }
-    });
+  // 유저 정보 조회(관리자용) 전체 정보 조회
+  async getAllUserInfo(pageOptionsDto: PageOptionsDto) {
+    const queryBuilder = this.userRepository.createQueryBuilder('user');
 
-    if (user) user.role = role;
-    else throw new NotFoundException('user not found');
+    queryBuilder
+      .orderBy('user.createdAt', pageOptionsDto.order)
+      .leftJoin('user.ticket', 'ticket')
+      .addSelect('ticket')
+      .skip(pageOptionsDto.skip)
+      .take(pageOptionsDto.take);
+    
+    const itemCount = await queryBuilder.getCount();
+    const { entities } = await queryBuilder.getRawAndEntities();
 
-    await this.userRepository.save(user);
-    return user;
+    const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto })
+    
+    return new PageDto(entities, pageMetaDto);    
   }
-  //유저 롤 변경하는 테스트용 함수입니다
+
+  // 입금자명 수정
+  async changeName(id: number, requestUserNameDto: RequestUserNameDto) {
+    const found = await this.userRepository.findOne({ where: {id: id}});
+
+    if (!found) {
+      throw new NotFoundException('해당 유저가 존재하지 않습니다.');
+    }
+    const { name } = requestUserNameDto;
+
+    found.name = name;
+
+    await this.userRepository.save(found);
+    return plainToInstance(UserProfileDto, found);
+  }
+
 }

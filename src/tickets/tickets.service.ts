@@ -50,7 +50,7 @@ export class TicketsService {
 
     //어드민이거나 Ticket.user.id === user.id 일때만 리턴
     if (ticket.user.id !== user.id && user.role !== Role.Admin) {
-      throw new UnauthorizedException('해등 티켓에 대한 접근 권한이 없습니다');
+      throw new UnauthorizedException('해당 티켓에 대한 접근 권한이 없습니다');
     }
 
     return ticket;
@@ -86,6 +86,10 @@ export class TicketsService {
       ticketFindDto,
       pageOptionsDto
     );
+  }
+
+  async countTicket(): Promise<number> {
+    return await this.ticketRepository.countTicket();
   }
 
   /**
