@@ -211,7 +211,7 @@ export class OrdersService {
           connectedTicket.saveTicket(ticket);
         })
       );
-
+      await this.queueService.updateOrderStatusJob(order, admin);
       await queryRunner.commitTransaction();
       return order;
     } catch (e) {
