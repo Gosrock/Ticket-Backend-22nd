@@ -22,6 +22,7 @@ export class SlackFakeService {
       'findSlackUserIdByEmail' + JSON.stringify(email),
       'SlackFakeService'
     );
+    return 'teststring';
   }
 
   async sendDMwithValidationNumber(

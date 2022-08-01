@@ -1,15 +1,15 @@
-import { 
-  Controller, 
-  Get, 
-  Param, 
-  Post, 
-  Query, 
-  UseGuards, 
-  Patch, 
-  Req, 
-  Delete, 
+import {
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+  Patch,
+  Req,
+  Delete,
   Body,
-  HttpStatus 
+  HttpStatus
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -35,8 +35,7 @@ import { ScrollOptionsDto } from './dtos/Scroll/ScrollOptions.dto';
 import { CommentDto } from './dtos/Comment.dto';
 import { ResponseScrollCommentsDto } from './dtos/Scroll/ScrollComments.response.dto';
 import { SuccessResponse } from 'src/common/decorators/SuccessResponse.decorator';
-import {ResponseUserTicketNumDto} from './dtos/UserTicketNum.response.dto';
-
+import { ResponseUserTicketNumDto } from './dtos/UserTicketNum.response.dto';
 
 @ApiTags('users')
 @ApiBearerAuth('accessToken')
@@ -66,14 +65,14 @@ export class UsersController {
   @SuccessResponse(HttpStatus.OK, [
     {
       model: PageDto,
-      exampleDescription:
-        '마지막 페이지일 때',
+      exampleDescription: '마지막 페이지일 때',
       exampleTitle: '마지막페이지',
       generic: ResponseUserTicketNumDto,
       overwriteValue: {
         meta: { hasNextPage: false }
       }
-    },{
+    },
+    {
       model: PageDto,
       exampleDescription: '성공 예시',
       exampleTitle: '성공 예시',
@@ -95,13 +94,15 @@ export class UsersController {
   @SuccessResponse(HttpStatus.OK, [
     {
       model: UserProfileDto,
-      exampleDescription:
-        '입금자명 변경 성공시',
+      exampleDescription: '입금자명 변경 성공시',
       exampleTitle: '변경 성공'
     }
   ])
   @Post('/update')
-  async changeName(@ReqUser() user: User, @Body() requestUserNameDto: RequestUserNameDto) {
+  async changeName(
+    @ReqUser() user: User,
+    @Body() requestUserNameDto: RequestUserNameDto
+  ) {
     return await this.userService.changeName(user, requestUserNameDto);
   }
 
@@ -111,13 +112,15 @@ export class UsersController {
   @SuccessResponse(HttpStatus.OK, [
     {
       model: ResponseCommentDto,
-      exampleDescription:
-        '댓글 생성 성공 시',
+      exampleDescription: '댓글 생성 성공 시',
       exampleTitle: '댓글 생성 성공'
     }
   ])
   @Post('/comment')
-  async makeComment(@ReqUser() user: User, @Body() requestCommentDto: RequestCommentDto) {
+  async makeComment(
+    @ReqUser() user: User,
+    @Body() requestCommentDto: RequestCommentDto
+  ) {
     return await this.userService.makeComment(user, requestCommentDto);
   }
 
@@ -126,22 +129,21 @@ export class UsersController {
   @SuccessResponse(HttpStatus.OK, [
     {
       model: ResponseScrollCommentsDto,
-      exampleDescription:
-        '마지막 페이지일 시',
+      exampleDescription: '마지막 페이지일 시',
       exampleTitle: '마지막 페이지',
       overwriteValue: {
         meta: { lastPage: true }
       }
-    },{
+    },
+    {
       model: ResponseScrollCommentsDto,
-      exampleDescription:
-        '댓글 스크롤 조회 성공 시',
+      exampleDescription: '댓글 스크롤 조회 성공 시',
       exampleTitle: '댓글 조회 성공'
     }
   ])
   @Get('/comment')
   async getAllComment(
-    @ReqUser() user: User, 
+    @ReqUser() user: User,
     @Query() scrollOptionsDto: ScrollOptionsDto
   ) {
     return await this.userService.getAllComment(user.id, scrollOptionsDto);
@@ -152,8 +154,7 @@ export class UsersController {
   @SuccessResponse(HttpStatus.OK, [
     {
       model: CommentDto,
-      exampleDescription:
-        '댓글 삭제 성공 시',
+      exampleDescription: '댓글 삭제 성공 시',
       exampleTitle: '댓글 삭제 성공'
     }
   ])
@@ -166,5 +167,4 @@ export class UsersController {
   async deleteComment(@Param('id') id: number) {
     return await this.userService.deleteComment(id);
   }
-
 }
