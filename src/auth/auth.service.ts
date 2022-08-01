@@ -286,7 +286,11 @@ export class AuthService {
         '가입한 유저나 어드민 유저가 아닙니다.'
       );
     }
-    const accessToken = this.accessJwtSign({ ...searchUser });
+    const accessToken = this.accessJwtSign({
+      id: searchUser.id,
+      phoneNumber: searchUser.phoneNumber,
+      name: searchUser.name
+    });
     return {
       user: searchUser,
       accessToken
