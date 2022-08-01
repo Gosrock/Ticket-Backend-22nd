@@ -81,7 +81,7 @@ export class OrderRepository {
     orderFindDto: OrderFindDto,
     pageOptionsDto: PageOptionsDto
   ): Promise<PageDto<Order>> {
-    const { status, selection, isFree, searchName } = orderFindDto;
+    const { status, selection, searchName } = orderFindDto;
     const queryBuilder = this.orderRepository.createQueryBuilder('order');
     const name = searchName;
 
@@ -90,9 +90,6 @@ export class OrderRepository {
     }
     if (selection) {
       queryBuilder.andWhere({ selection });
-    }
-    if (isFree) {
-      queryBuilder.andWhere({ isFree });
     }
     if (name) {
       queryBuilder.andWhere('user.name like :name', {
@@ -103,9 +100,9 @@ export class OrderRepository {
     queryBuilder
       .orderBy('order.createdAt', pageOptionsDto.order)
       .leftJoin('order.user', 'user')
-      .addSelect(['user.name', 'user.phoneNumber'])
+      .addSelect(['user.id', 'user.name', 'user.phoneNumber', 'user.role'])
       .leftJoin('order.admin', 'admin')
-      .addSelect(['admin.name'])
+      .addSelect(['admin.id', 'admin.name', 'admin.phoneNumber', 'admin.role'])
       .skip(pageOptionsDto.skip)
       .take(pageOptionsDto.take);
 

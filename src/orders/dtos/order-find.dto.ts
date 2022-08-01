@@ -33,16 +33,6 @@ export class OrderFindDto {
   readonly selection: OrderDate;
 
   @ApiProperty({
-    description: '공짜 티켓 여부',
-    type: Boolean,
-    required: false
-  })
-  @IsBoolean()
-  @IsOptional()
-  @Expose()
-  readonly isFree: boolean;
-
-  @ApiProperty({
     description: '입금자명 검색',
     type: String,
     required: false
