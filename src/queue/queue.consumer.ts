@@ -13,10 +13,18 @@ export class QueueConsumer {
     throw err;
   }
 
+  @Process('enterTicketStatus')
+  async handleEnterTicketStatus(job: Job) {
+    const ticketEnterChangeDto = job.data;
+    await this.slackService.ticketQREnterEvent(ticketEnterChangeDto);
+  }
+
   @Process('updateTicketStatus')
   async handleUpdateTicketStatus(job: Job) {
     const ticketStatusChangeDto = job.data;
-    await this.slackService.ticketQREnterEvent(ticketStatusChangeDto);
+    await this.slackService.ticketStateChangedByAdminEvent(
+      ticketStatusChangeDto
+    );
   }
 
   @Process('createNewOrder')

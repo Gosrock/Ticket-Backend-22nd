@@ -199,7 +199,9 @@ export class TicketsService {
       ticket.admin = admin;
 
       await connectedRepository.saveTicket(ticket);
-      await this.queueService.updateTicketStatusJob(ticket, admin);
+      if (status == TicketStatus.DONE)
+        await this.queueService.enterTicketStatusJob(ticket, admin);
+      else await this.queueService.updateTicketStatusJob(ticket, admin, status);
       await queryRunner.commitTransaction();
       return ticket;
     } catch (e) {
