@@ -43,4 +43,14 @@ export class OrderFindDto {
   @IsOptional()
   @Expose()
   readonly searchName: string;
+
+  @ApiProperty({
+    description: '공짜티켓 여부 검색 (true/ false)',
+    type: String,
+    required: false
+  })
+  @IsString()
+  @IsOptional()
+  @Expose()
+  readonly isFree: string;
 }

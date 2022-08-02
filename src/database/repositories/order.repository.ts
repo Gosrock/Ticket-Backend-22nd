@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
+import { async } from 'rxjs';
 import { OrderStatus, TicketStatus } from 'src/common/consts/enum';
 import { PageMetaDto } from 'src/common/dtos/page/page-meta.dto';
 import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
@@ -81,7 +82,7 @@ export class OrderRepository {
     orderFindDto: OrderFindDto,
     pageOptionsDto: PageOptionsDto
   ): Promise<PageDto<Order>> {
-    const { status, selection, searchName } = orderFindDto;
+    const { status, selection, searchName, isFree } = orderFindDto;
     const queryBuilder = this.orderRepository.createQueryBuilder('order');
     const name = searchName;
 
@@ -96,9 +97,12 @@ export class OrderRepository {
         name: `%${searchName}%`
       });
     }
+    if (isFree) {
+      queryBuilder.andWhere({ isFree });
+    }
 
     queryBuilder
-      .orderBy('order.createdAt', pageOptionsDto.order)
+      .orderBy('order.id', pageOptionsDto.order)
       .leftJoin('order.user', 'user')
       .addSelect(['user.id', 'user.name', 'user.phoneNumber', 'user.role'])
       .leftJoin('order.admin', 'admin')
@@ -153,7 +157,24 @@ export class OrderRepository {
       .where({ status: OrderStatus.DONE })
       .andWhere({ isFree: false });
 
-    const income = await queryBuilder.getRawOne();
-    return income.sum;
+    let income = await queryBuilder.getRawOne();
+    if (income.sum == null) {
+      income.sum = 0;
+    }
+    return parseInt(income.sum);
+  }
+
+  async getFreeTicketCount(): Promise<number> {
+    const queryBuilderForFree =
+      this.orderRepository.createQueryBuilder('order');
+
+    let freeOrder = await queryBuilderForFree
+      .select('SUM(order.ticketCount)', 'freeTicketCount')
+      .where({ isFree: 'true' })
+      .getRawOne();
+    if (freeOrder.freeTicketCount == null) {
+      freeOrder.freeTicketCount = 0;
+    }
+    return parseInt(freeOrder.freeTicketCount);
   }
 }

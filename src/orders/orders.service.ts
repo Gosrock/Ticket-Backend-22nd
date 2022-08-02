@@ -238,7 +238,8 @@ export class OrdersService {
       orderReport: await this.orderRepository.getOrderReport(),
       ticketReport: await this.ticketRepository.getTicketReport(),
       enterReport: await this.ticketRepository.getEnterReport(),
-      income: await this.orderRepository.getIncome()
+      income: await this.orderRepository.getIncome(),
+      freeTicket: await this.orderRepository.getFreeTicketCount()
     };
   }
 }

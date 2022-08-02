@@ -13,6 +13,7 @@ import { PageDto } from 'src/common/dtos/page/page.dto';
 import { ScrollOptionsDto } from './dtos/Scroll/ScrollOptions.dto';
 import { ResponseScrollCommentsDto } from './dtos/Scroll/ScrollComments.response.dto';
 import { RequestRandomCommentDto } from './dtos/RandomComment.request.dto';
+import { UserFindDto } from './dtos/UserFind.dto';
 
 @Injectable()
 export class UsersService {
@@ -36,8 +37,8 @@ export class UsersService {
   }
   
   // 유저 정보 조회(관리자용) 전체 정보 조회
-  async getAllUserInfo(pageOptionsDto: PageOptionsDto) {
-    const pageDto = await this.userRepository.getAllUserInfo(pageOptionsDto);
+  async getAllUserInfo(userFindDto: UserFindDto, pageOptionsDto: PageOptionsDto) {
+    const pageDto = await this.userRepository.getAllUserInfo(userFindDto, pageOptionsDto);
     const pageMetaData = pageDto.meta;
     const users = pageDto.data;
     const ret_users = users.map(function(user) {
@@ -46,6 +47,7 @@ export class UsersService {
         name: user.name,
         phoneNumber: user.phoneNumber,
         role: user.role,
+        createAt: user.createdAt,
         ticketNum: user.ticket.length
       }
       return userProfile;

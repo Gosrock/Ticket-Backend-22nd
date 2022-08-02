@@ -1,7 +1,7 @@
 import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
 import { Queue } from 'bull';
-import { OrderDate, PerformanceDate, EnterDate } from 'src/common/consts/enum';
+import { OrderDate, PerformanceDate, EnterDate, TicketStatus } from 'src/common/consts/enum';
 import { Order } from 'src/database/entities/order.entity';
 import { Ticket } from 'src/database/entities/ticket.entity';
 import { User } from 'src/database/entities/user.entity';
@@ -13,12 +13,26 @@ export class QueueService {
     @InjectQueue('naverSmsQ') private naverSmsQ: Queue
   ) {}
 
-  async updateTicketStatusJob(ticket: Ticket, admin: User) {
+  async enterTicketStatusJob(ticket: Ticket, admin: User) {
     //console.log('admin: ' + admin.name);
     //console.log(ticket);
+    const job = await this.slackAlarmQ.add('enterTicketStatus', {
+      adminName: admin.name,
+      ticketId: ticket.id,
+      userName: ticket.user.name
+    });
+    return job;
+  }
+
+  async updateTicketStatusJob(
+    ticket: Ticket,
+    admin: User,
+    status: TicketStatus
+  ) {
     const job = await this.slackAlarmQ.add('updateTicketStatus', {
       adminName: admin.name,
       ticketId: ticket.id,
+      ticketStatus: status,
       userName: ticket.user.name
     });
     return job;

@@ -8,6 +8,7 @@ import { PageMetaDto } from 'src/common/dtos/page/page-meta.dto';
 import { PageDto } from 'src/common/dtos/page/page.dto';
 import { plainToInstance } from 'class-transformer';
 import { UserProfileDto } from 'src/common/dtos/user-profile.dto';
+import { UserFindDto } from 'src/users/dtos/UserFind.dto';
 
 @Injectable()
 export class UserRepository {
@@ -55,8 +56,25 @@ export class UserRepository {
   }
 
   // 유저 정보 조회(관리자용) 전체 정보 조회
-  async getAllUserInfo(pageOptionsDto: PageOptionsDto) {
+  async getAllUserInfo(
+    userFindDto: UserFindDto, 
+    pageOptionsDto: PageOptionsDto
+  ) {
+    const { searchName, phoneNumber } = userFindDto;
     const queryBuilder = this.userRepository.createQueryBuilder('user');
+    const name = searchName;
+    const phoneNum = phoneNumber;
+
+    if (name) {
+      queryBuilder.andWhere('user.name like :name', {
+        name: `%${searchName}%`
+      });
+    }
+    if (phoneNum) {
+      queryBuilder.andWhere('user.phoneNumber like :phoneNum', {
+        phoneNum: `%${phoneNumber}%`
+      });
+    }
 
     queryBuilder
       .orderBy('user.id', pageOptionsDto.order)

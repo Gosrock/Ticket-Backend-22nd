@@ -17,7 +17,8 @@ export class ResponseCommentDto {
 
   @ApiProperty({ description: '유저 정보', type: UserProfileDto})
   @Type(() => UserProfileDto)
-  @Expose()
+  @Exclude({ toPlainOnly: true })
+  @Expose({ toClassOnly: true })
   user: UserProfileDto;
 
   @ApiProperty({ description: '응원 코멘트 생성 일자', type: Date })
