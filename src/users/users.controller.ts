@@ -38,6 +38,7 @@ import { SuccessResponse } from 'src/common/decorators/SuccessResponse.decorator
 import { ResponseUserTicketNumDto } from './dtos/UserTicketNum.response.dto';
 import { RequestRandomCommentDto } from './dtos/RandomComment.request.dto';
 import { ResponseRandomCommentDto } from './dtos/RandomComment.response.dto';
+import { UserFindDto } from './dtos/UserFind.dto';
 
 @ApiTags('users')
 @ApiBearerAuth('accessToken')
@@ -87,8 +88,11 @@ export class UsersController {
   })
   @Roles(Role.Admin)
   @Get('/all')
-  async getAllUserInfo(@Query() pageOptionsDto: PageOptionsDto) {
-    return await this.userService.getAllUserInfo(pageOptionsDto);
+  async getAllUserInfo(
+    @Query() userFindDto: UserFindDto, 
+    @Query() pageOptionsDto: PageOptionsDto
+  ) {
+    return await this.userService.getAllUserInfo(userFindDto, pageOptionsDto);
   }
 
   // 입금자명 수정
