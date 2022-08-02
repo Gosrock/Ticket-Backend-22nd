@@ -1,15 +1,21 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MockType } from 'src/common/funcs/mockType';
+import { CommentRepository } from 'src/database/repositories/comment.repository';
 import { UserRepository } from 'src/database/repositories/user.repository';
 import { UsersService } from './users.service';
 
-export const repositoryMockFactory: () => MockType<UserRepository> = jest.fn(
+const UserRepositoryMockFactory: () => MockType<UserRepository> = jest.fn(
   () => ({
     findAll: jest.fn(entity => entity)
     // ...
   })
 );
-
+const CommentRepositoryMockFactory: () => MockType<UserRepository> = jest.fn(
+  () => ({
+    findAll: jest.fn(entity => entity)
+    // ...
+  })
+);
 describe('UsersService', () => {
   let service: UsersService;
 
@@ -19,7 +25,11 @@ describe('UsersService', () => {
         UsersService,
         {
           provide: UserRepository,
-          useFactory: repositoryMockFactory
+          useFactory: UserRepositoryMockFactory
+        },
+        {
+          provide: CommentRepository,
+          useFactory: CommentRepositoryMockFactory
         }
       ]
     }).compile();
