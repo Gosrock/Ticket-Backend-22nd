@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
+import { IsNumber } from 'class-validator';
 import { EnterReportDto } from './enter-report.dto';
 import { OrderReportDto } from './order-report.dto';
 import { TicketReportDto } from './ticket-report.dto';
@@ -9,7 +10,7 @@ export class ReportDto {
     description: '주문 입금 관련 현황',
     type: OrderReportDto
   })
-  @Type(()=> OrderReportDto)
+  @Type(() => OrderReportDto)
   @Expose()
   orderReport: OrderReportDto;
 
@@ -17,7 +18,7 @@ export class ReportDto {
     description: '티켓 관련 현황',
     type: TicketReportDto
   })
-  @Type(()=> TicketReportDto)
+  @Type(() => TicketReportDto)
   @Expose()
   ticketReport: TicketReportDto;
 
@@ -25,7 +26,7 @@ export class ReportDto {
     description: '입장 관련 현황',
     type: EnterReportDto
   })
-  @Type(()=> EnterReportDto)
+  @Type(() => EnterReportDto)
   @Expose()
   enterReport: EnterReportDto;
 
@@ -35,4 +36,11 @@ export class ReportDto {
   })
   @Expose()
   income: number;
+
+  @ApiProperty({
+    description: '공짜 티켓 갯수',
+    type: Number
+  })
+  @Expose()
+  freeTicket: number;
 }
