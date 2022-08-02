@@ -1,13 +1,16 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
   HttpStatus,
+  NotFoundException,
   Param,
   Patch,
   Post,
   Query,
+  UnauthorizedException,
   UseGuards
 } from '@nestjs/common';
 import {
@@ -19,16 +22,13 @@ import {
   ApiUnauthorizedResponse
 } from '@nestjs/swagger';
 import { AccessTokenGuard } from 'src/auth/guards/AccessToken.guard';
-import { PerformanceDate, Role } from 'src/common/consts/enum';
+import { Role } from 'src/common/consts/enum';
 import { Roles } from 'src/common/decorators/roles.decorator';
-import { ApiPaginatedDto } from 'src/common/decorators/ApiPaginatedDto.decorator';
 import { ReqUser } from 'src/common/decorators/user.decorator';
 import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
 import { TicketEntryDateValidationDto } from 'src/tickets/dtos/ticket-entry-date-validation.dto copy';
-import { Order } from 'src/database/entities/order.entity';
 import { Ticket } from 'src/database/entities/ticket.entity';
 import { User } from 'src/database/entities/user.entity';
-import { UsersService } from 'src/users/users.service';
 import { TicketsService } from './tickets.service';
 import { TicketFindDto } from './dtos/ticket-find.dto';
 import { UpdateTicketStatusDto } from './dtos/update-ticket-status.dto';
@@ -36,16 +36,14 @@ import { SuccessResponse } from 'src/common/decorators/SuccessResponse.decorator
 import { PageDto } from 'src/common/dtos/page/page.dto';
 import { NoAuth } from 'src/auth/guards/NoAuth.guard';
 import { TicketCountDto } from './dtos/ticket-count.dto';
+import { ErrorResponse } from 'src/common/decorators/ErrorResponse.decorator';
 
 @ApiTags('tickets')
 @ApiBearerAuth('accessToken')
 @Controller('tickets')
 @UseGuards(AccessTokenGuard)
 export class TicketsController {
-  constructor(
-    private ticketService: TicketsService,
-    private usersService: UsersService //삭제예정
-  ) {}
+  constructor(private ticketService: TicketsService) {}
 
   //실제 사용
   // @Get()
@@ -69,25 +67,6 @@ export class TicketsController {
   @Get('')
   getAllTicketsById(@ReqUser() user: User) {
     return this.ticketService.findAllByUserId(user.id);
-  }
-
-  /* 테스트용 라우팅 */
-  @ApiOperation({
-    summary: '[테스트용, 삭제예정]조건없이 모든 티켓을 불러온다'
-  })
-  @ApiResponse({
-    status: 200,
-    description: '요청 성공시',
-    type: Ticket
-  })
-  @ApiUnauthorizedResponse({
-    status: 401,
-    description: 'AccessToken이 없거나 어드민이 아닐 경우'
-  })
-  @Get('all')
-  @Roles(Role.Admin)
-  getAllTickets() {
-    return this.ticketService.findAll();
   }
 
   @ApiOperation({
@@ -125,24 +104,6 @@ export class TicketsController {
     return this.ticketService.findAllWith(ticketFindDto, pageOptionsDto);
   }
 
-  @ApiOperation({ summary: '[테스트용] 임시 티켓 생성' })
-  @ApiResponse({
-    status: 200,
-    description: '요청 성공시',
-    type: Ticket
-  })
-  @Post('/create')
-  async testCreateTicket(@ReqUser() user: User) {
-    const createTicketDto = {
-      date: PerformanceDate.YB,
-      order: new Order(),
-      user: user,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    return this.ticketService.createTicket(createTicketDto);
-  }
-
   @ApiOperation({
     summary: '[랜딩페이지] 티켓 개수를 반환한다'
   })
@@ -158,8 +119,48 @@ export class TicketsController {
     return { count: count };
   }
 
+  @ErrorResponse(HttpStatus.BAD_REQUEST, [
+    {
+      model: BadRequestException,
+      exampleDescription: 'Body 파라미터 검증 오류입니다',
+      exampleTitle: 'status:400 BadRequestException',
+      message: '검증 오류'
+    }
+  ])
+  @ErrorResponse(HttpStatus.UNAUTHORIZED, [
+    {
+      model: UnauthorizedException,
+      exampleDescription: '권한 없는 유저가 접근했을때 생기는 오류입니다',
+      exampleTitle: 'status:401 UnauthorizedException',
+      message: '잘못된 헤더 요청'
+    }
+  ])
+  @ErrorResponse(HttpStatus.NOT_FOUND, [
+    {
+      model: NotFoundException,
+      exampleDescription: 'Ticket Id 입력 오류입니다',
+      exampleTitle: 'status:404 NotFoundException',
+      message: "Can't find Ticket with id {ticketId}"
+    }
+  ])
+  @ApiOperation({ summary: '[어드민] 티켓 하나의 status를 변경한다' })
+  @ApiBody({ type: UpdateTicketStatusDto })
+  @ApiResponse({
+    status: 200,
+    description: '요청 성공시',
+    type: Ticket
+  })
+  @Roles(Role.Admin)
+  @Patch('/status')
+  updateTicketStatus(
+    @Body('') updateTicketStatusDto: UpdateTicketStatusDto,
+    @ReqUser() user: User
+  ) {
+    return this.ticketService.updateTicketStatus(updateTicketStatusDto, user);
+  }
+
   @ApiOperation({
-    summary: '해당 uuid를 포함하는 티켓을 가져온다, req.user 필요'
+    summary: '해당 uuid를 포함하는 자신의 티켓을 가져온다'
   })
   @ApiResponse({
     status: 200,
@@ -181,7 +182,7 @@ export class TicketsController {
   }
 
   @ApiOperation({
-    summary: '[어드민] 티켓 QR코드 찍었을 때 uuid를 받아 소켓 이벤트를 전송'
+    summary: '[어드민] 티켓 QR코드 찍었을 때 uuid를 받아 소켓 이벤트를 전송한다'
   })
   @ApiBody({ type: TicketEntryDateValidationDto })
   @ApiResponse({
@@ -207,26 +208,6 @@ export class TicketsController {
     );
   }
 
-  @ApiOperation({ summary: '[어드민] 티켓 하나의 status를 변경한다' })
-  @ApiBody({ type: UpdateTicketStatusDto })
-  @ApiResponse({
-    status: 200,
-    description: '요청 성공시',
-    type: Ticket
-  })
-  @ApiUnauthorizedResponse({
-    status: 401,
-    description: '어드민이 아닐 경우'
-  })
-  @Roles(Role.Admin)
-  @Patch('/status')
-  updateTicketStatus(
-    @Body('') updateTicketStatusDto: UpdateTicketStatusDto,
-    @ReqUser() user: User
-  ) {
-    return this.ticketService.updateTicketStatus(updateTicketStatusDto, user);
-  }
-
   @ApiOperation({ summary: '[어드민] 해당 id의 티켓을 제거한다' })
   @ApiResponse({
     status: 200,
@@ -243,9 +224,47 @@ export class TicketsController {
     return this.ticketService.deleteTicketByUuid(ticketUuid);
   }
 
-  @ApiOperation({ summary: '[테스트용] 티켓 모두 제거' })
-  @Delete('/deleteAll')
-  deleteAllTickets() {
-    return this.ticketService.deleteAllTickets();
-  }
+
+  // /* 테스트용 라우팅 */
+  // @ApiOperation({
+  //   summary: '[테스트용, 삭제예정]조건없이 모든 티켓을 불러온다'
+  // })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: '요청 성공시',
+  //   type: Ticket
+  // })
+  // @ApiUnauthorizedResponse({
+  //   status: 401,
+  //   description: 'AccessToken이 없거나 어드민이 아닐 경우'
+  // })
+  // @Get('all')
+  // @Roles(Role.Admin)
+  // getAllTickets() {
+  //   return this.ticketService.findAll();
+  // }
+  
+  // @ApiOperation({ summary: '[테스트용] 임시 티켓 생성' })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: '요청 성공시',
+  //   type: Ticket
+  // })
+  // @Post('/create')
+  // async testCreateTicket(@ReqUser() user: User) {
+  //   const createTicketDto = {
+  //     date: PerformanceDate.YB,
+  //     order: new Order(),
+  //     user: user,
+  //     createdAt: new Date(),
+  //     updatedAt: new Date()
+  //   };
+  //   return this.ticketService.createTicket(createTicketDto);
+  // }
+
+  // @ApiOperation({ summary: '[테스트용] 티켓 모두 제거' })
+  // @Delete('/deleteAll')
+  // deleteAllTickets() {
+  //   return this.ticketService.deleteAllTickets();
+  // }
 }

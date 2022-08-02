@@ -1,14 +1,9 @@
-import {
-  Injectable,
-  NotFoundException,
-  UnauthorizedException
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Role, TicketStatus } from 'src/common/consts/enum';
+import { TicketStatus } from 'src/common/consts/enum';
 import { PageMetaDto } from 'src/common/dtos/page/page-meta.dto';
 import { PageOptionsDto } from 'src/common/dtos/page/page-options.dto';
 import { PageDto } from 'src/common/dtos/page/page.dto';
-import { PagingDto } from 'src/common/dtos/paging.dto';
 import { EnterReportDto } from 'src/orders/dtos/enter-report.dto';
 import { TicketReportDto } from 'src/orders/dtos/ticket-report.dto';
 import { CreateTicketDto } from 'src/tickets/dtos/create-ticket.dto';
@@ -16,7 +11,6 @@ import { TicketFindDto } from 'src/tickets/dtos/ticket-find.dto';
 
 import { Repository } from 'typeorm';
 import { Ticket } from '../entities/ticket.entity';
-import { User } from '../entities/user.entity';
 
 @Injectable()
 export class TicketRepository {
@@ -107,11 +101,9 @@ export class TicketRepository {
     }
 
     queryBuilder
-      .orderBy('ticket.createdAt', pageOptionsDto.order)
-      .leftJoin('ticket.user', 'user')
-      .addSelect(['user.name', 'user.phoneNumber'])
-      .leftJoin('ticket.admin', 'admin')
-      .addSelect(['admin.name'])
+      .orderBy('ticket.id', pageOptionsDto.order)
+      .leftJoinAndSelect('ticket.user', 'user')
+      .leftJoinAndSelect('ticket.admin', 'admin')
       .skip(pageOptionsDto.skip)
       .take(pageOptionsDto.take);
 
