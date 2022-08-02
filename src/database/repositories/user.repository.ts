@@ -59,7 +59,7 @@ export class UserRepository {
     const queryBuilder = this.userRepository.createQueryBuilder('user');
 
     queryBuilder
-      .orderBy('user.createdAt', pageOptionsDto.order)
+      .orderBy('user.id', pageOptionsDto.order)
       .leftJoin('user.ticket', 'ticket')
       .addSelect('ticket')
       .skip(pageOptionsDto.skip)
