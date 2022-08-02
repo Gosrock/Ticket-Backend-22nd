@@ -32,6 +32,13 @@ export class ResponseUserTicketNumDto {
   public role: Role;
 
   @ApiProperty({
+    description: '유저 가입일 입니다.',
+    type: Date
+  })
+  @Expose()
+  public createAt: Date;
+
+  @ApiProperty({
     description: '유저 티켓 수',
     type: Number
   })
