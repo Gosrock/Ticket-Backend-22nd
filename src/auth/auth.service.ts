@@ -371,7 +371,6 @@ export class AuthService {
         | string
       ) &
         AccessJwtPayload;
-
       const { phoneNumber, id, name } = payload;
 
       return {
