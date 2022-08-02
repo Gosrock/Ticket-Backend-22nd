@@ -13,10 +13,8 @@ import { EnterReportDto } from 'src/orders/dtos/enter-report.dto';
 import { TicketReportDto } from 'src/orders/dtos/ticket-report.dto';
 import { CreateTicketDto } from 'src/tickets/dtos/create-ticket.dto';
 import { TicketFindDto } from 'src/tickets/dtos/ticket-find.dto';
-
 import { Repository } from 'typeorm';
 import { Ticket } from '../entities/ticket.entity';
-import { User } from '../entities/user.entity';
 
 @Injectable()
 export class TicketRepository {
@@ -146,7 +144,6 @@ export class TicketRepository {
       .where({ order: orderId })
       .getMany();
   }
-
 
   /** DB에 저장된 티켓의 개수를 반환한다 */
   async countTicket(): Promise<number> {
