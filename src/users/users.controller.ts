@@ -36,6 +36,12 @@ import { CommentDto } from './dtos/Comment.dto';
 import { ResponseScrollCommentsDto } from './dtos/Scroll/ScrollComments.response.dto';
 import { SuccessResponse } from 'src/common/decorators/SuccessResponse.decorator';
 import { ResponseUserTicketNumDto } from './dtos/UserTicketNum.response.dto';
+<<<<<<< HEAD
+import { RequestRandomCommentDto } from './dtos/RandomComment.request.dto';
+import { ResponseRandomCommentDto } from './dtos/RandomComment.response.dto';
+
+=======
+>>>>>>> 9ce53e67e2e7be56a387372b6401fa587ac4d447
 
 @ApiTags('users')
 @ApiBearerAuth('accessToken')
@@ -147,6 +153,23 @@ export class UsersController {
     @Query() scrollOptionsDto: ScrollOptionsDto
   ) {
     return await this.userService.getAllComment(user.id, scrollOptionsDto);
+  }
+
+  // 댓글 랜덤 조회
+  @ApiOperation({ summary: '댓글 랜덤 조회' })
+  @SuccessResponse(HttpStatus.OK, [
+    {
+      model: ResponseRandomCommentDto,
+      exampleDescription:
+        '댓글 랜덤 조회 성공 시',
+      exampleTitle: '댓글 랜덤 조회',
+    }
+  ])
+  @Get('/random/comment')
+  async getRandomComment(
+    @Query() requestRandomCommentDto: RequestRandomCommentDto
+  ) {
+    return await this.userService.getRandomComment(requestRandomCommentDto);
   }
 
   // 응원 댓글 삭제(관리자용)

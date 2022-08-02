@@ -12,6 +12,7 @@ import { ResponseUserTicketNumDto } from './dtos/UserTicketNum.response.dto';
 import { PageDto } from 'src/common/dtos/page/page.dto';
 import { ScrollOptionsDto } from './dtos/Scroll/ScrollOptions.dto';
 import { ResponseScrollCommentsDto } from './dtos/Scroll/ScrollComments.response.dto';
+import { RequestRandomCommentDto } from './dtos/RandomComment.request.dto';
 
 @Injectable()
 export class UsersService {
@@ -78,6 +79,11 @@ export class UsersService {
     )
     const final_comments = plainToInstance(ResponseCommentDto, ret_comments);
     return new ResponseScrollCommentsDto(final_comments, responseScrollCommentDto.meta);
+  }
+
+  // 댓글 랜덤 조회
+  async getRandomComment(requestRandomCommentDto: RequestRandomCommentDto) {
+    return await this.commentRepository.getRandomComment(requestRandomCommentDto);
   }
 
   // 댓글 삭제
