@@ -98,7 +98,7 @@ export class OrderRepository {
     }
 
     queryBuilder
-      .orderBy('order.createdAt', pageOptionsDto.order)
+      .orderBy('order.id', pageOptionsDto.order)
       .leftJoin('order.user', 'user')
       .addSelect(['user.id', 'user.name', 'user.phoneNumber', 'user.role'])
       .leftJoin('order.admin', 'admin')
