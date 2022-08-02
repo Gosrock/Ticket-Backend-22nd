@@ -40,7 +40,6 @@ import { RequestRandomCommentDto } from './dtos/RandomComment.request.dto';
 import { ResponseRandomCommentDto } from './dtos/RandomComment.response.dto';
 import { UserFindDto } from './dtos/UserFind.dto';
 
-
 @ApiTags('users')
 @ApiBearerAuth('accessToken')
 @Controller('users')
@@ -161,9 +160,8 @@ export class UsersController {
   @SuccessResponse(HttpStatus.OK, [
     {
       model: ResponseRandomCommentDto,
-      exampleDescription:
-        '댓글 랜덤 조회 성공 시',
-      exampleTitle: '댓글 랜덤 조회',
+      exampleDescription: '댓글 랜덤 조회 성공 시',
+      exampleTitle: '댓글 랜덤 조회'
     }
   ])
   @Get('/random/comment')
