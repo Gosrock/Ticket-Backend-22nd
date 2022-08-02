@@ -12,6 +12,8 @@ import { plainToInstance } from 'class-transformer';
 import { ResponseCommentDto } from 'src/users/dtos/Comment.response.dto';
 import { CommentDto } from 'src/users/dtos/Comment.dto';
 import { UserProfileDto } from 'src/common/dtos/user-profile.dto';
+import { RequestRandomCommentDto } from 'src/users/dtos/RandomComment.request.dto';
+import { ResponseRandomCommentDto } from 'src/users/dtos/RandomComment.response.dto';
 
 @Injectable()
 export class CommentRepository {
@@ -74,6 +76,21 @@ export class CommentRepository {
     const scrollMetaDto = new ScrollMetaDto(checkLastId, lastPage);
 
     return new ResponseScrollCommentDto(entities, scrollMetaDto);
+  }
+
+  // 댓글 랜덤 조회
+  async getRandomComment(requestRandomCommentDto: RequestRandomCommentDto) {
+    const { take } = requestRandomCommentDto;
+    const queryBuilder = this.commentRepository.createQueryBuilder('comment');
+
+    queryBuilder
+      .orderBy('RANDOM()')
+      .limit(take);
+
+    
+    const { entities } = await queryBuilder.getRawAndEntities();
+    
+    return plainToInstance(ResponseRandomCommentDto, entities);
   }
 
   // 댓글 삭제
