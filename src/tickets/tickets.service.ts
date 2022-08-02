@@ -1,7 +1,5 @@
 import {
   BadRequestException,
-  forwardRef,
-  Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -16,7 +14,6 @@ import { Ticket } from 'src/database/entities/ticket.entity';
 import { User } from 'src/database/entities/user.entity';
 import { TicketRepository } from 'src/database/repositories/ticket.repository';
 import { SocketService } from 'src/socket/socket.service';
-import { UserRepository } from 'src/database/repositories/user.repository';
 import { QueueService } from 'src/queue/queue.service';
 import { DataSource } from 'typeorm';
 import { CreateTicketDto } from './dtos/create-ticket.dto';
@@ -118,29 +115,32 @@ export class TicketsService {
     try {
       const { date } = ticketEntryDateValidationDto;
       const ticket = await connectedRepository.findByUuid(uuid);
+      const response = new TicketEntryResponseDto(ticket, admin.name, false);
+      /** Enum 받아서 입장 실패 메세지 가져오는 람다식 */
+      const getFailureMessage = (status: TicketStatus) => {
+        if (status == TicketStatus.DONE) {
+          return '이미 입장 완료된 티켓입니다';
+        } else if (status == TicketStatus.EXPIRE) {
+          return '입금 기한이 만료된 티켓입니다';
+        } else if (status == TicketStatus.ORDERWAIT) {
+          return '입금 대기중인 티켓입니다';
+        } 
+        return '검증 오류';
+      };
 
       // 티켓 날짜 오류(공연 날짜가 일치하지 않음)
       if (ticket.date !== date) {
-        const failureResponse = new TicketEntryResponseDto(
-          ticket,
-          admin.name,
-          false,
-          '[입장실패] 공연 날짜가 일치하지 않습니다'
-        );
-        this.socketService.emitToAll(failureResponse);
+        response.message = '[입장실패] 공연 날짜가 일치하지 않습니다';
+        this.socketService.emitToAll(response);
         throw new BadRequestException('공연 날짜가 일치하지 않습니다');
       }
 
       // 티켓 상태 오류('입장대기'가 아님)
       if (ticket.status !== TicketStatus.ENTERWAIT) {
-        const failureResponse = new TicketEntryResponseDto(
-          ticket,
-          admin.name,
-          false,
-          '[입장실패] 이미 입장 완료된 티켓입니다'
-        );
-        this.socketService.emitToAll(failureResponse);
-        throw new BadRequestException('이미 입장 완료된 티켓입니다');
+
+        response.message = '[입장실패]' + getFailureMessage(ticket.status);
+        this.socketService.emitToAll(response);
+        throw new BadRequestException(getFailureMessage(ticket.status));
       }
 
       //성공 시
@@ -149,17 +149,12 @@ export class TicketsService {
 
       await connectedRepository.saveTicket(ticket);
 
-      await queryRunner.commitTransaction();
-
-      const successResponse = new TicketEntryResponseDto(
-        ticket,
-        admin.name,
-        true,
-        `[입장성공] ${ticket.user?.name}님이 입장하셨습니다`
-      );
+      response.message = `[입장성공] ${ticket.user?.name}님이 입장하셨습니다`;
       this.logger.log(`${ticket.user?.name}님이 입장하셨습니다`);
-      this.socketService.emitToAll(successResponse);
-      return successResponse;
+      this.socketService.emitToAll(response);
+
+      await queryRunner.commitTransaction();
+      return response;
     } catch (e) {
       await queryRunner.rollbackTransaction();
       this.logger.error(`티켓 상태 오류 - ${e.message}`);
@@ -206,11 +201,8 @@ export class TicketsService {
       return ticket;
     } catch (e) {
       await queryRunner.rollbackTransaction();
-      //티켓 찾을때 Not Found Error 캐치
-      if (e) {
-        throw e;
-      }
-      throw new InternalServerErrorException('Ticket db 에러');
+      this.logger.error(`티켓 status 변경 오류 - ${e.message}`);
+      throw e;
     } finally {
       await queryRunner.release();
     }

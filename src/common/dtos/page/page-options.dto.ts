@@ -17,7 +17,6 @@ export class PageOptionsDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  @IsOptional()
   @Expose()
   readonly page: number = 1;
 
@@ -30,7 +29,6 @@ export class PageOptionsDto {
   @IsInt()
   @Min(1)
   @Max(50)
-  @IsOptional()
   @Expose()
   readonly take: number = 10;
 
