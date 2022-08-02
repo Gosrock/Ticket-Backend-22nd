@@ -147,6 +147,12 @@ export class TicketRepository {
       .getMany();
   }
 
+
+  /** DB에 저장된 티켓의 개수를 반환한다 */
+  async countTicket(): Promise<number> {
+    return await this.ticketRepository.count();
+  }
+
   /**
    * 해당 티켓을 저장한다
    * @param ticket 저장할 티켓

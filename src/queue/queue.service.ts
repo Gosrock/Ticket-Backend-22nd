@@ -35,6 +35,16 @@ export class QueueService {
     return job;
   }
 
+  async updateOrderStatusJob(order: Order, admin: User) {
+    const job = await this.slackAlarmQ.add('updateOrderStatus', {
+      orderId: order.id,
+      orderTicketCount: order.ticketCount,
+      orderStatus: order.status,
+      adminName: admin.name
+    });
+    return job;
+  }
+
   async sendNaverSmsForOrderJob(order: Order, ticketList: Ticket[]) {
     const url = 'https://gosrock.band/tickets/';
     const totalTicketCnt =
@@ -46,11 +56,9 @@ export class QueueService {
       .map((ticket, idx) => {
         return {
           to: order.user.phoneNumber,
-          content: `♬고티켓♬ (${++idx}/${totalTicketCnt})\n\n▶주문자명: ${
-            order.user.name
-          }\n▶관람일: ${EnterDate.YB}(${PerformanceDate.YB})\n\n${url}${
-            ticket.uuid
-          }`
+          content: `고티켓 (${++idx}/${totalTicketCnt})\n${EnterDate.YB} [${
+            PerformanceDate.YB
+          }]\n\n${url}${ticket.uuid}`
         };
       });
     if (messageDtoYBList.length) {
@@ -61,11 +69,9 @@ export class QueueService {
       .map((ticket, idx) => {
         return {
           to: order.user.phoneNumber,
-          content: `♬고티켓♬ (${++idx}/${totalTicketCnt})\n\n▶주문자명: ${
-            order.user.name
-          }\n▶관람일: ${EnterDate.OB}(${PerformanceDate.OB})\n\n${url}${
-            ticket.uuid
-          }`
+          content: `고티켓 (${++idx}/${totalTicketCnt})\n${EnterDate.OB} [${
+            PerformanceDate.OB
+          }]\n\n${url}${ticket.uuid}`
         };
       });
     if (messageDtoOBList.length) {
