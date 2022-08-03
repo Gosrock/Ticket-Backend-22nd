@@ -37,6 +37,7 @@ import { PageDto } from 'src/common/dtos/page/page.dto';
 import { NoAuth } from 'src/auth/guards/NoAuth.guard';
 import { TicketCountDto } from './dtos/ticket-count.dto';
 import { ErrorResponse } from 'src/common/decorators/ErrorResponse.decorator';
+import { TicketEntryResponseDto } from './dtos/ticket-entry-response.dto';
 
 @ApiTags('tickets')
 @ApiBearerAuth('accessToken')
@@ -70,7 +71,7 @@ export class TicketsController {
   }
 
   @ApiOperation({
-    summary: '[어드민]해당 조건의 티켓을 모두 불러온다, querystring으로 전달'
+    summary: '[어드민]해당 조건의 티켓을 모두 불러온다'
   })
   // @ApiResponse({
   //   status: 200,
@@ -181,14 +182,68 @@ export class TicketsController {
     return this.ticketService.findByUuid(uuid, user);
   }
 
+  @ErrorResponse(HttpStatus.BAD_REQUEST, [
+    {
+      model: BadRequestException,
+      exampleDescription: '이미 입장 완료된 티켓',
+      exampleTitle: 'status:400 BadRequestException DONE',
+      message: '이미 입장 완료된 티켓입니다'
+    },
+    {
+      model: BadRequestException,
+      exampleDescription: '입금 기한이 만료된 티켓',
+      exampleTitle: 'status:400 BadRequestException EXPIRE',
+      message: '입금 기한이 만료된 티켓입니다'
+    },
+    {
+      model: BadRequestException,
+      exampleDescription: '입금 대기중인 티켓',
+      exampleTitle: 'status:400 BadRequestException ORDERWAIT',
+      message: '입금 대기중인 티켓입니다'
+    },
+    {
+      model: BadRequestException,
+      exampleDescription: 'Body 파라미터와 타켓 공연 날짜가 일치하지 않음',
+      exampleTitle: 'status:400 BadRequestException Date',
+      message: '공연 날짜가 일치하지 않습니다'
+    },
+    {
+      model: BadRequestException,
+      exampleDescription: 'Body 파라미터와 타켓 공연 날짜가 일치하지 않음',
+      exampleTitle: 'status:400 BadRequestException Date',
+      message: '공연 날짜가 일치하지 않습니다'
+    },
+    {
+      model: BadRequestException,
+      exampleDescription: 'Body 파라미터 검증 오류',
+      exampleTitle: 'status:400 BadRequestException Validation',
+      message: '검증 오류'
+    }
+  ])
+  @ErrorResponse(HttpStatus.UNAUTHORIZED, [
+    {
+      model: UnauthorizedException,
+      exampleDescription: '엑세스 토큰이 없거나 어드민이 아닐 경우 접근 제어',
+      exampleTitle: 'status:401 UnauthorizedException',
+      message: '잘못된 헤더 요청'
+    }
+  ])
+  @ErrorResponse(HttpStatus.NOT_FOUND, [
+    {
+      model: NotFoundException,
+      exampleDescription: 'Ticket uuid 입력 오류입니다',
+      exampleTitle: 'status:404 NotFoundException',
+      message: "Can't find Ticket with uuid {ticketId}"
+    }
+  ])
   @ApiOperation({
     summary: '[어드민] 티켓 QR코드 찍었을 때 uuid를 받아 소켓 이벤트를 전송한다'
   })
   @ApiBody({ type: TicketEntryDateValidationDto })
   @ApiResponse({
-    status: 200 || 201,
+    status: 201,
     description: '요청 성공시',
-    type: TicketEntryDateValidationDto
+    type: TicketEntryResponseDto
   })
   @ApiUnauthorizedResponse({
     status: 401,

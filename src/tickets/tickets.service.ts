@@ -150,6 +150,7 @@ export class TicketsService {
       await connectedRepository.saveTicket(ticket);
 
       response.message = `[입장성공] ${ticket.user?.name}님이 입장하셨습니다`;
+      response.success = true;
       this.logger.log(`${ticket.user?.name}님이 입장하셨습니다`);
       this.socketService.emitToAll(response);
 
