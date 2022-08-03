@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import { IsEmail, IsMobilePhone } from 'class-validator';
 
 export class ResponseAdminSendValidationNumberDto {
@@ -11,6 +11,6 @@ export class ResponseAdminSendValidationNumberDto {
     isArray: true,
     example: 'asdf'
   })
-  @Expose()
+  @Exclude()
   validationNumber: string;
 }
