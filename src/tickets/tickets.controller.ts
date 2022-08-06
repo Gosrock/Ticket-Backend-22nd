@@ -38,6 +38,7 @@ import { NoAuth } from 'src/auth/guards/NoAuth.guard';
 import { TicketCountDto } from './dtos/ticket-count.dto';
 import { ErrorResponse } from 'src/common/decorators/ErrorResponse.decorator';
 import { TicketEntryResponseDto } from './dtos/ticket-entry-response.dto';
+import { AccessJwtPayload } from 'src/auth/auth.interface';
 
 @ApiTags('tickets')
 @ApiBearerAuth('accessToken')
@@ -155,7 +156,7 @@ export class TicketsController {
   @Patch('/status')
   updateTicketStatus(
     @Body('') updateTicketStatusDto: UpdateTicketStatusDto,
-    @ReqUser() user: User
+    @ReqUser() user: AccessJwtPayload
   ) {
     return this.ticketService.updateTicketStatus(updateTicketStatusDto, user);
   }
@@ -176,7 +177,7 @@ export class TicketsController {
   getTicketByUuid(
     @Param('uuid')
     uuid: string,
-    @ReqUser() user: User
+    @ReqUser() user: AccessJwtPayload
   ) {
     //console.log(user);
     return this.ticketService.findByUuid(uuid, user);
@@ -279,7 +280,6 @@ export class TicketsController {
     return this.ticketService.deleteTicketByUuid(ticketUuid);
   }
 
-
   // /* 테스트용 라우팅 */
   // @ApiOperation({
   //   summary: '[테스트용, 삭제예정]조건없이 모든 티켓을 불러온다'
@@ -298,7 +298,7 @@ export class TicketsController {
   // getAllTickets() {
   //   return this.ticketService.findAll();
   // }
-  
+
   // @ApiOperation({ summary: '[테스트용] 임시 티켓 생성' })
   // @ApiResponse({
   //   status: 200,

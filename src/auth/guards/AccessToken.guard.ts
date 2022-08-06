@@ -21,7 +21,7 @@ export class AccessTokenGuard implements CanActivate {
     context: ExecutionContext
   ): boolean | Promise<boolean> | Observable<boolean> {
     //@NoAuth 사용시 해당 부분에서 AccessTokenGuard 사용 해제시킴
-    const noAuth = this.reflector.get<boolean>('no-auth', context.getHandler())
+    const noAuth = this.reflector.get<boolean>('no-auth', context.getHandler());
     if (noAuth) {
       return true;
     }
@@ -56,7 +56,8 @@ export class AccessTokenGuard implements CanActivate {
 
     const payload = this.authService.verifyAccessJWT(jwtString);
 
-    const user = await this.authService.findUserById(payload.id);
+    // const user = payload
+    const user = payload;
     if (!user) {
       throw new UnauthorizedException(
         AuthErrorDefine['Auth-1003'],

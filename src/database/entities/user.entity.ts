@@ -52,24 +52,24 @@ export class User {
   })
   public role: Role;
 
-  @OneToMany(type => Comment, comment => comment.user, { eager: true })
-  public comments: Comment[];
+  @OneToMany(type => Comment, comment => comment.user, { eager: false })
+  public comments: Comment[] | null;
 
   @ApiProperty({
     description: '유저의 주문목록',
     type: () => [Order]
   })
   @Expose()
-  @OneToMany(type => Order, order => order.user, { eager: true })
-  public order: Order[];
+  @OneToMany(type => Order, order => order.user, { eager: false })
+  public order: Order[] | null;
 
   @ApiProperty({
     description: '유저의 티켓목록',
     type: () => [Ticket]
   })
   @Expose()
-  @OneToMany(type => Ticket, ticket => ticket.user, { eager: true })
-  public ticket: Ticket[];
+  @OneToMany(type => Ticket, ticket => ticket.user, { eager: false })
+  public ticket: Ticket[] | null;
 
   @ApiProperty({
     description: '유저 생성 일자',
