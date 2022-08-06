@@ -39,6 +39,7 @@ import { ResponseUserTicketNumDto } from './dtos/UserTicketNum.response.dto';
 import { RequestRandomCommentDto } from './dtos/RandomComment.request.dto';
 import { ResponseRandomCommentDto } from './dtos/RandomComment.response.dto';
 import { UserFindDto } from './dtos/UserFind.dto';
+import { ResponseCommentNumDto } from './dtos/CommentNum.response.dto';
 
 @ApiTags('users')
 @ApiBearerAuth('accessToken')
@@ -153,6 +154,20 @@ export class UsersController {
     @Query() scrollOptionsDto: ScrollOptionsDto
   ) {
     return await this.userService.getAllComment(user.id, scrollOptionsDto);
+  }
+
+  // 응원 댓글 개수 조회
+  @ApiOperation({ summary: '응원 댓글 갯수 조회' })
+  @SuccessResponse(HttpStatus.OK, [
+    {
+      model: ResponseCommentNumDto,
+      exampleDescription: '응원 댓글 갯수 조회 성공시',
+      exampleTitle: '응원 댓글 갯수 조회 성공'
+    }
+  ])
+  @Get('/comment/count')
+  async getCommentNum() {
+    return await this.userService.getCommentNum();
   }
 
   // 댓글 랜덤 조회
