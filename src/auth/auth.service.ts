@@ -129,7 +129,8 @@ export class AuthService {
       const accessToken = this.accessJwtSign({
         id: user.id,
         phoneNumber: user.phoneNumber,
-        name: user.name
+        name: user.name,
+        role: user.role
       });
       //console.log(accessToken);
 
@@ -180,7 +181,8 @@ export class AuthService {
       const accessToken = this.accessJwtSign({
         id: signUser.id,
         phoneNumber: signUser.phoneNumber,
-        name: signUser.name
+        name: signUser.name,
+        role: signUser.role
       });
 
       await queryRunner.commitTransaction();
@@ -289,7 +291,8 @@ export class AuthService {
     const accessToken = this.accessJwtSign({
       id: searchUser.id,
       phoneNumber: searchUser.phoneNumber,
-      name: searchUser.name
+      name: searchUser.name,
+      role: searchUser.role
     });
     return {
       user: searchUser,
@@ -371,12 +374,13 @@ export class AuthService {
         | string
       ) &
         AccessJwtPayload;
-      const { phoneNumber, id, name } = payload;
+      const { phoneNumber, id, name, role } = payload;
 
       return {
         id,
         phoneNumber,
-        name
+        name,
+        role
       };
     } catch (e) {
       if (e.name === 'TokenExpiredError')

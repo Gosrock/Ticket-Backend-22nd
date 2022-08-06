@@ -20,6 +20,7 @@ import { CreateTicketDto } from './dtos/create-ticket.dto';
 import { TicketEntryResponseDto } from './dtos/ticket-entry-response.dto';
 import { TicketFindDto } from './dtos/ticket-find.dto';
 import { UpdateTicketStatusDto } from './dtos/update-ticket-status.dto';
+import { AccessJwtPayload } from 'src/auth/auth.interface';
 
 @Injectable()
 export class TicketsService {
@@ -42,7 +43,10 @@ export class TicketsService {
    * @param user Request User
    * @returns Ticket Promise
    */
-  async findByUuid(ticketUuid: string, user: User): Promise<Ticket | null> {
+  async findByUuid(
+    ticketUuid: string,
+    user: AccessJwtPayload
+  ): Promise<Ticket | null> {
     const ticket = await this.ticketRepository.findByUuid(ticketUuid);
 
     //어드민이거나 Ticket.user.id === user.id 일때만 리턴
@@ -124,7 +128,7 @@ export class TicketsService {
           return '입금 기한이 만료된 티켓입니다';
         } else if (status == TicketStatus.ORDERWAIT) {
           return '입금 대기중인 티켓입니다';
-        } 
+        }
         return '검증 오류';
       };
 
@@ -137,7 +141,6 @@ export class TicketsService {
 
       // 티켓 상태 오류('입장대기'가 아님)
       if (ticket.status !== TicketStatus.ENTERWAIT) {
-
         response.message = '[입장실패]' + getFailureMessage(ticket.status);
         this.socketService.emitToAll(response);
         throw new BadRequestException(getFailureMessage(ticket.status));

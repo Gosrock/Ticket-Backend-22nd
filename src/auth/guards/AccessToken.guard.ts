@@ -57,7 +57,7 @@ export class AccessTokenGuard implements CanActivate {
     const payload = this.authService.verifyAccessJWT(jwtString);
 
     // const user = payload
-    const user = await this.authService.findUserById(payload.id);
+    const user = payload;
     if (!user) {
       throw new UnauthorizedException(
         AuthErrorDefine['Auth-1003'],
