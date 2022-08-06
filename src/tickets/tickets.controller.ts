@@ -38,7 +38,6 @@ import { NoAuth } from 'src/auth/guards/NoAuth.guard';
 import { TicketCountDto } from './dtos/ticket-count.dto';
 import { ErrorResponse } from 'src/common/decorators/ErrorResponse.decorator';
 import { TicketEntryResponseDto } from './dtos/ticket-entry-response.dto';
-import { AccessJwtPayload } from 'src/auth/auth.interface';
 
 @ApiTags('tickets')
 @ApiBearerAuth('accessToken')
@@ -156,7 +155,7 @@ export class TicketsController {
   @Patch('/status')
   updateTicketStatus(
     @Body('') updateTicketStatusDto: UpdateTicketStatusDto,
-    @ReqUser() user: AccessJwtPayload
+    @ReqUser() user: User
   ) {
     return this.ticketService.updateTicketStatus(updateTicketStatusDto, user);
   }
@@ -177,7 +176,7 @@ export class TicketsController {
   getTicketByUuid(
     @Param('uuid')
     uuid: string,
-    @ReqUser() user: AccessJwtPayload
+    @ReqUser() user: User
   ) {
     //console.log(user);
     return this.ticketService.findByUuid(uuid, user);
