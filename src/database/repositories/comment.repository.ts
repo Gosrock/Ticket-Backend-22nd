@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from 'src/common/consts/enum';
-import { Repository } from 'typeorm';
+import { QueryBuilder, Repository } from 'typeorm';
 import { Comment } from '../entities/comment.entity';
 import { User } from '../entities/user.entity';
 import { RequestCommentDto } from 'src/users/dtos/Comment.request.dto';
@@ -14,6 +14,7 @@ import { CommentDto } from 'src/users/dtos/Comment.dto';
 import { UserProfileDto } from 'src/common/dtos/user-profile.dto';
 import { RequestRandomCommentDto } from 'src/users/dtos/RandomComment.request.dto';
 import { ResponseRandomCommentDto } from 'src/users/dtos/RandomComment.response.dto';
+import { ResponseCommentNumDto } from 'src/users/dtos/CommentNum.response.dto';
 
 @Injectable()
 export class CommentRepository {
@@ -76,6 +77,21 @@ export class CommentRepository {
     const scrollMetaDto = new ScrollMetaDto(checkLastId, lastPage);
 
     return new ResponseScrollCommentDto(entities, scrollMetaDto);
+  }
+
+  // 응원 댓글 갯수 조회
+  async getCommentNum() {
+    const queryBuilder = this.commentRepository.createQueryBuilder('comment');
+    
+    queryBuilder
+      .getMany();
+
+    const commentNum = await queryBuilder.getCount();
+    const ret_commentNum = {
+      commentNum
+    };
+
+    return plainToInstance(ResponseCommentNumDto, ret_commentNum);
   }
 
   // 댓글 랜덤 조회

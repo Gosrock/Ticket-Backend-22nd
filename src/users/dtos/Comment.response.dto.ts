@@ -38,5 +38,5 @@ export class ResponseCommentDto {
     } else {
       return false;
     }
-  } ;
+  };
 }
