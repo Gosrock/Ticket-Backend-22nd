@@ -11,6 +11,6 @@ export class ResponseAdminSendValidationNumberDto {
     isArray: true,
     example: 'asdf'
   })
-  @Exclude()
+  @Expose()
   validationNumber: string;
 }
