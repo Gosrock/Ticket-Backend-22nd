@@ -35,25 +35,31 @@ export class UsersService {
   async findUserById(id: number): Promise<User | null> {
     return await this.userRepository.findUserById(id);
   }
-  
+
   // 유저 정보 조회(관리자용) 전체 정보 조회
-  async getAllUserInfo(userFindDto: UserFindDto, pageOptionsDto: PageOptionsDto) {
-    const pageDto = await this.userRepository.getAllUserInfo(userFindDto, pageOptionsDto);
+  async getAllUserInfo(
+    userFindDto: UserFindDto,
+    pageOptionsDto: PageOptionsDto
+  ) {
+    const pageDto = await this.userRepository.getAllUserInfo(
+      userFindDto,
+      pageOptionsDto
+    );
     const pageMetaData = pageDto.meta;
     const users = pageDto.data;
-    const ret_users = users.map(function(user) {
+    const ret_users = users.map(function (user) {
       const userProfile = {
         id: user.id,
         name: user.name,
         phoneNumber: user.phoneNumber,
         role: user.role,
         createAt: user.createdAt,
-        ticketNum: user.ticket.length
-      }
+        ticketNum: user.ticket?.length
+      };
       return userProfile;
-    })
-    const entities = plainToInstance(ResponseUserTicketNumDto, ret_users)
-    
+    });
+    const entities = plainToInstance(ResponseUserTicketNumDto, ret_users);
+
     return new PageDto(entities, pageMetaData);
   }
 
@@ -69,28 +75,34 @@ export class UsersService {
 
   // 모든 댓글 조회
   async getAllComment(userId: number, scrollOptionsDto: ScrollOptionsDto) {
-    const responseScrollCommentDto = await this.commentRepository.getAllComment(userId, scrollOptionsDto);
+    const responseScrollCommentDto = await this.commentRepository.getAllComment(
+      userId,
+      scrollOptionsDto
+    );
     const comments = responseScrollCommentDto.list;
-    const ret_comments = comments.map(function(comment) {
+    const ret_comments = comments.map(function (comment) {
       const responseCommentDto = {
         ...comment,
         iUserId: userId
-        }
-        return responseCommentDto;
-      }
-    )
+      };
+      return responseCommentDto;
+    });
     const final_comments = plainToInstance(ResponseCommentDto, ret_comments);
-    return new ResponseScrollCommentsDto(final_comments, responseScrollCommentDto.meta);
+    return new ResponseScrollCommentsDto(
+      final_comments,
+      responseScrollCommentDto.meta
+    );
   }
 
   // 댓글 랜덤 조회
   async getRandomComment(requestRandomCommentDto: RequestRandomCommentDto) {
-    return await this.commentRepository.getRandomComment(requestRandomCommentDto);
+    return await this.commentRepository.getRandomComment(
+      requestRandomCommentDto
+    );
   }
 
   // 댓글 삭제
   async deleteComment(id: number) {
     return await this.commentRepository.deleteComment(id);
   }
-
 }

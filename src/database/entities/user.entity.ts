@@ -53,7 +53,7 @@ export class User {
   public role: Role;
 
   @OneToMany(type => Comment, comment => comment.user, { eager: false })
-  public comments: Comment[];
+  public comments: Comment[] | null;
 
   @ApiProperty({
     description: '유저의 주문목록',
@@ -61,7 +61,7 @@ export class User {
   })
   @Expose()
   @OneToMany(type => Order, order => order.user, { eager: false })
-  public order: Order[];
+  public order: Order[] | null;
 
   @ApiProperty({
     description: '유저의 티켓목록',
@@ -69,7 +69,7 @@ export class User {
   })
   @Expose()
   @OneToMany(type => Ticket, ticket => ticket.user, { eager: false })
-  public ticket: Ticket[];
+  public ticket: Ticket[] | null;
 
   @ApiProperty({
     description: '유저 생성 일자',

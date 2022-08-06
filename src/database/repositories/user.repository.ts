@@ -18,7 +18,7 @@ export class UserRepository {
   ) {}
 
   async getMyInfo(user: User) {
-    return await this.userRepository.findOne({ where : {id: user.id}});
+    return await this.userRepository.findOne({ where: { id: user.id } });
   }
 
   async findByPhoneNumber(phoneNumber: string): Promise<User | null> {
@@ -57,7 +57,7 @@ export class UserRepository {
 
   // 유저 정보 조회(관리자용) 전체 정보 조회
   async getAllUserInfo(
-    userFindDto: UserFindDto, 
+    userFindDto: UserFindDto,
     pageOptionsDto: PageOptionsDto
   ) {
     const { searchName, phoneNumber } = userFindDto;
@@ -82,18 +82,18 @@ export class UserRepository {
       .addSelect('ticket')
       .skip(pageOptionsDto.skip)
       .take(pageOptionsDto.take);
-    
+
     const itemCount = await queryBuilder.getCount();
     const { entities } = await queryBuilder.getRawAndEntities();
 
-    const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto })
-    
-    return new PageDto(entities, pageMetaDto);    
+    const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
+
+    return new PageDto(entities, pageMetaDto);
   }
 
   // 입금자명 수정
   async changeName(id: number, requestUserNameDto: RequestUserNameDto) {
-    const found = await this.userRepository.findOne({ where: {id: id}});
+    const found = await this.userRepository.findOne({ where: { id: id } });
 
     if (!found) {
       throw new NotFoundException('해당 유저가 존재하지 않습니다.');
@@ -105,5 +105,4 @@ export class UserRepository {
     await this.userRepository.save(found);
     return plainToInstance(UserProfileDto, found);
   }
-
 }
