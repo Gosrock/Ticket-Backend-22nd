@@ -40,6 +40,7 @@ import { RequestRandomCommentDto } from './dtos/RandomComment.request.dto';
 import { ResponseRandomCommentDto } from './dtos/RandomComment.response.dto';
 import { UserFindDto } from './dtos/UserFind.dto';
 import { ResponseCommentNumDto } from './dtos/CommentNum.response.dto';
+import { ResponseRandomCommentUserDto } from './dtos/RandomCommentUser.response.dto';
 
 @ApiTags('users')
 @ApiBearerAuth('accessToken')
@@ -184,6 +185,22 @@ export class UsersController {
     @Query() requestRandomCommentDto: RequestRandomCommentDto
   ) {
     return await this.userService.getRandomComment(requestRandomCommentDto);
+  }
+
+  // 댓글 랜덤 조회(유저 정보 포함)
+  @ApiOperation({ summary: '유저 정보 포함 댓글 랜덤 조회' })
+  @SuccessResponse(HttpStatus.OK, [
+    {
+      model: ResponseRandomCommentUserDto,
+      exampleDescription: '유저 정보 포함 댓글 랜덤 조회 성공 시',
+      exampleTitle: '댓글 랜덤 조회'
+    }
+  ])
+  @Get('/random/comment/userInfo')
+  async getRandomCommentUser(
+    @Query() requestRandomCommentDto: RequestRandomCommentDto
+  ) {
+    return await this.userService.getRandomCommentUser(requestRandomCommentDto);
   }
 
   // 응원 댓글 삭제(관리자용)
