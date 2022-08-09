@@ -14,7 +14,6 @@ import { ScrollOptionsDto } from './dtos/Scroll/ScrollOptions.dto';
 import { ResponseScrollCommentsDto } from './dtos/Scroll/ScrollComments.response.dto';
 import { RequestRandomCommentDto } from './dtos/RandomComment.request.dto';
 import { UserFindDto } from './dtos/UserFind.dto';
-import { ResponseCommentNumDto } from './dtos/CommentNum.response.dto';
 
 @Injectable()
 export class UsersService {
@@ -105,6 +104,11 @@ export class UsersService {
     return await this.commentRepository.getRandomComment(
       requestRandomCommentDto
     );
+  }
+
+  // 댓글 랜덤 조회(유저 정보 포함)
+  async getRandomCommentUser(requestRandomCommentDto: RequestRandomCommentDto) {
+    return await this.commentRepository.getRandomCommentUser(requestRandomCommentDto);
   }
 
   // 댓글 삭제
