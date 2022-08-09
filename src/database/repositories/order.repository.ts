@@ -63,6 +63,10 @@ export class OrderRepository {
   async findById(orderId: number): Promise<Order> {
     const order = await this.orderRepository
       .createQueryBuilder('order')
+      .leftJoin('order.user', 'user')
+      .addSelect(['user.id', 'user.name', 'user.phoneNumber', 'user.role'])
+      .leftJoin('order.admin', 'admin')
+      .addSelect(['admin.id', 'admin.name', 'admin.phoneNumber', 'admin.role'])
       .where({ id: orderId })
       .getOne();
 
@@ -157,7 +161,7 @@ export class OrderRepository {
       .where({ status: OrderStatus.DONE })
       .andWhere({ isFree: false });
 
-    let income = await queryBuilder.getRawOne();
+    const income = await queryBuilder.getRawOne();
     if (income.sum == null) {
       income.sum = 0;
     }
@@ -168,7 +172,7 @@ export class OrderRepository {
     const queryBuilderForFree =
       this.orderRepository.createQueryBuilder('order');
 
-    let freeOrder = await queryBuilderForFree
+    const freeOrder = await queryBuilderForFree
       .select('SUM(order.ticketCount)', 'freeTicketCount')
       .where({ isFree: 'true' })
       .getRawOne();

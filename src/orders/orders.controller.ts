@@ -158,9 +158,10 @@ export class OrdersController {
   @Roles(Role.Admin)
   @Patch('/:orderId/free')
   makeOrderFree(
+    @ReqUser() admin: User,
     @Param('orderId', OrderIdValidationPipe) orderId: number
   ): Promise<Order> {
-    return this.orderService.makeOrderFree(orderId);
+    return this.orderService.makeOrderFree(orderId, admin);
   }
 
   @ApiOperation({

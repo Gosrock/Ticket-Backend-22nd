@@ -168,10 +168,11 @@ export class TicketsController {
     description: '요청 성공시',
     type: Ticket
   })
-  @ApiUnauthorizedResponse({
-    status: 401,
-    description: 'AccessToken 권한이 없을 경우'
-  })
+  // @ApiUnauthorizedResponse({
+  //   status: 401,
+  //   description: 'AccessToken 권한이 없을 경우'
+  // })
+  @NoAuth()
   @Get('/:uuid')
   getTicketByUuid(
     @Param('uuid')

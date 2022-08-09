@@ -223,10 +223,11 @@ export class OrdersService {
     }
   }
 
-  async makeOrderFree(orderId: number): Promise<Order> {
+  async makeOrderFree(orderId: number, admin: User): Promise<Order> {
     // orderId로 주문 찾기
     const order = await this.orderRepository.findById(orderId);
     order.isFree = true;
+    order.admin = admin;
     await this.orderRepository.saveOrder(order);
     return order;
   }
