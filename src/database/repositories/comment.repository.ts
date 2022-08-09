@@ -15,6 +15,7 @@ import { UserProfileDto } from 'src/common/dtos/user-profile.dto';
 import { RequestRandomCommentDto } from 'src/users/dtos/RandomComment.request.dto';
 import { ResponseRandomCommentDto } from 'src/users/dtos/RandomComment.response.dto';
 import { ResponseCommentNumDto } from 'src/users/dtos/CommentNum.response.dto';
+import { ResponseRandomCommentUserDto } from 'src/users/dtos/RandomCommentUser.response.dto';
 
 @Injectable()
 export class CommentRepository {
@@ -107,6 +108,33 @@ export class CommentRepository {
     const { entities } = await queryBuilder.getRawAndEntities();
     
     return plainToInstance(ResponseRandomCommentDto, entities);
+  }
+
+  // 댓글 랜덤 조회(유저 정보 포함)
+  async getRandomCommentUser(requestRandomCommentDto: RequestRandomCommentDto) {
+    const { take } = requestRandomCommentDto;
+    const queryBuilder = this.commentRepository.createQueryBuilder('comment');
+
+    queryBuilder
+      .leftJoinAndSelect('comment.user', 'user')
+      .orderBy('RANDOM()')
+      .limit(take);
+
+    
+    const { entities } = await queryBuilder.getRawAndEntities();
+    console.log(entities);
+    const comments = entities.map(function(comment) {
+      const userInfo = plainToInstance(UserProfileDto, comment.user);
+      const ret_comment = {
+        id: comment.id,
+        content: comment.content,
+        nickName: comment.nickName,
+        createdAt: comment.createdAt,
+        userInfo,
+      }
+      return ret_comment;
+    })
+    return plainToInstance(ResponseRandomCommentUserDto, comments);
   }
 
   // 댓글 삭제
