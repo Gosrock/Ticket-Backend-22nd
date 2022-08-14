@@ -1,27 +1,12 @@
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  Get,
-  HttpStatus,
-  InternalServerErrorException,
-  Post,
-  UseGuards
-} from '@nestjs/common';
+import { Body, Controller, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
-  ApiExtraModels,
   ApiOperation,
-  ApiPropertyOptions,
   ApiResponse,
-  ApiTags,
-  getSchemaPath,
-  refs
+  ApiTags
 } from '@nestjs/swagger';
 import { RegisterUser } from 'src/common/decorators/registerUser.decorator';
-import { makeInstanceByApiProperty } from 'src/common/utils/makeInstanceByApiProperty';
-import { User } from 'src/database/entities/user.entity';
 import { RegisterJwtPayload } from './auth.interface';
 import { AuthService } from './auth.service';
 import { RequestAdminLoginDto } from './dtos/AdminLogin.request.dto';
@@ -38,7 +23,6 @@ import { ThrottlerBehindProxyGuard } from './guards/TrottlerBehindProxy.guard';
 import { FirstReigsterDto } from './dtos/FirstRegister.response.dto copy';
 import { LoginResponseDto } from './dtos/Login.response.dto';
 import { ErrorResponse } from 'src/common/decorators/ErrorResponse.decorator';
-import { ThrottlerException } from '@nestjs/throttler';
 import { SuccessResponse } from 'src/common/decorators/SuccessResponse.decorator';
 import { AuthErrorDefine } from './Errors/AuthErrorDefine';
 

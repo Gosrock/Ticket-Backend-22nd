@@ -100,12 +100,12 @@ export function makeInstanceByApiProperty<T>(
   //  mappingDto 를 만듬
   for (const property of properties) {
     const propertyType = property.type;
-    console.log(
-      'fiste',
-      propertyType,
-      property,
-      mappingDto[property.fieldName]
-    );
+    // console.log(
+    //   'fiste',
+    //   propertyType,
+    //   property,
+    //   mappingDto[property.fieldName]
+    // );
 
     // property.type apiproperty에 type 을 기술 않할 수 있으므로 undefiend 체크
     if (propertyType) {
@@ -131,12 +131,12 @@ export function makeInstanceByApiProperty<T>(
         } else {
           mappingDto[property.fieldName] = property.description;
         }
-        console.log(
-          'fiste',
-          propertyType,
-          property,
-          mappingDto[property.fieldName]
-        );
+        // console.log(
+        //   'fiste',
+        //   propertyType,
+        //   property,
+        //   mappingDto[property.fieldName]
+        // );
       } else if (propertyType === 'number') {
         // 숫자형태의 enum
         if (typeof property.example !== 'undefined') {
@@ -144,11 +144,11 @@ export function makeInstanceByApiProperty<T>(
         } else {
           mappingDto[property.fieldName] = property.description;
         }
-        console.log('fiste', propertyType, mappingDto[property.fieldName]);
+        // console.log('fiste', propertyType, mappingDto[property.fieldName]);
       } else if (isPrimitiveType(propertyType)) {
         // 원시타입 [String, Boolean, Number]
 
-        console.log('asdfasdfas', property, propertyType);
+        // console.log('asdfasdfas', property, propertyType);
         if (typeof property.example !== 'undefined') {
           mappingDto[property.fieldName] = property.example;
         } else {
@@ -159,7 +159,7 @@ export function makeInstanceByApiProperty<T>(
         // 익명함수를 실행시켜 안에 Dto 타입을 가져옵니다.
 
         const constructorType = (propertyType as Function)();
-        console.log('fiste', propertyType, property, constructorType);
+        // console.log('fiste', propertyType, property, constructorType);
 
         if (Array.isArray(constructorType)) {
           mappingDto[property.fieldName] = [

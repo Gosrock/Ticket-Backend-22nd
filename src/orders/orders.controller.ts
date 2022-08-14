@@ -7,9 +7,7 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
-  UsePipes,
-  ValidationPipe
+  UseGuards
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -38,6 +36,9 @@ import { OrderFindDto } from './dtos/order-find.dto';
 import { UpdateOrderStatusDto } from './dtos/update-order-status.dto';
 import { ReportDto } from './dtos/report.dto';
 import { SuccessResponse } from 'src/common/decorators/SuccessResponse.decorator';
+import { ThrottlerBehindProxyGuard } from 'src/auth/guards/TrottlerBehindProxy.guard';
+import { ErrorResponse } from 'src/common/decorators/ErrorResponse.decorator';
+import { AuthErrorDefine } from 'src/auth/Errors/AuthErrorDefine';
 
 @ApiTags('orders')
 @ApiBearerAuth('accessToken')
@@ -61,6 +62,8 @@ export class OrdersController {
     status: 401,
     description: 'AccessToken 권한이 없을 경우'
   })
+  @UseGuards(ThrottlerBehindProxyGuard)
+  @ErrorResponse(HttpStatus.TOO_MANY_REQUESTS, [AuthErrorDefine['Auth-9000']])
   @Post('')
   createOrder(
     @Body() requestOrderDto: RequestOrderDto,
