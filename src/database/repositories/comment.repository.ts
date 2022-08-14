@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Role } from 'src/common/consts/enum';
-import { QueryBuilder, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Comment } from '../entities/comment.entity';
 import { User } from '../entities/user.entity';
 import { RequestCommentDto } from 'src/users/dtos/Comment.request.dto';
@@ -83,9 +82,8 @@ export class CommentRepository {
   // 응원 댓글 갯수 조회
   async getCommentNum() {
     const queryBuilder = this.commentRepository.createQueryBuilder('comment');
-    
-    queryBuilder
-      .getMany();
+
+    queryBuilder.getMany();
 
     const commentNum = await queryBuilder.getCount();
     const ret_commentNum = {
@@ -100,13 +98,10 @@ export class CommentRepository {
     const { take } = requestRandomCommentDto;
     const queryBuilder = this.commentRepository.createQueryBuilder('comment');
 
-    queryBuilder
-      .orderBy('RANDOM()')
-      .limit(take);
+    queryBuilder.orderBy('RANDOM()').limit(take);
 
-    
     const { entities } = await queryBuilder.getRawAndEntities();
-    
+
     return plainToInstance(ResponseRandomCommentDto, entities);
   }
 
@@ -120,20 +115,19 @@ export class CommentRepository {
       .orderBy('RANDOM()')
       .limit(take);
 
-    
     const { entities } = await queryBuilder.getRawAndEntities();
-    console.log(entities);
-    const comments = entities.map(function(comment) {
+    // console.log(entities);
+    const comments = entities.map(function (comment) {
       const userInfo = plainToInstance(UserProfileDto, comment.user);
       const ret_comment = {
         id: comment.id,
         content: comment.content,
         nickName: comment.nickName,
         createdAt: comment.createdAt,
-        userInfo,
-      }
+        userInfo
+      };
       return ret_comment;
-    })
+    });
     return plainToInstance(ResponseRandomCommentUserDto, comments);
   }
 

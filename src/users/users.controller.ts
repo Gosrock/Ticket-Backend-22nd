@@ -5,8 +5,6 @@ import {
   Post,
   Query,
   UseGuards,
-  Patch,
-  Req,
   Delete,
   Body,
   HttpStatus
@@ -91,7 +89,7 @@ export class UsersController {
   @Roles(Role.Admin)
   @Get('/all')
   async getAllUserInfo(
-    @Query() userFindDto: UserFindDto, 
+    @Query() userFindDto: UserFindDto,
     @Query() pageOptionsDto: PageOptionsDto
   ) {
     return await this.userService.getAllUserInfo(userFindDto, pageOptionsDto);
@@ -196,6 +194,7 @@ export class UsersController {
       exampleTitle: '댓글 랜덤 조회'
     }
   ])
+  @Roles(Role.Admin)
   @Get('/random/comment/userInfo')
   async getRandomCommentUser(
     @Query() requestRandomCommentDto: RequestRandomCommentDto
