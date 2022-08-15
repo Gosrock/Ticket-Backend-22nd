@@ -39,6 +39,8 @@ import { ResponseRandomCommentDto } from './dtos/RandomComment.response.dto';
 import { UserFindDto } from './dtos/UserFind.dto';
 import { ResponseCommentNumDto } from './dtos/CommentNum.response.dto';
 import { ResponseRandomCommentUserDto } from './dtos/RandomCommentUser.response.dto';
+import { ErrorResponse } from 'src/common/decorators/ErrorResponse.decorator';
+import { AuthErrorDefine } from 'src/auth/Errors/AuthErrorDefine';
 
 @ApiTags('users')
 @ApiBearerAuth('accessToken')
@@ -53,10 +55,7 @@ export class UsersController {
     description: '요청 성공시',
     type: UserProfileDto
   })
-  @ApiUnauthorizedResponse({
-    status: 401,
-    description: 'AccessToken이 없을 경우'
-  })
+  @ErrorResponse(HttpStatus.UNAUTHORIZED, [AuthErrorDefine['Auth-1003']])
   @Get('')
   async getMyUserInfo(@ReqUser() user: User) {
     // findOneByUserId
