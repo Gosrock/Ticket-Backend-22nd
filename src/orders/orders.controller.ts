@@ -110,12 +110,15 @@ export class OrdersController {
     },
     {
       model: PageDto,
-      exampleDescription: '예시',
-      exampleTitle: '예시',
-      generic: Order
+      exampleDescription: '페이지가 중간일때',
+      exampleTitle: '페이지가 중간일때',
+      generic: Order,
+      overwriteValue: {
+        meta: { hasNextPage: true }
+      }
     }
   ])
-  @ApiPaginatedDto({ model: Order, description: '페이지네이션' })
+  // @ApiPaginatedDto({ model: Order, description: '페이지네이션' })
   @Get('/find')
   @Roles(Role.Admin)
   getOrdersWith(

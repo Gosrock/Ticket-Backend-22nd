@@ -84,7 +84,7 @@ export const SuccessResponse = (
   // 스키마를 정의 내리기 위한 함수들
   const extraModel = succesResponseOptions.map(e => {
     return e.model;
-  }) as unknown as Function[];
+  }) as unknown as Type[];
   // 중복값 제거
   const setOfExtraModel = new Set(extraModel);
   // $ref 추가
@@ -96,7 +96,7 @@ export const SuccessResponse = (
     .map(e => {
       return e.generic;
     })
-    .filter(e => e) as unknown as Function[];
+    .filter(e => e) as unknown as Type[];
   const pathsOfGeneric = extraGeneric.map(e => {
     return { $ref: getSchemaPath(e) };
   });

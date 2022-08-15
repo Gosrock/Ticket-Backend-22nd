@@ -2,9 +2,11 @@ import { Body, Controller, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiExtraModels,
   ApiOperation,
   ApiResponse,
-  ApiTags
+  ApiTags,
+  getSchemaPath
 } from '@nestjs/swagger';
 import { RegisterUser } from 'src/common/decorators/registerUser.decorator';
 import { RegisterJwtPayload } from './auth.interface';
@@ -75,14 +77,38 @@ export class AuthController {
       model: FirstReigsterDto,
       exampleDescription:
         '리턴된 registerToken을 Bearer <registerToken> 형식으로 집어넣으시면됩니다.',
-      exampleTitle: '최초 (회원가입 안한 유저일때 )'
+      exampleTitle: '최초 (회원가입 안한 유저일때 )',
+      overwriteValue: { registerToken: '요걸 값을 바꿀꺼얌' }
     },
     {
       model: LoginResponseDto,
       exampleDescription: '이미 회원가입한 유저면 accessToken을 발급합니다.',
-      exampleTitle: '이미 회원가입한 유저일때'
+      exampleTitle: '이미 회원가입한 유저일때',
+      overwriteValue: { accessToken: '요걸 값을 바꿀꺼얌ㅋㅋ' }
     }
   ])
+  // @ApiExtraModels(FirstReigsterDto, LoginResponseDto)
+  // @ApiResponse({
+  //   status: 200,
+  //   description: 'Successful response',
+  //   content: {
+  //     'application/json': {
+  //       examples: {
+  //         예시1: {
+  //           value: { example: '예시1' },
+  //           description: '예시 1의 응닶갑'
+  //         },
+  //         예시2: { value: { example: '예시2' }, description: '예시 2의 응닶갑' }
+  //       },
+  //       schema: {
+  //         oneOf: [
+  //           { $ref: getSchemaPath(FirstReigsterDto) },
+  //           { $ref: getSchemaPath(LoginResponseDto) }
+  //         ]
+  //       }
+  //     }
+  //   }
+  // })
   @ErrorResponse(HttpStatus.BAD_REQUEST, [
     AuthErrorDefine['Auth-0000'],
     AuthErrorDefine['Auth-0001']
