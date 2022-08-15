@@ -34,6 +34,9 @@ import { MessageDto } from 'src/sms/dtos/message.dto';
 import { SlackValidationNumberDMDto } from 'src/slack/dtos/SlackValidationNumberDM.dto';
 import { returnValueToDto } from 'src/common/decorators/returnValueToDto.decorator';
 import { AuthErrorDefine } from './Errors/AuthErrorDefine';
+import { plainToInstance } from 'class-transformer';
+import { LoginResponseDto } from './dtos/Login.response.dto';
+import { FirstReigsterDto } from './dtos/FirstRegister.response.dto copy';
 
 @Injectable()
 export class AuthService {
@@ -88,10 +91,10 @@ export class AuthService {
     };
   }
 
-  @returnValueToDto(BaseResponseValidateNumberDto)
+  // @returnValueToDto(BaseResponseValidateNumberDto)
   async validationPhoneNumber(
     requestValidateNumberDto: RequestValidateNumberDto
-  ): Promise<BaseResponseValidateNumberDto> {
+  ) {
     //TODO : 전화번호 인증번호 발송 로직 추가 , 이찬진 2022.07.14
     const userPhoneNumber = requestValidateNumberDto.phoneNumber;
     //유저가 이미 회원가입했는지확인한다.
@@ -116,28 +119,30 @@ export class AuthService {
     }
     // 회원가입을 한 유저가아니라면 회원가입용 토큰 발급
     if (!checkSingUpState) {
-      return {
+      return plainToInstance(FirstReigsterDto, {
         alreadySingUp: checkSingUpState,
         registerToken: this.registerJwtSign({ phoneNumber: userPhoneNumber })
-      };
+      });
     } else {
       const user = await this.userRepository.findByPhoneNumber(userPhoneNumber);
       //console.log(user);
       if (!user) {
         throw new BadRequestException('잘못된 접근', '비정상 접근입니다.');
       }
-      const accessToken = this.accessJwtSign({
+      const userProfile = {
         id: user.id,
         phoneNumber: user.phoneNumber,
         name: user.name,
         role: user.role
-      });
+      };
+      const accessToken = this.accessJwtSign(userProfile);
       //console.log(accessToken);
 
-      return {
+      return plainToInstance(LoginResponseDto, {
         accessToken,
-        alreadySingUp: checkSingUpState
-      };
+        alreadySingUp: checkSingUpState,
+        user: userProfile
+      });
     }
   }
 
@@ -397,5 +402,9 @@ export class AuthService {
 
   async findUserById(id: number): Promise<User | null> {
     return await this.userRepository.findUserById(id);
+  }
+
+  async checkUserExist(id: number): Promise<boolean> {
+    return await this.userRepository.checkUserExist(id);
   }
 }

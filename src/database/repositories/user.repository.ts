@@ -17,6 +17,10 @@ export class UserRepository {
     private userRepository: Repository<User>
   ) {}
 
+  async checkUserExist(id: number): Promise<boolean> {
+    const count = await this.userRepository.count({ where: { id: id } });
+    return count === 0 ? false : true;
+  }
   async getMyInfo(user: User) {
     return await this.userRepository.findOne({ where: { id: user.id } });
   }

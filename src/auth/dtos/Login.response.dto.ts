@@ -1,5 +1,6 @@
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
+import { UserProfileDto } from 'src/common/dtos/user-profile.dto';
 import { Order } from 'src/database/entities/order.entity';
 import { BaseResponseValidateNumberDto } from './BaseValidateNumber.response.dto';
 
@@ -15,4 +16,12 @@ export class LoginResponseDto extends PickType(BaseResponseValidateNumberDto, [
   })
   @Expose()
   alreadySingUp: boolean;
+
+  @ApiProperty({
+    description: '유저정보',
+    type: UserProfileDto
+  })
+  @Type(() => UserProfileDto)
+  @Expose()
+  user: UserProfileDto;
 }
