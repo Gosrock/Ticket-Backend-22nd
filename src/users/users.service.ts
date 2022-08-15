@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { User } from 'src/database/entities/user.entity';
 import { UserRepository } from 'src/database/repositories/user.repository';
 import { RequestUserNameDto } from './dtos/UserName.request.dto';
@@ -14,6 +14,7 @@ import { ScrollOptionsDto } from './dtos/Scroll/ScrollOptions.dto';
 import { ResponseScrollCommentsDto } from './dtos/Scroll/ScrollComments.response.dto';
 import { RequestRandomCommentDto } from './dtos/RandomComment.request.dto';
 import { UserFindDto } from './dtos/UserFind.dto';
+import { AuthErrorDefine } from 'src/auth/Errors/AuthErrorDefine';
 
 @Injectable()
 export class UsersService {
@@ -29,6 +30,12 @@ export class UsersService {
   async getMyInfo(user: User) {
     Logger.log(user);
     const myInfo = await this.userRepository.getMyInfo(user);
+    if (!myInfo) {
+      throw new UnauthorizedException(
+        AuthErrorDefine['Auth-1003'],
+        '디비에서 유저 조회시에 발생하는 오류'
+      );
+    }
     return plainToInstance(UserProfileDto, myInfo);
   }
 
@@ -108,7 +115,9 @@ export class UsersService {
 
   // 댓글 랜덤 조회(유저 정보 포함)
   async getRandomCommentUser(requestRandomCommentDto: RequestRandomCommentDto) {
-    return await this.commentRepository.getRandomCommentUser(requestRandomCommentDto);
+    return await this.commentRepository.getRandomCommentUser(
+      requestRandomCommentDto
+    );
   }
 
   // 댓글 삭제

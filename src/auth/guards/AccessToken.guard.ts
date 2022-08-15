@@ -54,13 +54,7 @@ export class AccessTokenGuard implements CanActivate {
     ]);
 
     const payload = this.authService.verifyAccessJWT(jwtString);
-    const existCheck = await this.authService.checkUserExist(payload.id);
-    if (!existCheck) {
-      throw new UnauthorizedException(
-        AuthErrorDefine['Auth-1004'],
-        '디비에서 유저 조회시에 발생하는 오류'
-      );
-    }
+
     // const user = payload
     const user = payload;
     const newObj: any = request;
