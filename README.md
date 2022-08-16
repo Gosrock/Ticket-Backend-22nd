@@ -4,7 +4,7 @@
 
 # 고스락 티켓 2.0<img src="https://user-images.githubusercontent.com/55226431/184821608-3b631082-fefa-48cf-b9d3-bf4902ddcbff.png" align=left width=100>
 
-> 22번째 정기공연 [We are GOSROCK, Invites you] • <b>프론트엔드</b> 레포지토리
+> 22번째 정기공연 [We are GOSROCK, Invites you] • <b>백엔드</b> 레포지토리
 
 <img width="100%" alt="readme" src="https://user-images.githubusercontent.com/55226431/184882909-ff460464-c1d0-4c47-abd3-9c39c0520a98.png">
 
