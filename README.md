@@ -75,34 +75,34 @@
 ## 📁 Project Structure
 
 ```shell
-.github             #도커 빌드 액션
-.husky              #깃 훅 프리티어관련
-docker-compose.yml  #로컬 개발환경 설정
+.github             # 도커 빌드 액션
+.husky              # 깃 훅 프리티어관련
+docker-compose.yml  # 로컬 개발환경 설정
 src
-├─auth              #인증 관련 모듈 
-├─common            #공통 소스 디렉토리
-│  ├─consts
-│  ├─decorators     #성공,에러 스웨거 응답 데코레이터등
-│  ├─dtos
-│  ├─errors
-│  ├─exceptions
-│  ├─funcs
-│  ├─interceptors
+├─auth              # 인증 관련 모듈 
+├─common            # 공통 소스 디렉토리
+│  ├─consts         # enum, 상수 정의
+│  ├─decorators     # 성공,에러 스웨거 응답 데코레이터등
+│  ├─dtos           # 페이지네이션,에러,성공등 공통 디티오
+│  ├─errors         # 커스텀 에러정의
+│  ├─exceptions     # exception 필터
+│  ├─funcs          
+│  ├─interceptors   # 성공응답 인터셉터
 │  ├─pipes
 │  └─utils
-├─config            #configSerivce 커스텀 모듈
-├─database          #데이타 베이스 관련 모듈
+├─config            # configSerivce 커스텀 모듈
+├─database          # 데이타 베이스 관련 모듈
 │  ├─entities
 │  ├─migrations
 │  └─repositories
-├─orders            #주문관련 모듈
-├─queue             #bull js 레디스 큐 모듈
-├─redis             #레디스 클라이언트 모듈
-├─slack             #관리자 인증, 슬랙 알림 모듈
-├─sms               #naver sms 모듈
-├─socket            #실시간 입장확인 소켓 모듈
-├─tickets           #티켓 관련 모듈
-└─users             #유저,댓글 관련 모듈
+├─orders            # 주문관련 모듈
+├─queue             # bull js 레디스 큐 모듈
+├─redis             # 레디스 클라이언트 모듈
+├─slack             # 관리자 인증, 슬랙 알림 모듈
+├─sms               # naver sms 모듈
+├─socket            # 실시간 입장확인 소켓 모듈
+├─tickets           # 티켓 관련 모듈
+└─users             # 유저,댓글 관련 모듈
 ```
 
 <br/>
