@@ -1,33 +1,46 @@
 ![Frame 34257](https://user-images.githubusercontent.com/55226431/184820864-e8573a2b-b48d-4eb9-a5f7-25ecf7192ec6.png)
 
 
-<br/>
 
 # 고스락 티켓 2.0<img src="https://user-images.githubusercontent.com/55226431/184821608-3b631082-fefa-48cf-b9d3-bf4902ddcbff.png" align=left width=100>
 
 > 22번째 정기공연 [We are GOSROCK, Invites you] • <b>백엔드</b> 레포지토리
-<br/>
-<br/>
-<br/>
 
-## 서비스 소개
+<br>
 
+<img width="100%" alt="readme" src="https://user-images.githubusercontent.com/55226431/184882909-ff460464-c1d0-4c47-abd3-9c39c0520a98.png">
 
-
-<img width="100%" alt="readme" src="https://user-images.githubusercontent.com/55226431/184920291-3959f18b-4578-4681-b476-c9a2bf7dfc48.png">
-
-<br/><br/>
-
-## 기획, 디자인
-- [Figma 링크](https://www.figma.com/file/J6HVLxWGuCFgAQUCdWBUsT/%EA%B3%A0%EC%8A%A4%EB%9D%BD-%ED%8B%B0%EC%BC%93%EC%98%88%EB%A7%A4?node-id=2026%3A6310)
-- [관련 포스팅](https://9yujin.tistory.com/56?category=1025360)
 
 <br/>
 
 
 
-## 사용 스택
+## ✨ 서비스 페이지
+
+- <b>[https://gosrock.band](https://gosrock.band)</b>
+
+<!-- ![고스락티켓 ](https://user-images.githubusercontent.com/72291860/184826170-9d436c4a-ed41-4ba1-9e6e-a806dc0fad3e.png) -->
+
+
+<div>
+<img src="https://user-images.githubusercontent.com/55226431/184898011-ab04c9e6-cc5d-4393-960b-80f00dbd3a00.gif" align='left' width="31%" >
+<img src='https://user-images.githubusercontent.com/55226431/184899062-41d422ff-19f8-4ab7-993d-abd83bccf5db.gif' width='69%'>
+</div>
+
+
 <br/>
+
+
+## 📢 기획 / 디자인
+- [Figma](https://www.figma.com/file/J6HVLxWGuCFgAQUCdWBUsT/%EA%B3%A0%EC%8A%A4%EB%9D%BD-%ED%8B%B0%EC%BC%93%EC%98%88%EB%A7%A4?node-id=2026%3A6310)
+- [Storybook](https://gosrock.github.io/Ticket-Front-22nd/?path=/story/common-inputform--%ED%9C%B4%EB%8C%80%ED%8F%B0%EB%B2%88%ED%98%B8-%EC%9E%85%EB%A0%A5)
+- [[고스락 티켓 2.0] 기획, 디자인 개편](https://9yujin.tistory.com/56?category=1025360)
+
+<br/>
+
+
+## 📚 사용 스택
+
 <div align="left">
 <div>
 <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white">
@@ -47,9 +60,11 @@
 </div>
 </div>
 
-<br/>
 
-## 백엔드 관련 포스팅
+<br/><br/>
+
+
+## 🔍 개발 과정
  - [찬진 : 두번째 고스락 티켓예매는 어떻게 달라졌을까요?](https://devnm.tistory.com/15)
  - [찬진 : 유저 role 기반 api 인가](https://devnm.tistory.com/16)
  - [찬진 : ValiationError 커스텀하기](https://devnm.tistory.com/17)
@@ -58,6 +73,7 @@
  - [찬진 : rollback repository test](https://devnm.tistory.com/20)
  - [찬진 : 같은 코드 응답 데코레이터 만들기 시리즈](https://devnm.tistory.com/21)
  - [경민 : nestjs + socket.io 사용해서 실시간 공연 입장 시스템 구현하기](https://gengminy.tistory.com/23)
+
 
 <br/>
 
@@ -101,24 +117,6 @@ src
 ├─tickets           # 티켓 관련 모듈
 └─users             # 유저,댓글 관련 모듈
 ```
-
-<br/>
-
-
-## Gosrock.band
-- [Storybook](https://gosrock.github.io/Ticket-Front-22nd/?path=/story/common-inputform--%ED%9C%B4%EB%8C%80%ED%8F%B0%EB%B2%88%ED%98%B8-%EC%9E%85%EB%A0%A5)
-- <b>[랜딩페이지](https://gosrock.band)</b>
-
-<div>
-<img src="https://user-images.githubusercontent.com/55226431/184898011-ab04c9e6-cc5d-4393-960b-80f00dbd3a00.gif" align='left' width="31%" >
-<img src='https://user-images.githubusercontent.com/55226431/184899062-41d422ff-19f8-4ab7-993d-abd83bccf5db.gif' width='69%'>
-</div>
-
-<br/>
-
-
-![고스락티켓22 drawio](https://user-images.githubusercontent.com/72291860/184826170-9d436c4a-ed41-4ba1-9e6e-a806dc0fad3e.png)
-
 
 <br/>
 
