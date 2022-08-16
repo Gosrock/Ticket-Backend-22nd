@@ -1,77 +1,108 @@
 ![Frame 34257](https://user-images.githubusercontent.com/55226431/184820864-e8573a2b-b48d-4eb9-a5f7-25ecf7192ec6.png)
 
 
+
 # 고스락 티켓 2.0<img src="https://user-images.githubusercontent.com/55226431/184821608-3b631082-fefa-48cf-b9d3-bf4902ddcbff.png" align=left width=100>
 
-> We are GOSROCK, Invites you - 백엔드 레포지토리
+> 22번째 정기공연 [We are GOSROCK, Invites you] • <b>프론트엔드</b> 레포지토리
+
+<img width="100%" alt="readme" src="https://user-images.githubusercontent.com/55226431/184882909-ff460464-c1d0-4c47-abd3-9c39c0520a98.png">
+
+<br/><br/>
+
+## Gosrock.band
+- [Storybook](https://gosrock.github.io/Ticket-Front-22nd/?path=/story/common-inputform--%ED%9C%B4%EB%8C%80%ED%8F%B0%EB%B2%88%ED%98%B8-%EC%9E%85%EB%A0%A5)
+- <b>[랜딩페이지](https://gosrock.band)</b>
+
+<div>
+<img src="https://user-images.githubusercontent.com/55226431/184898011-ab04c9e6-cc5d-4393-960b-80f00dbd3a00.gif" align='left' width="31%" >
+<img src='https://user-images.githubusercontent.com/55226431/184899062-41d422ff-19f8-4ab7-993d-abd83bccf5db.gif' width='69%'>
+</div>
 
 <br/>
 
-## 🚀 Services 
-
-1. 온라인 티켓 예매 서비스
-2. QR코드와 소켓을 통한 실시간 입장 서비스
-3. 어드민 페이지로 예매 현황 및 티켓 상태 관리
-4. 실시간 응원톡 서비스
-5. 스웨거를 통한 API 명세서 작성 자동화
+## 기획, 디자인
+- [Figma 링크](https://www.figma.com/file/J6HVLxWGuCFgAQUCdWBUsT/%EA%B3%A0%EC%8A%A4%EB%9D%BD-%ED%8B%B0%EC%BC%93%EC%98%88%EB%A7%A4?node-id=2026%3A6310)
+- [관련 포스팅](https://9yujin.tistory.com/56?category=1025360)
 
 <br/>
 
-## 🏛 Architecture Diagram
 
-사진 넣어주세요
+
+## 사용 스택
+
+<div align="left">
+<div>
+<img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white">
+ <img src="https://img.shields.io/badge/Nestjs-D91313?style=flat-square&logo=nestjs&logoColor=white">
+</div>
+<div>
+  <img src="https://img.shields.io/badge/postgres-%23316192.svg?style=flat-square&logo=postgresql&logoColor=white">
+  <img src="https://img.shields.io/badge/Redis-DC382D?style=flat-square&logo=Redis&logoColor=white">
+<img src="https://img.shields.io/badge/Socket.io-010101?style=flat-square&logo=socket.io&logoColor=white">
+</div>
+<div>
+<img src="https://img.shields.io/badge/ESlint-4B32C3?style=flat-square&logo=eslint&logoColor=white">
+<img src="https://img.shields.io/badge/Prettier-F7B93E?style=flat-square&logo=prettier&logoColor=white">
+ <img src="https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=Docker&logoColor=white">
+  <img src="https://img.shields.io/badge/Slack-4A154B?style=flat-square&logo=slack&logoColor=white">
+  
+</div>
+</div>
+
+<br/>
+
+## 백엔드 관련 포스팅
+ - [찬진 : 두번째 고스락 티켓예매는 어떻게 달라졌을까요?](https://devnm.tistory.com/15)
+ - [찬진 : 유저 role 기반 api 인가](https://devnm.tistory.com/16)
+ - [찬진 : ValiationError 커스텀하기](https://devnm.tistory.com/17)
+ - [찬진 : redis forRootAsync 모듈만들기](https://devnm.tistory.com/18)
+ - [찬진 : transaction with repository](https://devnm.tistory.com/19)
+ - [찬진 : rollback repository test](https://devnm.tistory.com/20)
+ - [찬진 : 같은 코드 응답 데코레이터 만들기 시리즈](https://devnm.tistory.com/21)
+ - [경민 : nestjs + socket.io 사용해서 실시간 공연 입장 시스템 구현하기](https://gengminy.tistory.com/23)
 
 <br/>
 
 
 ## 📝 ERD
 
-![image](https://user-images.githubusercontent.com/72291860/184824933-86d2c988-edc3-4ef3-a664-dfa912b97012.png)
+<img width="944" alt="KakaoTalk_Photo_2022-08-17-00-11-25" src="https://user-images.githubusercontent.com/13329304/184914851-f0d14bcc-9e76-4225-9a76-9458da71f7d6.png">
 
 
 <br/>
 
 ## 📁 Project Structure
 
-```
-├─auth
-│  ├─dtos
-│  ├─Errors
-│  └─guards
-├─common
+```shell
+.github             #도커 빌드 액션
+.husky              #깃 훅 프리티어관련
+docker-compose.yml  #로컬 개발환경 설정
+src
+├─auth              #인증 관련 모듈 
+├─common            #공통 소스 디렉토리
 │  ├─consts
-│  ├─decorators
+│  ├─decorators     #성공,에러 스웨거 응답 데코레이터등
 │  ├─dtos
-│  │  └─page
 │  ├─errors
 │  ├─exceptions
 │  ├─funcs
 │  ├─interceptors
 │  ├─pipes
 │  └─utils
-├─config
-├─database
+├─config            #configSerivce 커스텀 모듈
+├─database          #데이타 베이스 관련 모듈
 │  ├─entities
 │  ├─migrations
 │  └─repositories
-├─orders
-│  └─dtos
-├─queue
-├─redis
-│  ├─config
-│  └─dtos
-├─slack
-│  ├─config
-│  └─dtos
-├─sms
-│  ├─config
-│  └─dtos
-├─socket
-├─tickets
-│  └─dtos
-└─users
-    └─dtos
-        └─Scroll
+├─orders            #주문관련 모듈
+├─queue             #bull js 레디스 큐 모듈
+├─redis             #레디스 클라이언트 모듈
+├─slack             #관리자 인증, 슬랙 알림 모듈
+├─sms               #naver sms 모듈
+├─socket            #실시간 입장확인 소켓 모듈
+├─tickets           #티켓 관련 모듈
+└─users             #유저,댓글 관련 모듈
 ```
 
 <br/>
