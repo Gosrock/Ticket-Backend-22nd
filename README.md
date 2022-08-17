@@ -72,7 +72,9 @@
  - [찬진 : transaction with repository](https://devnm.tistory.com/19)
  - [찬진 : rollback repository test](https://devnm.tistory.com/20)
  - [찬진 : 같은 코드 응답 데코레이터 만들기 시리즈](https://devnm.tistory.com/21)
- - [경민 : nestjs + socket.io 사용해서 실시간 공연 입장 시스템 구현하기](https://gengminy.tistory.com/23)
+ - [경민 : Socket.io 사용해서 실시간 공연 입장 시스템 구현하기](https://gengminy.tistory.com/23)
+ - [경민 : Guard 사용중인 Controller 내부 특정 메소드에 모든 접근 허가하기 (NoAuth)](https://gengminy.tistory.com/36)
+ - [경민 : PageDto를 이용한 페이지네이션 구현하기](https://gengminy.tistory.com/37)
 
 
 <br/>
