@@ -331,7 +331,7 @@ export class AuthService {
     const secret = this.configService.get(JWTType.ACCESS);
     try {
       return jwt.sign(payload, secret, {
-        expiresIn: 60 * 60 * 24 * 3
+        expiresIn: 60 * 60 * 24 * 14
       });
     } catch (error) {
       Logger.log(error);
