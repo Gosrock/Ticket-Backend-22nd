@@ -7,7 +7,8 @@ export class ResponseRequestValidationDto {
   phoneNumber: string;
 
   @ApiProperty({ description: '테스트용 인증번호', type: String })
-  @Exclude()
+  // 테스트 서비스 인증번호
+  @Expose()
   validationNumber: string;
 
   @ApiProperty({ description: '이미 가입했는지에대한 정보', type: Boolean })
