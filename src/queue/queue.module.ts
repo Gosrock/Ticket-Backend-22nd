@@ -21,7 +21,9 @@ import { QueueService } from './queue.service';
     SmsModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        isProd: configService.get('NODE_ENV') === 'prod' ? true : false
+        // 데모 사이트를 위한 sms 모듈 fake 로설정
+        isProd: false
+        // isProd: configService.get('NODE_ENV') === 'prod' ? true : false
       }),
       inject: [ConfigService]
     }),
